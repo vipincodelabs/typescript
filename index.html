@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>TypeScript Learning Path</title>
+<style>
+:root{--bg:#0f1117;--bg-card:#1a1f2e;--bg-code:#1e2433;--border:#2d3748;--text:#e2e8f0;--text-muted:#94a3b8;--accent:#3b82f6;--accent-hover:#2563eb;--success:#10b981;--warning:#f59e0b;--error:#ef4444;--radius:8px;--header-height:56px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:15px;line-height:1.7;min-height:100vh}
+#site-header{position:sticky;top:0;height:var(--header-height);background:var(--bg-card);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 2rem;z-index:999;gap:.75rem}
+#site-header h1{font-size:1rem;font-weight:700;letter-spacing:.01em}
+#site-header .tag{font-size:.72rem;padding:.18rem .55rem;border-radius:12px;background:rgba(59,130,246,.15);color:var(--accent);font-weight:600;letter-spacing:.04em}
+main{max-width:960px;margin:0 auto;padding:3rem 2rem}
+.hero{text-align:center;margin-bottom:3.5rem}
+.hero h2{font-size:2rem;font-weight:800;margin-bottom:.75rem;background:linear-gradient(135deg,#e2e8f0 30%,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:var(--text-muted);font-size:1rem;max-width:520px;margin:0 auto}
+.phases{display:flex;flex-direction:column;gap:2rem}
+.phase-block{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.phase-header{display:flex;align-items:center;gap:1rem;padding:1.1rem 1.5rem;border-bottom:1px solid var(--border);background:rgba(0,0,0,.15)}
+.phase-number{width:36px;height:36px;border-radius:50%;background:rgba(59,130,246,.15);border:1.5px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;color:var(--accent);flex-shrink:0}
+.phase-title{font-size:1.05rem;font-weight:700}
+.phase-meta{margin-left:auto;font-size:.78rem;color:var(--text-muted)}
+.modules{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.75rem;padding:1.25rem 1.5rem}
+.module-card{display:flex;flex-direction:column;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.1rem;text-decoration:none;color:var(--text);transition:border-color .15s,transform .1s}
+.module-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.module-card:hover .module-arrow{color:var(--accent)}
+.module-num{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:.4rem}
+.module-name{font-size:.9rem;font-weight:600;flex:1;margin-bottom:.6rem}
+.module-footer{display:flex;align-items:center;justify-content:space-between}
+.module-arrow{font-size:.85rem;color:var(--border);transition:color .15s}
+.status-badge{font-size:.65rem;font-weight:700;padding:.12rem .45rem;border-radius:10px;text-transform:uppercase;letter-spacing:.04em}
+.status-badge.done{background:rgba(16,185,129,.12);color:var(--success)}
+.status-badge.pending{background:rgba(148,163,184,.08);color:var(--text-muted)}
+.coming-soon{display:flex;align-items:center;gap:.6rem;padding:1rem 1.5rem;color:var(--text-muted);font-size:.82rem;border-top:1px dashed var(--border)}
+.coming-soon svg{flex-shrink:0;opacity:.5}
+footer{text-align:center;padding:2.5rem 1rem;color:var(--text-muted);font-size:.8rem;border-top:1px solid var(--border);margin-top:3.5rem}
+footer a{color:var(--accent);text-decoration:none}
+</style>
+</head>
+<body>
+
+<header id="site-header">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+  <h1>TypeScript Learning Path</h1>
+  <span class="tag">8 Phases</span>
+</header>
+
+<main>
+  <div class="hero">
+    <h2>Master TypeScript</h2>
+    <p>A structured learning path for full-stack developers — from foundations to expert-level patterns with React, Next.js, Express, and Drizzle ORM.</p>
+  </div>
+
+  <div class="phases">
+
+    <!-- Phase 1 -->
+    <div class="phase-block">
+      <div class="phase-header">
+        <div class="phase-number">1</div>
+        <div>
+          <div class="phase-title">TypeScript Foundations</div>
+        </div>
+        <div class="phase-meta">5 modules</div>
+      </div>
+      <div class="modules">
+        <a class="module-card" href="phase-1/module-1.html">
+          <div class="module-num">Module 1</div>
+          <div class="module-name">Introduction to TypeScript</div>
+          <div class="module-footer">
+            <span class="status-badge done">Available</span>
+            <span class="module-arrow">→</span>
+          </div>
+        </a>
+        <a class="module-card" href="phase-1/module-2.html">
+          <div class="module-num">Module 2</div>
+          <div class="module-name">Basic Types</div>
+          <div class="module-footer">
+            <span class="status-badge done">Available</span>
+            <span class="module-arrow">→</span>
+          </div>
+        </a>
+        <a class="module-card" href="phase-1/module-3.html">
+          <div class="module-num">Module 3</div>
+          <div class="module-name">Arrays and Tuples</div>
+          <div class="module-footer">
+            <span class="status-badge done">Available</span>
+            <span class="module-arrow">→</span>
+          </div>
+        </a>
+        <a class="module-card" href="phase-1/module-4.html">
+          <div class="module-num">Module 4</div>
+          <div class="module-name">Objects and Type Aliases</div>
+          <div class="module-footer">
+            <span class="status-badge done">Available</span>
+            <span class="module-arrow">→</span>
+          </div>
+        </a>
+        <a class="module-card" href="phase-1/module-5.html">
+          <div class="module-num">Module 5</div>
+          <div class="module-name">Functions</div>
+          <div class="module-footer">
+            <span class="status-badge done">Available</span>
+            <span class="module-arrow">→</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Phase 2 -->
+    <div class="phase-block">
+      <div class="phase-header">
+        <div class="phase-number">2</div>
+        <div>
+          <div class="phase-title">Intermediate TypeScript</div>
+        </div>
+        <div class="phase-meta">5 modules</div>
+      </div>
+      <div class="modules">
+        <a class="module-card" href="phase-2/module-1.html">
+          <div class="module-num">Module 1</div>
+          <div class="module-name">Interfaces</div>
+          <div class="module-footer">
+            <span class="status-badge done">Available</span>
+            <span class="module-arrow">→</span>
+          </div>
+        </a>
+        <a class="module-card" href="phase-2/module-2.html">
+          <div class="module-num">Module 2</div>
+          <div class="module-name">Advanced Object Typing</div>
+          <div class="module-footer">
+            <span class="status-badge done">Available</span>
+            <span class="module-arrow">→</span>
+          </div>
+        </a>
+        <a class="module-card" href="phase-2/module-3.html">
+          <div class="module-num">Module 3</div>
+          <div class="module-name">Enums</div>
+          <div class="module-footer">
+            <span class="status-badge done">Available</span>
+            <span class="module-arrow">→</span>
+          </div>
+        </a>
+        <a class="module-card" href="phase-2/module-4.html">
+          <div class="module-num">Module 4</div>
+          <div class="module-name">Generics Fundamentals</div>
+          <div class="module-footer">
+            <span class="status-badge done">Available</span>
+            <span class="module-arrow">→</span>
+          </div>
+        </a>
+        <div class="module-card" style="opacity:.45;pointer-events:none;cursor:default">
+          <div class="module-num">Module 5</div>
+          <div class="module-name">Generics Deep Dive</div>
+          <div class="module-footer">
+            <span class="status-badge pending">Coming soon</span>
+          </div>
+        </div>
+      </div>
+      <div class="coming-soon">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Module 5 (Generics Deep Dive) not yet generated — run <code style="background:var(--bg-code);padding:.1rem .35rem;border-radius:4px;font-size:.8rem">/create-typescript-doc Phase 2</code> to build it.
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  TypeScript Learning Path &mdash; Phases 3–8 coming as modules are generated.
+</footer>
+
+</body>
+</html>
