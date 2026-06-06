@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phase 1 — Module 3: Arrays &amp; Tuples | TypeScript Learning Path</title>
+  <style>
+    :root {
+      --bg:#0f1117; --bg-card:#1a1f2e; --bg-code:#1e2433;
+      --border:#2d3748; --text:#e2e8f0; --text-muted:#94a3b8;
+      --accent:#3b82f6; --accent-hover:#2563eb;
+      --success:#10b981; --warning:#f59e0b; --error:#ef4444;
+      --sidebar-width:260px; --header-height:56px; --radius:8px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;line-height:1.7}
+    #progress-bar{position:fixed;top:0;left:0;height:3px;width:0%;background:var(--accent);z-index:1000;transition:width .1s}
+    #site-header{position:fixed;top:3px;left:0;right:0;height:var(--header-height);background:var(--bg-card);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;z-index:100;gap:16px}
+    #site-header a{color:var(--text-muted);text-decoration:none;font-size:13px;transition:color .15s}
+    #site-header a:hover{color:var(--text)}
+    #site-header h1{font-size:17px;font-weight:600}
+    #layout{display:flex;padding-top:calc(var(--header-height) + 3px);min-height:100vh}
+    #sidebar{width:var(--sidebar-width);flex-shrink:0;position:fixed;top:calc(var(--header-height)+3px);left:0;bottom:0;overflow-y:auto;background:var(--bg-card);border-right:1px solid var(--border);padding:20px 16px}
+    #topicSearch{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:var(--radius);font-size:13px;margin-bottom:16px;outline:none}
+    #topicSearch:focus{border-color:var(--accent)}
+    #module-nav{list-style:none}
+    #module-nav .nav-section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);padding:8px 8px 4px}
+    #module-nav li a{display:block;padding:6px 12px;color:var(--text-muted);text-decoration:none;border-radius:6px;font-size:13px;transition:all .15s}
+    #module-nav li a:hover,#module-nav li a.active{background:rgba(59,130,246,.1);color:var(--accent)}
+    #content{flex:1;margin-left:var(--sidebar-width);padding:32px 40px;max-width:1060px}
+    .module{margin-bottom:48px}
+    .module-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .module-header label{display:flex;align-items:center;gap:12px;cursor:pointer}
+    .module-check{width:18px;height:18px;cursor:pointer;accent-color:var(--success)}
+    .module-header h2{font-size:24px;font-weight:700}
+    .module.completed .module-header h2{text-decoration:line-through;color:var(--text-muted)}
+    .completed-badge{display:none;background:var(--success);color:#fff;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600}
+    .module.completed .completed-badge{display:inline-block}
+    .module-intro{color:var(--text-muted);margin-bottom:20px;font-size:15px;line-height:1.75}
+    .topics-table{width:100%;border-collapse:collapse;margin-bottom:24px;font-size:14px}
+    .topics-table th{text-align:left;padding:10px 14px;background:var(--bg-card);color:var(--text-muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border)}
+    .topics-table td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+    .topics-table tr:last-child td{border-bottom:none}
+    .topics-table tr:hover td{background:rgba(255,255,255,.02)}
+    .badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600}
+    .badge.beginner{background:rgba(16,185,129,.15);color:var(--success)}
+    .badge.intermediate{background:rgba(245,158,11,.15);color:var(--warning)}
+    .badge.advanced{background:rgba(239,68,68,.15);color:var(--error)}
+    .topic-panel{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;overflow:hidden}
+    .topic-panel summary{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;list-style:none;user-select:none;gap:12px}
+    .topic-panel summary::-webkit-details-marker{display:none}
+    .topic-panel summary:hover{background:rgba(255,255,255,.03)}
+    .summary-left{display:flex;align-items:center;gap:10px}
+    .chevron{width:18px;height:18px;transition:transform .2s;color:var(--text-muted);flex-shrink:0}
+    .topic-panel[open] .chevron{transform:rotate(90deg)}
+    .topic-name{font-size:15px;font-weight:600}
+    .panel-inner{border-top:1px solid var(--border)}
+    .panel-tabs{display:flex;flex-wrap:wrap;gap:4px;padding:12px 18px;border-bottom:1px solid var(--border);background:rgba(0,0,0,.2)}
+    .tab{background:none;border:1px solid var(--border);color:var(--text-muted);padding:4px 10px;border-radius:20px;font-size:11px;cursor:pointer;transition:all .15s;white-space:nowrap}
+    .tab:hover{border-color:var(--accent);color:var(--accent)}
+    .tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+    .panel-content{padding:20px 22px}
+    .tab-pane{display:none}
+    .tab-pane.active{display:block}
+    .tab-pane h4{font-size:13px;font-weight:700;color:var(--accent);margin:16px 0 8px;text-transform:uppercase;letter-spacing:.05em}
+    .tab-pane h4:first-child{margin-top:0}
+    .tab-pane p{margin-bottom:12px;line-height:1.75}
+    .tab-pane ul,.tab-pane ol{padding-left:20px;margin-bottom:12px}
+    .tab-pane li{margin-bottom:6px;line-height:1.65}
+    .simple-def{background:rgba(59,130,246,.08);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 var(--radius) var(--radius) 0;margin-bottom:12px}
+    .technical-def{background:rgba(255,255,255,.03);border-left:3px solid var(--border);padding:12px 16px;border-radius:0 var(--radius) var(--radius) 0;margin-bottom:12px}
+    .code-block{background:var(--bg-code);border:1px solid var(--border);border-radius:var(--radius);margin:12px 0;overflow:hidden}
+    .code-header{display:flex;justify-content:space-between;align-items:center;padding:6px 14px;border-bottom:1px solid var(--border);background:rgba(0,0,0,.2)}
+    .code-lang{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+    .copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:2px 10px;border-radius:4px;font-size:11px;cursor:pointer;transition:all .15s}
+    .copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .copy-btn.copied{border-color:var(--success);color:var(--success)}
+    .code-block pre{padding:14px 18px;overflow-x:auto;margin:0}
+    .code-block code{font-family:'Fira Code','Cascadia Code','Consolas',monospace;font-size:13px;line-height:1.65;white-space:pre}
+    .kw{color:#60a5fa}.tp{color:#67e8f9}.str{color:#86efac}.num{color:#fdba74}.cmt{color:#6b7280;font-style:italic}
+    .mistake-block{margin-bottom:20px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+    .mlabel{padding:7px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+    .mlabel.bad{background:rgba(239,68,68,.12);color:var(--error)}
+    .mlabel.good{background:rgba(16,185,129,.12);color:var(--success)}
+    .mlabel.note{background:rgba(0,0,0,.2);color:var(--text-muted);font-weight:400;text-transform:none;letter-spacing:0;font-size:13px}
+    .qa-block{margin-bottom:14px;padding:14px 16px;background:rgba(0,0,0,.2);border-radius:var(--radius);border:1px solid var(--border)}
+    .qa-q{font-weight:600;margin-bottom:8px}
+    .qa-a{color:var(--text-muted);font-size:14px;line-height:1.7}
+    .dtag{display:inline-block;font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;margin-right:6px;text-transform:uppercase}
+    .dtag.easy{background:rgba(16,185,129,.2);color:var(--success)}
+    .dtag.medium{background:rgba(245,158,11,.2);color:var(--warning)}
+    .dtag.hard{background:rgba(239,68,68,.2);color:var(--error)}
+    .exercise-block{background:rgba(59,130,246,.05);border:1px solid rgba(59,130,246,.2);border-radius:var(--radius);padding:18px 20px}
+    .summary-list{list-style:none;padding:0}
+    .summary-list li{padding:8px 0 8px 22px;position:relative;border-bottom:1px solid var(--border);font-size:14px}
+    .summary-list li:last-child{border-bottom:none}
+    .summary-list li::before{content:'→';position:absolute;left:0;color:var(--accent)}
+    .mental-model{margin-top:16px;padding:12px 16px;background:rgba(59,130,246,.08);border-left:3px solid var(--accent);border-radius:0 var(--radius) var(--radius) 0;font-style:italic;color:var(--text-muted)}
+    .mini-project{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:24px 28px;margin-top:24px}
+    .mini-project h3{font-size:18px;color:var(--warning);margin-bottom:16px}
+    .mini-project h4{font-size:13px;font-weight:700;color:var(--accent);margin:16px 0 8px;text-transform:uppercase;letter-spacing:.05em}
+    .mini-project p,.mini-project li{color:var(--text-muted);line-height:1.7}
+    .mini-project ul,.mini-project ol{padding-left:20px;margin-bottom:12px}
+    .stretch{background:rgba(245,158,11,.06);border:1px dashed rgba(245,158,11,.3);border-radius:var(--radius);padding:12px 16px;margin-top:12px}
+    #back-to-top{position:fixed;bottom:24px;right:24px;background:var(--accent);color:#fff;border:none;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:200;transition:background .15s}
+    #back-to-top:hover{background:var(--accent-hover)}
+    #back-to-top.visible{display:flex}
+    ::-webkit-scrollbar{width:6px;height:6px}
+    ::-webkit-scrollbar-track{background:var(--bg)}
+    ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+    ::-webkit-scrollbar-thumb:hover{background:var(--text-muted)}
+    @media(max-width:768px){#sidebar{display:none}#content{margin-left:0;padding:20px 16px}}
+    code{font-family:'Fira Code','Cascadia Code','Consolas',monospace;font-size:13px;background:var(--bg-code);padding:1px 5px;border-radius:3px}
+    .panel-content code{font-size:13px}
+  </style>
+</head>
+<body>
+<div id="progress-bar"></div>
+
+<header id="site-header">
+  <a href="../phase-1.html">&#8592; Phase 1</a>
+  <h1>Module 3 &mdash; Arrays &amp; Tuples</h1>
+</header>
+
+<div id="layout">
+  <nav id="sidebar">
+    <input type="text" id="topicSearch" placeholder="Search topics&hellip;" autocomplete="off" />
+    <ul id="module-nav">
+      <li><span class="nav-section-title">Topics</span></li>
+      <li><a href="#topic-arrays">Arrays</a></li>
+      <li><a href="#topic-readonly">Readonly Arrays</a></li>
+      <li><a href="#topic-tuples">Tuples</a></li>
+      <li><a href="#topic-nested">Nested Arrays</a></li>
+      <li><a href="#mini-project">&#9733; Mini-Project</a></li>
+    </ul>
+  </nav>
+
+  <main id="content">
+    <section id="module-3" class="module">
+      <div class="module-header">
+        <label>
+          <input type="checkbox" class="module-check" data-id="module-3" />
+          <h2>Module 3: Arrays and Tuples</h2>
+        </label>
+        <span class="completed-badge">&#10003; Done</span>
+      </div>
+      <p class="module-intro">
+        Arrays and tuples are TypeScript&rsquo;s primary tools for typed collections. Arrays give you a flexible,
+        homogeneous list where every item is the same type. Tuples give you a fixed-length list where each
+        position has its own type &mdash; perfect for returning multiple values from a function. After this module
+        you&rsquo;ll write type-safe collections, prevent accidental mutation with readonly, model structured data
+        with tuples, and represent grids and matrices with nested arrays.
+      </p>
+
+      <table class="topics-table">
+        <thead>
+          <tr><th>Topic</th><th>What You&rsquo;ll Learn</th><th>Difficulty</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Arrays</strong></td><td>T[] vs Array&lt;T&gt;, typed operations, common patterns</td><td><span class="badge beginner">Beginner</span></td></tr>
+          <tr><td><strong>Readonly Arrays</strong></td><td>Immutable array types, ReadonlyArray&lt;T&gt;, as const</td><td><span class="badge beginner">Beginner</span></td></tr>
+          <tr><td><strong>Tuples</strong></td><td>Fixed-length typed arrays, named tuples, positional typing</td><td><span class="badge intermediate">Intermediate</span></td></tr>
+          <tr><td><strong>Nested Arrays</strong></td><td>2D arrays, matrix types, arrays of tuples</td><td><span class="badge intermediate">Intermediate</span></td></tr>
+        </tbody>
+      </table>
+
+      <!-- ═══════════════════════ TOPIC 1: ARRAYS ═══════════════════════ -->
+      <div class="topic-panels">
+
+        <details class="topic-panel" id="topic-arrays">
+          <summary>
+            <div class="summary-left">
+              <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+              <span class="topic-name">Arrays</span>
+            </div>
+            <span class="badge beginner">Beginner</span>
+          </summary>
+          <div class="panel-inner">
+            <div class="panel-tabs">
+              <button class="tab active" data-tab="a-def">Definition</button>
+              <button class="tab" data-tab="a-why">Why It Exists</button>
+              <button class="tab" data-tab="a-when">When to Use</button>
+              <button class="tab" data-tab="a-whennot">When NOT</button>
+              <button class="tab" data-tab="a-internals">Internals</button>
+              <button class="tab" data-tab="a-syntax">Syntax</button>
+              <button class="tab" data-tab="a-example">Example</button>
+              <button class="tab" data-tab="a-rw">Real-World</button>
+              <button class="tab" data-tab="a-usecases">Use Cases</button>
+              <button class="tab" data-tab="a-mistakes">Mistakes</button>
+              <button class="tab" data-tab="a-bp">Best Practices</button>
+              <button class="tab" data-tab="a-iq">Interview Qs</button>
+              <button class="tab" data-tab="a-ex">Exercise</button>
+              <button class="tab" data-tab="a-sum">Summary</button>
+            </div>
+            <div class="panel-content">
+
+              <div class="tab-pane active" data-pane="a-def">
+                <div class="simple-def"><strong>Simple:</strong> An array in TypeScript is an ordered list where every item must be the same type. Think of it as a typed version of a JavaScript array &mdash; you declare upfront what kind of items live in the list, and TypeScript enforces it.</div>
+                <div class="technical-def"><strong>Technical:</strong> TypeScript arrays are parameterized over an element type <code>T</code>, written as <code>T[]</code> or <code>Array&lt;T&gt;</code>. The compiler validates every push, assignment, and indexed access against the declared element type. At runtime all type annotations are erased &mdash; typed arrays are plain JavaScript arrays.</div>
+              </div>
+
+              <div class="tab-pane" data-pane="a-why">
+                <p>Plain JavaScript arrays accept anything &mdash; you can push a string into a number array and nothing complains until your code breaks at runtime:</p>
+                <div class="code-block"><div class="code-header"><span class="code-lang">javascript &mdash; silent bug</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">const scores = [85, 92, 78];
+scores.push("oops");                        // no error!
+const total = scores.reduce((a,b) => a+b, 0);
+console.log(total); // "85920oops" — NaN catastrophe</code></pre></div>
+                <p>TypeScript catches the mistake at compile time, before the code runs:</p>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript &mdash; caught immediately</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">const scores: number[] = [85, 92, 78];
+scores.push("oops");
+// Error: Argument of type 'string' is not assignable
+//        to parameter of type 'number'</code></pre></div>
+                <p>This matters most in large codebases where array results flow between many functions &mdash; TypeScript guarantees the shape is correct all the way through the call chain.</p>
+              </div>
+
+              <div class="tab-pane" data-pane="a-when">
+                <ul>
+                  <li><strong>Homogeneous lists</strong> &mdash; any time all items share the same type: <code>User[]</code>, <code>string[]</code>, <code>number[]</code>.</li>
+                  <li><strong>API responses</strong> &mdash; type <code>GET /users</code> as returning <code>User[]</code> so every consumer is type-safe.</li>
+                  <li><strong>React props</strong> &mdash; <code>items: Product[]</code> gives type-checked <code>.map()</code> calls in JSX.</li>
+                  <li><strong>Queue / stack operations</strong> &mdash; push, pop, shift, unshift are all type-checked.</li>
+                  <li><strong>Sorted or paginated results</strong> &mdash; any ordered collection of uniform data.</li>
+                </ul>
+              </div>
+
+              <div class="tab-pane" data-pane="a-whennot">
+                <ul>
+                  <li><strong>Fixed-length, mixed-type sequences</strong> &mdash; use a Tuple instead. <code>[string, number]</code> is clearer than <code>(string | number)[]</code> when position matters.</li>
+                  <li><strong>Named key-value collections</strong> &mdash; use an object, <code>Record&lt;K, V&gt;</code>, or <code>Map&lt;K, T&gt;</code> when you access items by key.</li>
+                  <li><strong>Unique-item sets</strong> &mdash; use <code>Set&lt;T&gt;</code> when duplicates are meaningless and you only need has/add/delete.</li>
+                  <li><strong>When you write <code>any[]</code></strong> &mdash; this disables all element-level type checking. Use a specific type, union, or generic instead.</li>
+                </ul>
+              </div>
+
+              <div class="tab-pane" data-pane="a-internals">
+                <p>TypeScript&rsquo;s array types are <strong>compile-time only</strong>. The compiler:</p>
+                <ol>
+                  <li><strong>Infers</strong> the type from the literal: <code>[1, 2, 3]</code> &rarr; <code>number[]</code>.</li>
+                  <li><strong>Checks assignments</strong>: every <code>=</code> validates the right-hand side matches <code>T[]</code>.</li>
+                  <li><strong>Checks mutating calls</strong>: <code>.push()</code> requires a <code>T</code> argument; <code>.splice()</code> returns <code>T[]</code>.</li>
+                  <li><strong>Types return values</strong>: <code>.find()</code> returns <code>T | undefined</code>; <code>.map(cb)</code> infers the return type from <code>cb</code>.</li>
+                  <li><strong>Erases everything</strong> at compile time &mdash; zero runtime overhead.</li>
+                </ol>
+                <div class="code-block"><div class="code-header"><span class="code-lang">before compilation</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">const names: string[] = ["Alice", "Bob"];
+names.push("Carol");</code></pre></div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">after compilation (plain JS)</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">const names = ["Alice", "Bob"];
+names.push("Carol");</code></pre></div>
+              </div>
+
+              <div class="tab-pane" data-pane="a-syntax">
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">// 1. Shorthand T[] — preferred for simple types
+let names: string[] = ["Alice", "Bob", "Carol"];
+//          ^^^^^^^^  array-of-strings annotation
+
+// 2. Generic Array&lt;T&gt; — identical to T[]
+let scores: Array&lt;number&gt; = [85, 92, 78];
+
+// 3. Type inferred from literal
+const flags = [true, false, true]; // inferred: boolean[]
+
+// 4. Empty array MUST be annotated — bare [] infers never[]
+const items: string[] = [];
+//           ^^^^^^^^  without this, .push("x") errors!
+
+// 5. Array of interfaces / type aliases
+interface User { id: number; name: string; }
+const users: User[] = [{ id: 1, name: "Alice" }];
+
+// 6. Union-element array (use sparingly — prefer Tuple for positional data)
+const mixed: (string | number)[] = ["Alice", 30];</code></pre></div>
+                <p><code>T[]</code> and <code>Array&lt;T&gt;</code> are 100% identical. Use <code>T[]</code> for readability with simple types. Use <code>Array&lt;T&gt;</code> when <code>T</code> itself contains <code>&lt;&gt;</code> (e.g., <code>Array&lt;Map&lt;string, number&gt;&gt;</code>) to avoid nested angle-bracket confusion.</p>
+              </div>
+
+              <div class="tab-pane" data-pane="a-example">
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">// Grade statistics — demonstrates typed array operations
+function analyzeGrades(grades: number[]): {
+  average: number;
+  highest: number;
+  lowest: number;
+  passing: number[];
+} {
+  if (grades.length === 0) {
+    return { average: 0, highest: 0, lowest: 0, passing: [] };
+  }
+  const sum = grades.reduce((acc, g) => acc + g, 0);
+  return {
+    average: Math.round((sum / grades.length) * 10) / 10,
+    highest: Math.max(...grades),
+    lowest:  Math.min(...grades),
+    passing: grades.filter(g => g >= 60), // still number[]
+  };
+}
+
+const classGrades: number[] = [78, 92, 55, 88, 67, 95, 43, 71];
+const stats = analyzeGrades(classGrades);
+
+console.log(stats.average);        // 73.6
+console.log(stats.highest);        // 95
+console.log(stats.lowest);         // 43
+console.log(stats.passing.length); // 6
+
+// TypeScript catches this at compile time:
+// analyzeGrades(["Alice", "Bob"]);
+// Error: Argument of type 'string[]' is not assignable to 'number[]'</code></pre></div>
+              </div>
+
+              <div class="tab-pane" data-pane="a-rw">
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript &mdash; REST API service layer</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">interface Product {
+  id: number;
+  name: string;
+  price: number;
+  category: string;
+  inStock: boolean;
+}
+
+interface PaginatedResult&lt;T&gt; {
+  data: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+const productDb: Product[] = [
+  { id: 1, name: "TypeScript Pro",    price: 49.99, category: "books",    inStock: true  },
+  { id: 2, name: "React Mastery",     price: 39.99, category: "books",    inStock: true  },
+  { id: 3, name: "Node.js Guide",     price: 29.99, category: "books",    inStock: false },
+  { id: 4, name: "Ergonomic Keyboard",price: 149,   category: "hardware", inStock: true  },
+];
+
+function getProductsByCategory(
+  category: string,
+  page = 1,
+  pageSize = 10
+): PaginatedResult&lt;Product&gt; {
+  const filtered = productDb.filter(p => p.category === category);
+  const start = (page - 1) * pageSize;
+  return {
+    data: filtered.slice(start, start + pageSize),
+    total: filtered.length,
+    page,
+    pageSize,
+  };
+}
+
+const result = getProductsByCategory("books");
+result.data.forEach(p => console.log(`${p.name}: $${p.price}`));
+// TypeScript Pro: $49.99
+// React Mastery: $39.99
+// Node.js Guide: $29.99</code></pre></div>
+              </div>
+
+              <div class="tab-pane" data-pane="a-usecases">
+                <ul>
+                  <li><strong>React list rendering</strong> &mdash; <code>items: CartItem[]</code> prop ensures every item has the required fields before the component renders.</li>
+                  <li><strong>Redux / Zustand state</strong> &mdash; <code>notifications: Notification[]</code> in state slices prevents storing wrong-shaped objects.</li>
+                  <li><strong>API response parsing</strong> &mdash; typing <code>fetch('/api/users')</code> result as <code>User[]</code> makes all downstream code safe.</li>
+                  <li><strong>Dynamic form fields</strong> &mdash; <code>fields: FormField[]</code> guarantees every field has <code>name</code>, <code>label</code>, and <code>type</code>.</li>
+                  <li><strong>Chart data</strong> &mdash; <code>dataPoints: ChartPoint[]</code> ensures every point has <code>x</code> and <code>y</code> before rendering.</li>
+                  <li><strong>Batch database inserts</strong> &mdash; <code>db.insert(rows: NewUser[])</code> with Drizzle ORM &mdash; the ORM verifies the array matches the schema.</li>
+                </ul>
+              </div>
+
+              <div class="tab-pane" data-pane="a-mistakes">
+                <div class="mistake-block">
+                  <div class="mlabel bad">&#10060; Mistake 1 &mdash; Using any[] instead of a specific type</div>
+                  <div class="code-block" style="border:none;border-radius:0"><div class="code-header"><span class="code-lang">bad</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">function processUsers(users: any[]) {
+  users.forEach(u => console.log(u.nme)); // typo — no error!
+}</code></pre></div>
+                  <div class="code-block" style="border:none;border-radius:0"><div class="code-header"><span class="code-lang">good</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">function processUsers(users: User[]) {
+  users.forEach(u => console.log(u.name)); // typo caught immediately
+}</code></pre></div>
+                  <div class="mlabel note">any[] silences all property-access checks on elements — you lose the entire benefit of TypeScript for that array.</div>
+                </div>
+                <div class="mistake-block">
+                  <div class="mlabel bad">&#10060; Mistake 2 &mdash; Not annotating empty arrays</div>
+                  <div class="code-block" style="border:none;border-radius:0"><div class="code-header"><span class="code-lang">bad</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">const items = [];      // inferred as never[]
+items.push("hello");   // Error: 'string' not assignable to 'never'</code></pre></div>
+                  <div class="code-block" style="border:none;border-radius:0"><div class="code-header"><span class="code-lang">good</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">const items: string[] = [];
+items.push("hello");   // OK</code></pre></div>
+                  <div class="mlabel note">TypeScript infers never[] for a bare [] literal — nothing can ever be pushed. Always annotate empty arrays.</div>
+                </div>
+                <div class="mistake-block">
+                  <div class="mlabel bad">&#10060; Mistake 3 &mdash; Mutating a caller&rsquo;s array with splice</div>
+                  <div class="code-block" style="border:none;border-radius:0"><div class="code-header"><span class="code-lang">bad</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">function topThree(arr: number[]): number[] {
+  return arr.splice(0, 3); // mutates the original!
+}</code></pre></div>
+                  <div class="code-block" style="border:none;border-radius:0"><div class="code-header"><span class="code-lang">good</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">function topThree(arr: readonly number[]): number[] {
+  return arr.slice(0, 3); // creates a new array
+}</code></pre></div>
+                  <div class="mlabel note">Use readonly on parameters to prevent accidental mutation; prefer non-mutating methods (slice, filter, map) that return new arrays.</div>
+                </div>
+              </div>
+
+              <div class="tab-pane" data-pane="a-bp">
+                <ol>
+                  <li style="margin-bottom:10px"><strong>Prefer <code>T[]</code> over <code>Array&lt;T&gt;</code></strong> for simple types — it's more concise and idiomatic. Use <code>Array&lt;T&gt;</code> only when <code>T</code> itself contains angle brackets.</li>
+                  <li style="margin-bottom:10px"><strong>Always annotate empty arrays</strong> — <code>const items: string[] = []</code>. TypeScript infers <code>never[]</code> from a bare <code>[]</code>.</li>
+                  <li style="margin-bottom:10px"><strong>Use <code>readonly T[]</code> for parameters</strong> that the function only reads. This also makes the function accept both mutable and readonly arrays as arguments.</li>
+                  <li style="margin-bottom:10px"><strong>Use type predicates for filtered narrowing</strong> &mdash; plain <code>.filter(x =&gt; x != null)</code> does not narrow the element type; you need <code>.filter((x): x is T =&gt; x != null)</code>.</li>
+                  <li style="margin-bottom:10px"><strong>Never use <code>any[]</code></strong> &mdash; use a union type, generic, or <code>unknown[]</code> with type guards instead.</li>
+                </ol>
+              </div>
+
+              <div class="tab-pane" data-pane="a-iq">
+                <div class="qa-block">
+                  <div class="qa-q"><span class="dtag easy">Easy</span> What is the difference between <code>string[]</code> and <code>Array&lt;string&gt;</code>?</div>
+                  <div class="qa-a">They are completely identical. <code>string[]</code> is syntactic sugar for <code>Array&lt;string&gt;</code>. The TypeScript compiler treats them the same. Convention: use <code>string[]</code> for simple types and <code>Array&lt;T&gt;</code> when <code>T</code> itself is a complex generic to avoid nested angle brackets.</div>
+                </div>
+                <div class="qa-block">
+                  <div class="qa-q"><span class="dtag easy">Easy</span> What happens when you push a number into a <code>string[]</code>?</div>
+                  <div class="qa-a">TypeScript raises a compile-time error: <em>"Argument of type 'number' is not assignable to parameter of type 'string'"</em>. The code won&rsquo;t compile. This is the core value of typed arrays &mdash; catching type mismatches before the code ever runs.</div>
+                </div>
+                <div class="qa-block">
+                  <div class="qa-q"><span class="dtag medium">Medium</span> Why does <code>const arr = []</code> cause a problem with <code>.push()</code>?</div>
+                  <div class="qa-a">TypeScript infers the type of <code>[]</code> as <code>never[]</code> &mdash; an array that can hold nothing. Any push fails because no type is assignable to <code>never</code>. Fix: always annotate empty arrays: <code>const arr: string[] = []</code>.</div>
+                </div>
+                <div class="qa-block">
+                  <div class="qa-q"><span class="dtag medium">Medium</span> How do you type a function that accepts both <code>string[]</code> and <code>number[]</code>?</div>
+                  <div class="qa-a">Two options: a union (<code>arr: string[] | number[]</code>) or a generic (<code>arr: T[]</code>). The union forces you to narrow with <code>typeof</code> inside the function. The generic preserves the specific type through the function body &mdash; use generics when the function works uniformly across element types.</div>
+                </div>
+                <div class="qa-block">
+                  <div class="qa-q"><span class="dtag hard">Hard</span> What is the return type of <code>arr.filter(x =&gt; x &gt; 0)</code> when <code>arr: (number | null)[]</code>?</div>
+                  <div class="qa-a">Still <code>(number | null)[]</code>. TypeScript doesn&rsquo;t analyze filter callbacks to infer which elements pass. To get <code>number[]</code>, use a type predicate: <code>arr.filter((x): x is number =&gt; x !== null &amp;&amp; x &gt; 0)</code>. The <code>(x): x is number</code> form explicitly tells the compiler the narrowing guarantee.</div>
+                </div>
+              </div>
+
+              <div class="tab-pane" data-pane="a-ex">
+                <div class="exercise-block">
+                  <h4>Practice Challenge: Typed Shopping Cart</h4>
+                  <p><strong>Goal:</strong> Build typed functions that manage a shopping cart array.</p>
+                  <p><strong>Requirements:</strong></p>
+                  <ul>
+                    <li>Define a <code>CartItem</code> interface: <code>id</code>, <code>name</code>, <code>price</code>, <code>quantity</code></li>
+                    <li><code>addItem</code> &mdash; if item exists, increase quantity; otherwise append it</li>
+                    <li><code>removeItem</code> &mdash; return a new array without the matching item</li>
+                    <li><code>getTotal</code> &mdash; sum of price &times; quantity</li>
+                    <li>No function may mutate its input array &mdash; always return new arrays</li>
+                  </ul>
+                  <div class="code-block"><div class="code-header"><span class="code-lang">typescript &mdash; starter</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">interface CartItem {
+  id: number;
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+function addItem(cart: CartItem[], item: CartItem): CartItem[] {
+  // TODO: if item.id exists, return new array with quantity+1
+  //       else return [...cart, item]
+}
+
+function removeItem(cart: CartItem[], id: number): CartItem[] {
+  // TODO: filter out the item with matching id
+}
+
+function getTotal(cart: CartItem[]): number {
+  // TODO: sum price * quantity for all items
+}
+
+// Tests:
+// let cart: CartItem[] = [];
+// cart = addItem(cart, { id:1, name:"Laptop", price:999, quantity:1 });
+// cart = addItem(cart, { id:2, name:"Mouse",  price:29,  quantity:2 });
+// cart = addItem(cart, { id:1, name:"Laptop", price:999, quantity:1 }); // same item
+// console.log(getTotal(cart));   // Expected: 1057  (999*2 + 29*2)
+// console.log(cart[0].quantity); // Expected: 2</code></pre></div>
+                  <p><strong>Hint:</strong> Use <code>.findIndex()</code> to locate an existing item, then <code>.map()</code> to update quantity immutably.</p>
+                </div>
+              </div>
+
+              <div class="tab-pane" data-pane="a-sum">
+                <ul class="summary-list">
+                  <li><code>T[]</code> and <code>Array&lt;T&gt;</code> are identical &mdash; choose based on readability</li>
+                  <li>TypeScript checks every push, assignment, and index access against the element type</li>
+                  <li>All type info is erased at compile time &mdash; zero runtime overhead</li>
+                  <li>Always annotate empty arrays; TypeScript infers <code>never[]</code> for bare <code>[]</code></li>
+                  <li><code>.filter()</code> does not narrow element types &mdash; use a type predicate for narrowing</li>
+                  <li>Use <code>readonly T[]</code> on parameters to prevent accidental mutation</li>
+                  <li>Avoid <code>any[]</code> &mdash; it silences all element-level type checking</li>
+                </ul>
+                <div class="mental-model">Mental model: A TypeScript array is a <strong>promise to the compiler</strong> &mdash; &ldquo;every item in this list will be a <code>T</code>, now and forever.&rdquo;</div>
+              </div>
+
+            </div>
+          </div>
+        </details>
+
+        <!-- ══════════════════ TOPIC 2: READONLY ARRAYS ══════════════════ -->
+
+        <details class="topic-panel" id="topic-readonly">
+          <summary>
+            <div class="summary-left">
+              <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+              <span class="topic-name">Readonly Arrays</span>
+            </div>
+            <span class="badge beginner">Beginner</span>
+          </summary>
+          <div class="panel-inner">
+            <div class="panel-tabs">
+              <button class="tab active" data-tab="r-def">Definition</button>
+              <button class="tab" data-tab="r-why">Why It Exists</button>
+              <button class="tab" data-tab="r-when">When to Use</button>
+              <button class="tab" data-tab="r-whennot">When NOT</button>
+              <button class="tab" data-tab="r-internals">Internals</button>
+              <button class="tab" data-tab="r-syntax">Syntax</button>
+              <button class="tab" data-tab="r-example">Example</button>
+              <button class="tab" data-tab="r-rw">Real-World</button>
+              <button class="tab" data-tab="r-usecases">Use Cases</button>
+              <button class="tab" data-tab="r-mistakes">Mistakes</button>
+              <button class="tab" data-tab="r-bp">Best Practices</button>
+              <button class="tab" data-tab="r-iq">Interview Qs</button>
+              <button class="tab" data-tab="r-ex">Exercise</button>
+              <button class="tab" data-tab="r-sum">Summary</button>
+            </div>
+            <div class="panel-content">
+
+              <div class="tab-pane active" data-pane="r-def">
+                <div class="simple-def"><strong>Simple:</strong> A readonly array is a typed array you promise not to change. TypeScript removes push, pop, splice, and any other method that modifies the array. You can still read, iterate, and spread it.</div>
+                <div class="technical-def"><strong>Technical:</strong> <code>ReadonlyArray&lt;T&gt;</code> (or <code>readonly T[]</code>) is a TypeScript interface that omits all mutating methods and blocks index-assignment (<code>arr[0] = ...</code>). The underlying runtime value is still a plain JavaScript array &mdash; <code>readonly</code> is purely a compile-time constraint with zero runtime cost.</div>
+              </div>
+
+              <div class="tab-pane" data-pane="r-why">
+                <p>Accidental mutation is one of the hardest bugs to track in JavaScript. Passing an array to a function can silently modify it for the caller:</p>
+                <div class="code-block"><div class="code-header"><span class="code-lang">javascript &mdash; silent mutation bug</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">const config = ["debug", "info", "warn"];
+
+function setupLogger(levels) {
+  levels.sort();         // mutates the caller's array!
+  levels.push("error"); // caller's array now has "error" too!
+}
+
+setupLogger(config);
+console.log(config); // ["debug","error","info","warn"] — surprise!</code></pre></div>
+                <p>With <code>readonly</code>, TypeScript prevents this at the call site:</p>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript &mdash; compile-time protection</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">function setupLogger(levels: readonly string[]): void {
+  levels.sort();         // Error: 'sort' does not exist on readonly string[]
+  levels.push("error"); // Error: 'push' does not exist on readonly string[]
+}</code></pre></div>
+                <p>This is especially critical in React where mutating a prop array inside a child component bypasses React&rsquo;s change detection and causes subtle rendering bugs.</p>
+              </div>
+
+              <div class="tab-pane" data-pane="r-when">
+                <ul>
+                  <li><strong>Function parameters you only read</strong> &mdash; annotate any array parameter the function doesn&rsquo;t modify as <code>readonly T[]</code> to document and enforce the contract.</li>
+                  <li><strong>React component props</strong> &mdash; <code>items: readonly Product[]</code> prevents child components from mutating parent state.</li>
+                  <li><strong>Configuration constants</strong> &mdash; allowed origins, supported locales, feature flags &mdash; anything that should not change at runtime.</li>
+                  <li><strong>Redux / Zustand state</strong> &mdash; state arrays should never be mutated directly; <code>readonly</code> enforces this at the type level.</li>
+                  <li><strong><code>as const</code> assertions</strong> &mdash; <code>["red","green","blue"] as const</code> infers <code>readonly ["red","green","blue"]</code> with literal types per element.</li>
+                </ul>
+              </div>
+
+              <div class="tab-pane" data-pane="r-whennot">
+                <ul>
+                  <li><strong>Arrays you&rsquo;re actively building</strong> &mdash; use a mutable <code>T[]</code> locally while collecting results, then expose it as <code>readonly T[]</code> when returning.</li>
+                  <li><strong>APIs that require mutable arrays</strong> &mdash; some older libraries type their parameters as <code>T[]</code> and won&rsquo;t accept <code>readonly T[]</code>. Spread into a mutable copy: <code>[...readonlyArr]</code>.</li>
+                  <li><strong>In-place sort operations</strong> &mdash; <code>Array.prototype.sort</code> is mutating. Use <code>[...arr].sort()</code> on a copy instead.</li>
+                </ul>
+              </div>
+
+              <div class="tab-pane" data-pane="r-internals">
+                <p><code>ReadonlyArray&lt;T&gt;</code> is a built-in TypeScript interface that includes only non-mutating methods: <code>map</code>, <code>filter</code>, <code>find</code>, <code>forEach</code>, <code>slice</code>, <code>indexOf</code>, <code>includes</code> &mdash; but <strong>not</strong> <code>push</code>, <code>pop</code>, <code>splice</code>, <code>sort</code>, <code>reverse</code>, or index assignment.</p>
+                <p>At runtime there is <strong>no difference</strong> between <code>readonly string[]</code> and <code>string[]</code>. Both are plain JavaScript arrays. The constraint lives only in TypeScript&rsquo;s type checker.</p>
+                <p>Key assignability rule: a mutable <code>T[]</code> is always assignable to <code>readonly T[]</code> (you&rsquo;re adding a restriction, which is safe). The reverse is <em>not</em> allowed (you can&rsquo;t promise immutability and then break it):</p>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">const mutable: string[] = ["a", "b"];
+const frozen: readonly string[] = mutable; // OK — narrowing is safe
+
+function needsMutable(arr: string[]) { arr.push("c"); }
+needsMutable(frozen);  // Error: ReadonlyArray not assignable to string[]
+needsMutable(mutable); // OK</code></pre></div>
+              </div>
+
+              <div class="tab-pane" data-pane="r-syntax">
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">// 1. readonly modifier — preferred
+const levels: readonly string[] = ["debug", "info", "warn"];
+//             ^^^^^^^^  removes all mutating methods from the type
+
+// 2. ReadonlyArray&lt;T&gt; — identical to readonly T[]
+const scores: ReadonlyArray&lt;number&gt; = [85, 92, 78];
+
+// 3. as const — readonly TUPLE with literal types per element
+const DIRS = ["north", "south", "east", "west"] as const;
+//                                               ^^^^^^^^
+// Inferred: readonly ["north","south","east","west"]
+// Each element is a literal type, not just 'string'
+
+// Function parameter — accepts BOTH mutable and readonly arrays
+function printAll(items: readonly string[]): void {
+  items.forEach(item => console.log(item)); // OK — read only
+  items.push("extra"); // Error: 'push' does not exist on readonly
+}
+
+printAll(["a", "b"]); // OK — mutable string[] accepted
+printAll(DIRS);        // OK — readonly tuple accepted
+
+// Readonly does NOT prevent spreading
+const sorted = [...levels].sort(); // OK — spread into a new mutable copy</code></pre></div>
+              </div>
+
+              <div class="tab-pane" data-pane="r-example">
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">// Application config with readonly arrays
+interface AppConfig {
+  allowedOrigins:   readonly string[];
+  supportedLocales: readonly string[];
+  featureFlags:     readonly string[];
+}
+
+const config: AppConfig = {
+  allowedOrigins:   ["https://app.example.com", "https://admin.example.com"],
+  supportedLocales: ["en", "es", "fr", "de"],
+  featureFlags:     ["dark-mode", "new-dashboard"],
+};
+
+const isAllowed = (origin: string): boolean =>
+  config.allowedOrigins.includes(origin);
+
+const hasFeature = (flag: string): boolean =>
+  config.featureFlags.includes(flag);
+
+// Compile-time protection:
+// config.allowedOrigins.push("http://evil.com"); // Error!
+// config.featureFlags[0] = "admin-panel";        // Error!
+
+console.log(isAllowed("https://app.example.com")); // true
+console.log(hasFeature("dark-mode"));              // true
+console.log(hasFeature("beta-feature"));           // false</code></pre></div>
+              </div>
+
+              <div class="tab-pane" data-pane="r-rw">
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript &mdash; React component with readonly props</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">interface Product { id: number; name: string; price: number; }
+
+interface ProductListProps {
+  products: readonly Product[]; // child cannot mutate parent state
+  onSelect: (id: number) => void;
+}
+
+function ProductList({ products, onSelect }: ProductListProps) {
+  // Read operations work fine on readonly arrays:
+  const cheapest = [...products]
+    .sort((a, b) => a.price - b.price) // spread first — sort mutates!
+    .slice(0, 3);
+
+  return cheapest.map(p => ({
+    key:     p.id,
+    label:   p.name,
+    price:   p.price,
+    onClick: () => onSelect(p.id),
+  }));
+}
+
+const items: Product[] = [
+  { id: 1, name: "Laptop",   price: 999 },
+  { id: 2, name: "Keyboard", price: 79  },
+  { id: 3, name: "Mouse",    price: 29  },
+];
+
+// Passing mutable array to readonly param is always OK:
+ProductList({ products: items, onSelect: id => console.log("Selected:", id) });</code></pre></div>
+              </div>
+
+              <div class="tab-pane" data-pane="r-usecases">
+                <ul>
+                  <li><strong>Route configuration</strong> &mdash; <code>const routes: readonly RouteConfig[]</code> prevents routes from being pushed or spliced after app initialization.</li>
+                  <li><strong>Permission lists</strong> &mdash; <code>allowedRoles: readonly string[]</code> in middleware ensures the permission set can&rsquo;t be widened at runtime.</li>
+                  <li><strong>React prop arrays</strong> &mdash; <code>readonly T[]</code> props make it clear components shouldn&rsquo;t mutate parent state arrays.</li>
+                  <li><strong>Redux state slices</strong> &mdash; state arrays with <code>readonly</code> enforce immutability without needing Immer for simple cases.</li>
+                  <li><strong>Enum-like string arrays</strong> &mdash; <code>as const</code> gives literal type narrowing on each element, enabling exhaustive checks.</li>
+                </ul>
+              </div>
+
+              <div class="tab-pane" data-pane="r-mistakes">
+                <div class="mistake-block">
+                  <div class="mlabel bad">&#10060; Mistake 1 &mdash; Confusing const with readonly</div>
+                  <div class="code-block" style="border:none;border-radius:0"><div class="code-header"><span class="code-lang">bad</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">const names = ["Alice", "Bob"];
+names.push("Carol"); // NO ERROR — const only prevents reassignment!</code></pre></div>
+                  <div class="code-block" style="border:none;border-radius:0"><div class="code-header"><span class="code-lang">good</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">const names: readonly string[] = ["Alice", "Bob"];
+names.push("Carol"); // Error: 'push' does not exist on readonly string[]</code></pre></div>
+                  <div class="mlabel note"><code>const</code> prevents reassigning the variable. <code>readonly</code> prevents mutating the array. You often want both.</div>
+                </div>
+                <div class="mistake-block">
+                  <div class="mlabel bad">&#10060; Mistake 2 &mdash; Passing readonly array to mutable parameter</div>
+                  <div class="code-block" style="border:none;border-radius:0"><div class="code-header"><span class="code-lang">bad</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">function sortNames(arr: string[]): string[] { return arr.sort(); }
+const frozen: readonly string[] = ["b", "a"];
+sortNames(frozen); // Error: readonly not assignable to mutable</code></pre></div>
+                  <div class="code-block" style="border:none;border-radius:0"><div class="code-header"><span class="code-lang">good</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">function sortNames(arr: readonly string[]): string[] {
+  return [...arr].sort(); // spread into mutable copy first
+}
+sortNames(frozen); // OK</code></pre></div>
+                  <div class="mlabel note">When you need to sort or mutate, spread the readonly array into a fresh mutable copy: <code>[...readonlyArr].sort()</code>.</div>
+                </div>
+              </div>
+
+              <div class="tab-pane" data-pane="r-bp">
+                <ol>
+                  <li style="margin-bottom:10px"><strong>Default to <code>readonly T[]</code> for function parameters</strong> that only read the array &mdash; it widens acceptability (mutable arrays still work) while documenting intent.</li>
+                  <li style="margin-bottom:10px"><strong>Use <code>as const</code> for constant literal arrays</strong> &mdash; gives a readonly tuple with literal types, enabling exhaustive checks and narrowing.</li>
+                  <li style="margin-bottom:10px"><strong>Remember: <code>const</code> &ne; <code>readonly</code></strong> &mdash; const prevents reassignment; readonly prevents mutation. You typically want both.</li>
+                  <li style="margin-bottom:10px"><strong>Spread when you need to sort or mutate</strong> &mdash; <code>[...readonlyArr].sort()</code> creates a mutable copy without touching the original.</li>
+                  <li style="margin-bottom:10px"><strong>Annotate return types explicitly when returning readonly</strong> &mdash; otherwise TypeScript may infer the wider mutable type.</li>
+                </ol>
+              </div>
+
+              <div class="tab-pane" data-pane="r-iq">
+                <div class="qa-block">
+                  <div class="qa-q"><span class="dtag easy">Easy</span> What is the difference between <code>const arr = []</code> and <code>const arr: readonly string[] = []</code>?</div>
+                  <div class="qa-a"><code>const</code> only prevents the variable from being reassigned. The array&rsquo;s contents can still be mutated with push, pop, etc. <code>readonly string[]</code> additionally prevents any mutation of contents &mdash; you cannot call any mutating method or do index assignment. Both together give you a fully immutable array.</div>
+                </div>
+                <div class="qa-block">
+                  <div class="qa-q"><span class="dtag easy">Easy</span> Can you pass a mutable <code>string[]</code> to a function expecting <code>readonly string[]</code>?</div>
+                  <div class="qa-a">Yes. A mutable array is always assignable to a readonly array &mdash; you&rsquo;re only adding a restriction. The reverse is not allowed: you cannot pass a <code>readonly string[]</code> to a function expecting <code>string[]</code>, because that function might try to mutate it.</div>
+                </div>
+                <div class="qa-block">
+                  <div class="qa-q"><span class="dtag medium">Medium</span> How does <code>as const</code> differ from <code>readonly T[]</code>?</div>
+                  <div class="qa-a"><code>readonly T[]</code> keeps element types as wide as <code>T</code>. <code>as const</code> infers the narrowest possible type &mdash; a readonly tuple where each element has its literal type. <code>["a","b"] as const</code> gives <code>readonly ["a","b"]</code>, not <code>readonly string[]</code>. Use <code>as const</code> when you need the specific values as types for discriminated unions or exhaustiveness checks.</div>
+                </div>
+                <div class="qa-block">
+                  <div class="qa-q"><span class="dtag medium">Medium</span> What&rsquo;s the right way to sort a <code>readonly string[]</code>?</div>
+                  <div class="qa-a">Spread it into a mutable copy first: <code>[...readonlyArr].sort()</code>. You cannot call <code>.sort()</code> directly on a readonly array because sort is an in-place mutating operation. The spread creates a shallow mutable copy, sort runs on that, and the original readonly array is untouched.</div>
+                </div>
+                <div class="qa-block">
+                  <div class="qa-q"><span class="dtag hard">Hard</span> Is there a runtime performance cost to using readonly arrays?</div>
+                  <div class="qa-a">No. <code>readonly</code> is completely erased when TypeScript compiles to JavaScript. The resulting JS has no readonly constraint whatsoever &mdash; zero runtime overhead. The only practical cost is that you may need to spread readonly arrays into mutable copies for certain operations, which allocates a new array. That&rsquo;s a conscious design choice, not a framework tax.</div>
+                </div>
+              </div>
+
+              <div class="tab-pane" data-pane="r-ex">
+                <div class="exercise-block">
+                  <h4>Practice Challenge: Readonly Config System</h4>
+                  <p><strong>Goal:</strong> Build a configuration system that enforces immutability with readonly arrays.</p>
+                  <p><strong>Requirements:</strong></p>
+                  <ul>
+                    <li>Define a <code>Config</code> interface where all arrays are <code>readonly</code></li>
+                    <li>Write <code>hasPermission(config, role): boolean</code></li>
+                    <li>Write <code>mergeConfigs(base, override): Config</code> that returns a new config without mutating inputs</li>
+                    <li>Use <code>as const</code> for the default config literal</li>
+                  </ul>
+                  <div class="code-block"><div class="code-header"><span class="code-lang">typescript &mdash; starter</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">interface Config {
+  // TODO: allowedRoles and features as readonly arrays
+}
+
+const DEFAULT_CONFIG = {
+  allowedRoles: ["user", "admin"],
+  features: ["search", "export"],
+} as const; // gives readonly literal tuple types
+
+function hasPermission(config: Config, role: string): boolean {
+  // TODO: check if role is in config.allowedRoles
+}
+
+function mergeConfigs(base: Config, override: Partial&lt;Config&gt;): Config {
+  // TODO: return new Config (don't mutate base!)
+  // Hint: [...base.allowedRoles, ...(override.allowedRoles ?? [])]
+}
+
+// Tests:
+// hasPermission(DEFAULT_CONFIG, "admin"); // true
+// hasPermission(DEFAULT_CONFIG, "guest"); // false</code></pre></div>
+                  <p><strong>Hint:</strong> When spreading readonly arrays, annotate the return type explicitly so TypeScript keeps the correct shape.</p>
+                </div>
+              </div>
+
+              <div class="tab-pane" data-pane="r-sum">
+                <ul class="summary-list">
+                  <li><code>readonly T[]</code> and <code>ReadonlyArray&lt;T&gt;</code> are identical &mdash; all mutating methods are removed from the type</li>
+                  <li><code>const</code> prevents reassignment; <code>readonly</code> prevents mutation &mdash; they solve different problems</li>
+                  <li>A mutable <code>T[]</code> is assignable to <code>readonly T[]</code>, but not the reverse</li>
+                  <li>Readonly is purely compile-time &mdash; zero runtime overhead</li>
+                  <li><code>[...readonlyArr].sort()</code> is the pattern for sorting without mutation</li>
+                  <li><code>as const</code> gives a readonly tuple with literal element types &mdash; stronger than <code>readonly T[]</code></li>
+                </ul>
+                <div class="mental-model">Mental model: <code>readonly</code> is a <strong>pinky promise to the compiler</strong> &mdash; &ldquo;I will only look at this array, never touch it.&rdquo;</div>
+              </div>
+
+            </div>
+          </div>
+        </details>
+
+        <!-- ═══════════════════════ TOPIC 3: TUPLES ═══════════════════════ -->
+
+        <details class="topic-panel" id="topic-tuples">
+          <summary>
+            <div class="summary-left">
+              <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+              <span class="topic-name">Tuples</span>
+            </div>
+            <span class="badge intermediate">Intermediate</span>
+          </summary>
+          <div class="panel-inner">
+            <div class="panel-tabs">
+              <button class="tab active" data-tab="t-def">Definition</button>
+              <button class="tab" data-tab="t-why">Why It Exists</button>
+              <button class="tab" data-tab="t-when">When to Use</button>
+              <button class="tab" data-tab="t-whennot">When NOT</button>
+              <button class="tab" data-tab="t-internals">Internals</button>
+              <button class="tab" data-tab="t-syntax">Syntax</button>
+              <button class="tab" data-tab="t-example">Example</button>
+              <button class="tab" data-tab="t-rw">Real-World</button>
+              <button class="tab" data-tab="t-usecases">Use Cases</button>
+              <button class="tab" data-tab="t-mistakes">Mistakes</button>
+              <button class="tab" data-tab="t-bp">Best Practices</button>
+              <button class="tab" data-tab="t-iq">Interview Qs</button>
+              <button class="tab" data-tab="t-ex">Exercise</button>
+              <button class="tab" data-tab="t-sum">Summary</button>
+            </div>
+            <div class="panel-content">
+
+              <div class="tab-pane active" data-pane="t-def">
+                <div class="simple-def"><strong>Simple:</strong> A tuple is an array with a fixed number of slots where each slot has its own specific type. Unlike a regular array where all items are the same type, a tuple says &ldquo;slot 0 is a string, slot 1 is a number&rdquo; &mdash; and TypeScript holds you to that contract at every access.</div>
+                <div class="technical-def"><strong>Technical:</strong> A TypeScript tuple is an array type with a fixed length and per-position element types. The type <code>[string, number, boolean]</code> describes an array of exactly 3 elements where index 0 is <code>string</code>, index 1 is <code>number</code>, and index 2 is <code>boolean</code>. TypeScript 4.0+ supports named tuples: <code>[name: string, age: number]</code> &mdash; the labels add documentation without changing runtime behaviour.</div>
+              </div>
+
+              <div class="tab-pane" data-pane="t-why">
+                <p>Sometimes you want to return multiple values from a function without creating a full object. In JavaScript you return an array and just remember what each position means &mdash; which breaks easily:</p>
+                <div class="code-block"><div class="code-header"><span class="code-lang">javascript &mdash; fragile convention</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">function getUser() {
+  return ["Alice", 30]; // Is [0] name or age? Only one way to know...
+}
+const result = getUser();
+const age = result[0]; // string! But the dev thought it was number.</code></pre></div>
+                <p>TypeScript tuples make position-to-type mapping explicit and enforced:</p>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript &mdash; explicit and safe</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">function getUser(): [name: string, age: number] {
+  return ["Alice", 30];
+}
+const [name, age] = getUser();
+//     ^^^^  ^^^  — TypeScript knows string and number respectively</code></pre></div>
+                <p>React&rsquo;s <code>useState</code> hook uses exactly this pattern, returning <code>[T, Dispatch&lt;SetStateAction&lt;T&gt;&gt;]</code>.</p>
+              </div>
+
+              <div class="tab-pane" data-pane="t-when">
+                <ul>
+                  <li><strong>Hook return values</strong> &mdash; <code>[state, setState]</code>, <code>[data, loading, error]</code> &mdash; React&rsquo;s built-in hooks all use tuples.</li>
+                  <li><strong>Go-style error handling</strong> &mdash; <code>[result: T | null, error: Error | null]</code> as an explicit error return pattern.</li>
+                  <li><strong>Coordinate pairs / ranges</strong> &mdash; <code>[x: number, y: number]</code>, <code>[min: number, max: number]</code>.</li>
+                  <li><strong>CSV or structured data rows</strong> &mdash; when a row always has <code>[id, name, email]</code> and the structure is fixed.</li>
+                  <li><strong><code>Promise.all</code> results</strong> &mdash; <code>await Promise.all([fetchUser(), fetchConfig()])</code> returns <code>[User, Config]</code>.</li>
+                </ul>
+              </div>
+
+              <div class="tab-pane" data-pane="t-whennot">
+                <ul>
+                  <li><strong>More than 3 elements</strong> &mdash; use an interface. A 5-element tuple is a maintenance nightmare; no one can remember what index 4 means next month.</li>
+                  <li><strong>All elements the same type</strong> &mdash; use a regular array. <code>[number, number, number]</code> is just a worse <code>number[]</code> with a fixed length.</li>
+                  <li><strong>When named access matters</strong> &mdash; if you'll write <code>.name</code> and <code>.age</code>, use an object. <code>{ name: string; age: number }</code> is far more readable.</li>
+                  <li><strong>Data models</strong> &mdash; tuples lack self-documentation. An interface with named fields is always more maintainable than positional slots.</li>
+                </ul>
+              </div>
+
+              <div class="tab-pane" data-pane="t-internals">
+                <p>TypeScript compiles tuples to plain JavaScript arrays. What makes them special is how the compiler indexes into the type:</p>
+                <ol>
+                  <li><strong>Indexed access</strong>: <code>tuple[0]</code> on <code>[string, number]</code> returns <code>string</code>; <code>tuple[1]</code> returns <code>number</code>.</li>
+                  <li><strong>Length literal</strong>: <code>[string, number]['length']</code> is the literal type <code>2</code>, not <code>number</code>.</li>
+                  <li><strong>Destructuring</strong>: <code>const [a, b] = tuple</code> assigns <code>a: string</code> and <code>b: number</code> by position.</li>
+                  <li><strong>Rest elements</strong>: <code>[string, ...number[]]</code> &mdash; a string followed by any number of numbers.</li>
+                </ol>
+                <div class="code-block"><div class="code-header"><span class="code-lang">before / after compilation</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">// TypeScript
+const point: [number, number] = [10, 20];
+
+// JavaScript output (identical — type info is erased)
+const point = [10, 20];</code></pre></div>
+              </div>
+
+              <div class="tab-pane" data-pane="t-syntax">
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">// Basic tuple
+let point: [number, number] = [10, 20];
+//          ^^^^^^  ^^^^^^  — slot 0 and slot 1 have their own types
+
+// Named tuple (TypeScript 4.0+) — adds IDE documentation
+let person: [name: string, age: number] = ["Alice", 30];
+
+// Tuple as function return type
+function divide(a: number, b: number): [result: number, remainder: number] {
+  return [Math.floor(a / b), a % b];
+}
+const [result, remainder] = divide(17, 5); // result:3, remainder:2
+
+// Optional element (TS 4.0+)
+type StringNum = [string, number?]; // length 1 or 2
+
+// Rest element in tuple
+type StringAndNums = [string, ...number[]];
+const a: StringAndNums = ["hello"];           // OK
+const b: StringAndNums = ["hello", 1, 2, 3]; // OK
+
+// Readonly tuple
+const RGB: readonly [number, number, number] = [255, 128, 0];</code></pre></div>
+              </div>
+
+              <div class="tab-pane" data-pane="t-example">
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">// Go-style error handling with tuples
+type Result&lt;T&gt; = [data: T, error: null] | [data: null, error: Error];
+
+function safeParse(json: string): Result&lt;unknown&gt; {
+  try {
+    return [JSON.parse(json), null];
+  } catch (e) {
+    return [null, e as Error];
+  }
+}
+
+const [data1, err1] = safeParse('{"name":"Alice"}');
+if (err1 === null) {
+  console.log("Parsed:", data1); // Parsed: { name: 'Alice' }
+}
+
+const [data2, err2] = safeParse("not-valid{{{");
+if (err2 !== null) {
+  console.log("Error:", err2.message); // Error: Unexpected token...
+}
+
+// Custom hook-style tuple
+function useToggle(initial: boolean): [value: boolean, toggle: () => void] {
+  let value = initial;
+  const toggle = () => { value = !value; };
+  return [value, toggle];
+}
+
+const [isOpen, toggleOpen] = useToggle(false);
+//     ^^^^^^  ^^^^^^^^^^
+//     boolean (() => void)  — typed by position</code></pre></div>
+              </div>
+
+              <div class="tab-pane" data-pane="t-rw">
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript &mdash; custom async hook returning a tuple</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">// 3-tuple: [data, loading, error]
+type UseAsyncResult&lt;T&gt; = [
+  data:    T | null,
+  loading: boolean,
+  error:   Error | null,
+];
+
+function useAsync&lt;T&gt;(
+  fetcher: () => Promise&lt;T&gt;
+): UseAsyncResult&lt;T&gt; {
+  // Simplified (real hook uses useState/useEffect)
+  let state: { data: T | null; loading: boolean; error: Error | null } =
+    { data: null, loading: true, error: null };
+
+  fetcher()
+    .then(d  => { state = { data: d, loading: false, error: null }; })
+    .catch(e => { state = { data: null, loading: false, error: e };  });
+
+  return [state.data, state.loading, state.error];
+}
+
+// Consumer — destructuring gives perfectly typed variables
+const [user, loading, error] = useAsync(() =>
+  fetch("/api/user").then(r => r.json())
+);
+//  ^^^^  ^^^^^^^  ^^^^^
+//  T|null  bool  Error|null
+
+if (loading) console.log("Loading...");
+if (error)   console.log("Error:", error.message);
+if (user)    console.log("User:", user);</code></pre></div>
+              </div>
+
+              <div class="tab-pane" data-pane="t-usecases">
+                <ul>
+                  <li><strong>React hooks</strong> &mdash; <code>useState</code> returns <code>[T, Dispatch&lt;SetStateAction&lt;T&gt;&gt;]</code>; the tuple pattern is fundamental to React&rsquo;s hook API.</li>
+                  <li><strong>Custom hooks</strong> &mdash; <code>useForm()</code> returning <code>[values, handleChange, handleSubmit]</code> without wrapper objects.</li>
+                  <li><strong>Promise.all typing</strong> &mdash; <code>const [user, config] = await Promise.all([fetchUser(), fetchConfig()])</code> &mdash; TypeScript infers the tuple.</li>
+                  <li><strong>Go-style error returns</strong> &mdash; <code>[T | null, Error | null]</code> for explicit error handling without try/catch at every call site.</li>
+                  <li><strong>Coordinate systems</strong> &mdash; <code>[lat: number, lng: number]</code> for geolocation, <code>[x: number, y: number]</code> for canvas.</li>
+                </ul>
+              </div>
+
+              <div class="tab-pane" data-pane="t-mistakes">
+                <div class="mistake-block">
+                  <div class="mlabel bad">&#10060; Mistake 1 &mdash; Tuples with too many elements</div>
+                  <div class="code-block" style="border:none;border-radius:0"><div class="code-header"><span class="code-lang">bad</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">type UserRow = [number, string, string, number, boolean, string];
+// What is index 4? Nobody remembers without the type open.</code></pre></div>
+                  <div class="code-block" style="border:none;border-radius:0"><div class="code-header"><span class="code-lang">good</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">interface User {
+  id: number; name: string; email: string;
+  age: number; active: boolean; role: string;
+}
+// Self-documenting — no position memorization needed</code></pre></div>
+                  <div class="mlabel note">Use tuples for 2–3 elements max. Beyond that, interfaces are far more readable and maintainable.</div>
+                </div>
+                <div class="mistake-block">
+                  <div class="mlabel bad">&#10060; Mistake 2 &mdash; TypeScript inferring a union array instead of a tuple</div>
+                  <div class="code-block" style="border:none;border-radius:0"><div class="code-header"><span class="code-lang">bad</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">function getEntry() {
+  return ["Alice", 30]; // inferred as (string | number)[] — NOT a tuple!
+}</code></pre></div>
+                  <div class="code-block" style="border:none;border-radius:0"><div class="code-header"><span class="code-lang">good</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">function getEntry(): [string, number] {
+  return ["Alice", 30]; // explicit return type gives a proper tuple
+}
+// OR:
+function getEntry() {
+  return ["Alice", 30] as const; // readonly ["Alice", 30]
+}</code></pre></div>
+                  <div class="mlabel note">TypeScript widens mixed arrays to union arrays by default. Always annotate the return type or use <code>as const</code> to get a tuple.</div>
+                </div>
+              </div>
+
+              <div class="tab-pane" data-pane="t-bp">
+                <ol>
+                  <li style="margin-bottom:10px"><strong>Always annotate tuple return types explicitly</strong> &mdash; TypeScript infers wide union arrays by default. Write <code>: [string, number]</code> on the function signature.</li>
+                  <li style="margin-bottom:10px"><strong>Use named tuples for documentation</strong> &mdash; <code>[name: string, age: number]</code> over bare <code>[string, number]</code>. IDE hover hints show the labels, making destructuring much clearer.</li>
+                  <li style="margin-bottom:10px"><strong>Prefer 2–3 elements max</strong> &mdash; beyond that, use an interface. Named access (<code>user.name</code>) is almost always clearer than positional access.</li>
+                  <li style="margin-bottom:10px"><strong>Destructure immediately</strong> &mdash; <code>const [data, err] = result</code> is far clearer than <code>result[0]</code> / <code>result[1]</code>.</li>
+                  <li style="margin-bottom:10px"><strong>Use <code>as const</code> for literal tuples</strong> &mdash; when you need specific literal types for discriminated unions.</li>
+                </ol>
+              </div>
+
+              <div class="tab-pane" data-pane="t-iq">
+                <div class="qa-block">
+                  <div class="qa-q"><span class="dtag easy">Easy</span> What is the difference between a tuple and a regular array in TypeScript?</div>
+                  <div class="qa-a">A regular array (<code>T[]</code>) has variable length and every element is the same type. A tuple has a fixed length where each position can have a different type. <code>[string, number]</code> is exactly 2 elements where index 0 is always <code>string</code> and index 1 is always <code>number</code>. At runtime both are plain JavaScript arrays &mdash; the distinction is entirely in TypeScript&rsquo;s type system.</div>
+                </div>
+                <div class="qa-block">
+                  <div class="qa-q"><span class="dtag easy">Easy</span> Why doesn&rsquo;t TypeScript infer a tuple when you return a mixed array?</div>
+                  <div class="qa-a">TypeScript infers the widest type by default. For <code>return ["Alice", 30]</code> it infers <code>(string | number)[]</code> &mdash; a variable-length array of either strings or numbers. To get a tuple, annotate the return type explicitly (<code>: [string, number]</code>) or use <code>as const</code>.</div>
+                </div>
+                <div class="qa-block">
+                  <div class="qa-q"><span class="dtag medium">Medium</span> What are named tuples in TypeScript 4.0, and why are they useful?</div>
+                  <div class="qa-a">Named tuples let you add labels to each position: <code>[name: string, age: number]</code>. The labels appear in IDE hover hints and error messages but don&rsquo;t change runtime behaviour. They&rsquo;re especially useful for hook return types where the consumer chooses their own destructuring names but needs to know what each position means.</div>
+                </div>
+                <div class="qa-block">
+                  <div class="qa-q"><span class="dtag medium">Medium</span> How does React&rsquo;s <code>useState</code> use tuples?</div>
+                  <div class="qa-a"><code>useState&lt;T&gt;</code> is declared as returning <code>[T, Dispatch&lt;SetStateAction&lt;T&gt;&gt;]</code>. This tuple is what enables <code>const [count, setCount] = useState(0)</code>. TypeScript infers <code>count: number</code> and <code>setCount: Dispatch&lt;SetStateAction&lt;number&gt;&gt;</code> from the tuple &mdash; the consumer can name them however they want.</div>
+                </div>
+                <div class="qa-block">
+                  <div class="qa-q"><span class="dtag hard">Hard</span> What are rest elements in tuples, and when would you use them?</div>
+                  <div class="qa-a">Rest elements let you define a tuple with a known prefix and a variable-length suffix: <code>[string, ...number[]]</code> means &ldquo;a string followed by zero or more numbers.&rdquo; TypeScript 4.0+ also supports rest elements in the middle or beginning. They&rsquo;re useful for variadic function signatures and spread-argument patterns that are otherwise hard to type precisely.</div>
+                </div>
+              </div>
+
+              <div class="tab-pane" data-pane="t-ex">
+                <div class="exercise-block">
+                  <h4>Practice Challenge: Custom useState Hook</h4>
+                  <p><strong>Goal:</strong> Build a <code>createState</code> function that mimics React&rsquo;s <code>useState</code> using tuples.</p>
+                  <p><strong>Requirements:</strong></p>
+                  <ul>
+                    <li>Return type must be a named tuple: <code>[value: T, setValue: (v: T) =&gt; void, reset: () =&gt; void]</code></li>
+                    <li>Works with any type <code>T</code> (use a generic)</li>
+                    <li>Build a <code>useCounter</code> function on top of <code>createState</code></li>
+                    <li>All functions are pure &mdash; state lives in a closure</li>
+                  </ul>
+                  <div class="code-block"><div class="code-header"><span class="code-lang">typescript &mdash; starter</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">type StateResult&lt;T&gt; = [
+  value:    T,
+  setValue: (v: T) => void,
+  reset:    () => void,
+];
+
+function createState&lt;T&gt;(initial: T): StateResult&lt;T&gt; {
+  // TODO: store value in a closure
+  // return [currentValue, setter, resetFn]
+}
+
+function useCounter(initial = 0) {
+  // TODO: use createState&lt;number&gt;
+  // expose [count, increment, decrement, reset]
+}
+
+// Tests:
+// const [count, inc, dec, reset] = useCounter(10);
+// inc();  // count becomes 11
+// dec();  // count becomes 10
+// reset(); // count becomes 10 (initial)</code></pre></div>
+                  <p><strong>Hint:</strong> The explicit <code>StateResult&lt;T&gt;</code> return type annotation forces TypeScript to keep the tuple type instead of widening to a union array.</p>
+                </div>
+              </div>
+
+              <div class="tab-pane" data-pane="t-sum">
+                <ul class="summary-list">
+                  <li>Tuples are fixed-length arrays where each position has its own specific type</li>
+                  <li>TypeScript infers <code>(T | U)[]</code> by default &mdash; always annotate tuple return types explicitly</li>
+                  <li>Named tuples (TS 4.0+) add documentation labels without changing runtime behaviour</li>
+                  <li>Tuples compile to plain JS arrays &mdash; no runtime difference from regular arrays</li>
+                  <li>React&rsquo;s <code>useState</code> is the most prominent real-world tuple in TypeScript</li>
+                  <li>Destructure tuples immediately for cleaner, named variable access</li>
+                  <li>Use tuples for 2–3 values max; switch to interfaces for more</li>
+                </ul>
+                <div class="mental-model">Mental model: A tuple is a <strong>fixed contract</strong> &mdash; &ldquo;this array always has exactly N slots, and I know exactly what type lives in each one.&rdquo;</div>
+              </div>
+
+            </div>
+          </div>
+        </details>
+
+        <!-- ═══════════════════ TOPIC 4: NESTED ARRAYS ═══════════════════ -->
+
+        <details class="topic-panel" id="topic-nested">
+          <summary>
+            <div class="summary-left">
+              <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+              <span class="topic-name">Nested Arrays</span>
+            </div>
+            <span class="badge intermediate">Intermediate</span>
+          </summary>
+          <div class="panel-inner">
+            <div class="panel-tabs">
+              <button class="tab active" data-tab="n-def">Definition</button>
+              <button class="tab" data-tab="n-why">Why It Exists</button>
+              <button class="tab" data-tab="n-when">When to Use</button>
+              <button class="tab" data-tab="n-whennot">When NOT</button>
+              <button class="tab" data-tab="n-internals">Internals</button>
+              <button class="tab" data-tab="n-syntax">Syntax</button>
+              <button class="tab" data-tab="n-example">Example</button>
+              <button class="tab" data-tab="n-rw">Real-World</button>
+              <button class="tab" data-tab="n-usecases">Use Cases</button>
+              <button class="tab" data-tab="n-mistakes">Mistakes</button>
+              <button class="tab" data-tab="n-bp">Best Practices</button>
+              <button class="tab" data-tab="n-iq">Interview Qs</button>
+              <button class="tab" data-tab="n-ex">Exercise</button>
+              <button class="tab" data-tab="n-sum">Summary</button>
+            </div>
+            <div class="panel-content">
+
+              <div class="tab-pane active" data-pane="n-def">
+                <div class="simple-def"><strong>Simple:</strong> A nested array is an array whose elements are themselves arrays. In TypeScript you write this by doubling the notation: <code>number[][]</code> means &ldquo;an array of arrays of numbers&rdquo; &mdash; like a grid or table where each row is an array.</div>
+                <div class="technical-def"><strong>Technical:</strong> <code>T[][]</code> is equivalent to <code>Array&lt;Array&lt;T&gt;&gt;</code>. TypeScript tracks nesting depth in the type, so <code>arr[0]</code> on a <code>number[][]</code> returns <code>number[]</code> and <code>arr[0][0]</code> returns <code>number</code>. The pattern extends to any depth: <code>T[][][]</code> for three dimensions, though two levels is the practical limit for maintainability.</div>
+              </div>
+
+              <div class="tab-pane" data-pane="n-why">
+                <p>Many real-world structures are inherently two-dimensional. Without proper typing, accessing nested data causes runtime errors that are hard to debug:</p>
+                <div class="code-block"><div class="code-header"><span class="code-lang">javascript &mdash; no type safety on nested access</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">const grid = [[1,2,3],[4,5,6],[7,8,9]];
+const cell = grid[1][5]; // undefined — out of bounds, no warning
+const sum  = grid[0] + 1; // NaN — you got a row, not a number!</code></pre></div>
+                <p>TypeScript with nested array types catches these mistakes at compile time:</p>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript &mdash; type-safe nested access</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">const grid: number[][] = [[1,2,3],[4,5,6],[7,8,9]];
+const row  = grid[1];     // Type: number[]
+const cell = grid[1][1];  // Type: number — value: 5
+const sum  = grid[0] + 1; // Error: Operator '+' cannot be applied
+                           //        to types 'number[]' and 'number'</code></pre></div>
+              </div>
+
+              <div class="tab-pane" data-pane="n-when">
+                <ul>
+                  <li><strong>Grid / board data</strong> &mdash; game boards, seating charts, spreadsheet cells, image pixel maps.</li>
+                  <li><strong>Matrix operations</strong> &mdash; mathematical matrices, transformation matrices in graphics.</li>
+                  <li><strong>CSV / table parsing</strong> &mdash; <code>rows: string[][]</code> where each row is an array of cell values before transformation.</li>
+                  <li><strong>Batch processing results</strong> &mdash; when an API returns results in batches (<code>T[][]</code>).</li>
+                  <li><strong>Arrays of tuples</strong> &mdash; <code>[number, number][]</code> for lists of coordinate pairs or key-value entries.</li>
+                </ul>
+              </div>
+
+              <div class="tab-pane" data-pane="n-whennot">
+                <ul>
+                  <li><strong>Irregular / asymmetric structures</strong> &mdash; if rows have different shapes per type, use discriminated unions or interfaces instead.</li>
+                  <li><strong>3+ levels of nesting</strong> &mdash; <code>T[][][]</code> is hard to reason about. Consider flattening or using a flat array with index arithmetic.</li>
+                  <li><strong>Rows with semantic column names</strong> &mdash; a <code>TableRow</code> interface is far clearer than <code>string[]</code> when columns have meaning.</li>
+                  <li><strong>Recursive/variable-depth structures</strong> &mdash; use recursive types (<code>type Tree&lt;T&gt; = T | Tree&lt;T&gt;[]</code>) rather than increasing numbers of <code>[]</code>.</li>
+                </ul>
+              </div>
+
+              <div class="tab-pane" data-pane="n-internals">
+                <p><code>T[][]</code> is structural shorthand for <code>Array&lt;Array&lt;T&gt;&gt;</code>. TypeScript tracks nesting depth by peeling one layer of array wrapping per index access:</p>
+                <ul>
+                  <li><code>arr</code> &rarr; <code>number[][]</code></li>
+                  <li><code>arr[0]</code> &rarr; <code>number[]</code></li>
+                  <li><code>arr[0][0]</code> &rarr; <code>number</code></li>
+                </ul>
+                <p>For arrays of tuples, the compiler tracks the tuple shape per element:</p>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">const points: [number, number][] = [[0,0],[1,2],[3,4]];
+const first = points[0];    // Type: [number, number]
+const x     = points[0][0]; // Type: number
+const y     = points[0][1]; // Type: number
+// points[0][2]              // Error: Tuple type '[number,number]' has no element at index 2</code></pre></div>
+                <p>At runtime, nested arrays are plain JavaScript arrays of plain arrays &mdash; no structural metadata is stored. All type tracking is compile-time only.</p>
+              </div>
+
+              <div class="tab-pane" data-pane="n-syntax">
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">// 2D array — array of arrays
+let matrix: number[][] = [
+//           ^^^^^^^^  — each element is number[]
+  [1, 2, 3],
+  [4, 5, 6],
+  [7, 8, 9],
+];
+
+// Equivalent generic form
+let grid: Array&lt;Array&lt;number&gt;&gt; = matrix;
+
+// 3D array (rarely needed)
+let cube: number[][][] = [[[1,2],[3,4]], [[5,6],[7,8]]];
+
+// Array of string arrays — e.g., raw CSV
+let csvRows: string[][] = [
+  ["id",  "name",  "email"],
+  ["1",   "Alice", "alice@example.com"],
+  ["2",   "Bob",   "bob@example.com"],
+];
+
+// Array of tuples — very common
+let coords: [number, number][] = [
+  //         ^^^^^^^^^^^^  — each element is a fixed [x, y] pair
+  [0, 0], [1, 2], [3, 4],
+];
+
+// Array of named tuples
+let namedCoords: [x: number, y: number][] = [[0,0],[1,2]];
+
+// Type alias keeps code readable
+type Matrix = number[][];
+type Grid&lt;T&gt; = T[][];</code></pre></div>
+              </div>
+
+              <div class="tab-pane" data-pane="n-example">
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">type Matrix = number[][];
+
+function createMatrix(rows: number, cols: number, fill = 0): Matrix {
+  return Array.from({ length: rows }, () => Array(cols).fill(fill) as number[]);
+}
+
+function transpose(matrix: Matrix): Matrix {
+  if (matrix.length === 0) return [];
+  const rows = matrix.length;
+  const cols = matrix[0].length;
+  return Array.from({ length: cols }, (_, col) =>
+    Array.from({ length: rows }, (_, row) => matrix[row][col])
+  );
+}
+
+function matrixToString(m: Matrix): string {
+  return m.map(row => row.join("\t")).join("\n");
+}
+
+const m: Matrix = [
+  [1, 2, 3],
+  [4, 5, 6],
+];
+
+console.log("Original:");
+console.log(matrixToString(m));
+// 1   2   3
+// 4   5   6
+
+console.log("Transposed:");
+console.log(matrixToString(transpose(m)));
+// 1   4
+// 2   5
+// 3   6</code></pre></div>
+              </div>
+
+              <div class="tab-pane" data-pane="n-rw">
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript &mdash; CSV batch importer</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">interface UserImportRow {
+  name:  string;
+  email: string;
+  role:  "admin" | "user";
+}
+
+type ValidationError = { row: number; col: number; message: string };
+
+// Raw CSV parsed into string[][] by a CSV library
+function parseCSV(csv: string): string[][] {
+  return csv.trim().split("\n").map(line => line.split(","));
+}
+
+function validateAndTransform(
+  rows: string[][]
+): { users: UserImportRow[]; errors: ValidationError[] } {
+  const users:  UserImportRow[]  = [];
+  const errors: ValidationError[] = [];
+
+  rows.slice(1).forEach((row, rowIdx) => {
+    const [name, email, role] = row; // destructure each string[] row
+
+    if (!name)              { errors.push({ row: rowIdx+1, col:0, message:"Name required" }); return; }
+    if (!email?.includes("@")) { errors.push({ row: rowIdx+1, col:1, message:"Invalid email" }); return; }
+    if (role !== "admin" && role !== "user") {
+      errors.push({ row: rowIdx+1, col:2, message:"Invalid role" }); return;
+    }
+    users.push({ name, email, role });
+  });
+
+  return { users, errors };
+}
+
+const csv = `name,email,role\nAlice,alice@co.com,admin\nBob,not-email,user`;
+const { users, errors } = validateAndTransform(parseCSV(csv));
+console.log("Users:",  users.length);  // 1
+console.log("Errors:", errors.length); // 1</code></pre></div>
+              </div>
+
+              <div class="tab-pane" data-pane="n-usecases">
+                <ul>
+                  <li><strong>Spreadsheet / table data</strong> &mdash; <code>string[][]</code> for raw CSV before transformation; each row is a string array.</li>
+                  <li><strong>Game boards</strong> &mdash; <code>Cell[][]</code> for chess, checkers, Minesweeper &mdash; rows and columns of cell states.</li>
+                  <li><strong>Seating charts</strong> &mdash; <code>Seat[][]</code> for theatres or stadiums &mdash; rows and columns of seat availability.</li>
+                  <li><strong>Image processing</strong> &mdash; <code>Pixel[][]</code> for 2D pixel grids in canvas manipulation.</li>
+                  <li><strong>Coordinate lists</strong> &mdash; <code>[number, number][]</code> for GeoJSON polygon rings, SVG path points, or canvas drawing commands.</li>
+                  <li><strong>Batch API responses</strong> &mdash; <code>T[][]</code> where outer is batches and inner is results per batch.</li>
+                </ul>
+              </div>
+
+              <div class="tab-pane" data-pane="n-mistakes">
+                <div class="mistake-block">
+                  <div class="mlabel bad">&#10060; Mistake 1 &mdash; Forgetting the second [] in a 2D array type</div>
+                  <div class="code-block" style="border:none;border-radius:0"><div class="code-header"><span class="code-lang">bad</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">const grid: number[] = [[1,2],[3,4]]; // Error! number[][] not assignable to number[]</code></pre></div>
+                  <div class="code-block" style="border:none;border-radius:0"><div class="code-header"><span class="code-lang">good</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">const grid: number[][] = [[1,2],[3,4]]; // each element is number[]</code></pre></div>
+                  <div class="mlabel note">Count your levels: one [] for 1D, two [][] for 2D. The error message will indicate an element type mismatch.</div>
+                </div>
+                <div class="mistake-block">
+                  <div class="mlabel bad">&#10060; Mistake 2 &mdash; Using number[][] instead of [number, number][] for fixed-size pairs</div>
+                  <div class="code-block" style="border:none;border-radius:0"><div class="code-header"><span class="code-lang">bad</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">const points: number[][] = [[0,0],[1,2]];
+// points[0][5] is typed as 'number' — out of bounds not caught!</code></pre></div>
+                  <div class="code-block" style="border:none;border-radius:0"><div class="code-header"><span class="code-lang">good</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">const points: [number, number][] = [[0,0],[1,2]];
+// points[0][2] — Error: Tuple '[number,number]' has no element at index 2</code></pre></div>
+                  <div class="mlabel note">When each sub-array has a fixed, known length with positional meaning, use an array of tuples for stronger type safety.</div>
+                </div>
+              </div>
+
+              <div class="tab-pane" data-pane="n-bp">
+                <ol>
+                  <li style="margin-bottom:10px"><strong>Use type aliases for complex nested types</strong> &mdash; <code>type Matrix = number[][]</code> is far more readable than repeating <code>number[][]</code> everywhere.</li>
+                  <li style="margin-bottom:10px"><strong>Parse raw <code>string[][]</code> into typed objects early</strong> &mdash; don&rsquo;t pass raw CSV data deep into your codebase; transform it to a typed interface at the boundary.</li>
+                  <li style="margin-bottom:10px"><strong>Prefer arrays of tuples for fixed-structure rows</strong> &mdash; <code>[x: number, y: number][]</code> over <code>number[][]</code> for coordinate lists; tuples prevent out-of-bounds access.</li>
+                  <li style="margin-bottom:10px"><strong>Avoid 3+ levels of nesting</strong> &mdash; <code>T[][][]</code> is hard to debug. Flatten or restructure if you find yourself there.</li>
+                  <li style="margin-bottom:10px"><strong>Use <code>.flat()</code> and <code>.flatMap()</code></strong> &mdash; TypeScript types both correctly; <code>.flat()</code> on <code>T[][]</code> returns <code>T[]</code>.</li>
+                </ol>
+              </div>
+
+              <div class="tab-pane" data-pane="n-iq">
+                <div class="qa-block">
+                  <div class="qa-q"><span class="dtag easy">Easy</span> What is the type of <code>arr[0]</code> when <code>arr: number[][]</code>?</div>
+                  <div class="qa-a">The type is <code>number[]</code>. Accessing the first index of a <code>number[][]</code> removes one level of array wrapping. Then <code>arr[0][0]</code> would give <code>number</code>. TypeScript tracks this depth automatically.</div>
+                </div>
+                <div class="qa-block">
+                  <div class="qa-q"><span class="dtag easy">Easy</span> How do you type an array of x/y coordinate pairs?</div>
+                  <div class="qa-a">Use an array of tuples: <code>[number, number][]</code> or with named elements: <code>[x: number, y: number][]</code>. This is more specific than <code>number[][]</code> because it enforces exactly 2 elements per sub-array and prevents accessing a non-existent third index. Alternatively, use <code>{ x: number; y: number }[]</code> if named access is preferred over destructuring.</div>
+                </div>
+                <div class="qa-block">
+                  <div class="qa-q"><span class="dtag medium">Medium</span> What does TypeScript infer as the type of <code>[[1,2],[3,4]]</code>?</div>
+                  <div class="qa-a">TypeScript infers <code>number[][]</code> &mdash; an array containing arrays of numbers. It does not infer a fixed-size 2&times;2 type. If you need the 2D structure enforced as a specific size, you need an explicit annotation or a type constraint (which TypeScript cannot natively enforce for rectangular grids at the type level alone).</div>
+                </div>
+                <div class="qa-block">
+                  <div class="qa-q"><span class="dtag medium">Medium</span> How does <code>.flat()</code> work with nested array types in TypeScript?</div>
+                  <div class="qa-a"><code>.flat()</code> is typed in TypeScript&rsquo;s lib to return the flattened type. Calling <code>.flat()</code> on a <code>number[][]</code> returns <code>number[]</code>. Calling <code>.flat()</code> on <code>number[][][]</code> returns <code>number[][]</code>. TypeScript tracks this in the return type so you don&rsquo;t need a manual annotation. <code>.flatMap()</code> similarly collapses one level of nesting.</div>
+                </div>
+                <div class="qa-block">
+                  <div class="qa-q"><span class="dtag hard">Hard</span> How would you type a function that works on any rectangular grid?</div>
+                  <div class="qa-a">Use a generic: <code>function processGrid&lt;T&gt;(grid: T[][]): T[]</code>. For true rectangular enforcement (all rows same length), TypeScript can&rsquo;t verify it at compile time without complex conditional types. In practice, use <code>T[][]</code> with a runtime length check and a documented precondition. If the exact dimensions are compile-time constants, you can encode them with tuple types in advanced TypeScript.</div>
+                </div>
+              </div>
+
+              <div class="tab-pane" data-pane="n-ex">
+                <div class="exercise-block">
+                  <h4>Practice Challenge: Tic-Tac-Toe Board</h4>
+                  <p><strong>Goal:</strong> Model a tic-tac-toe game using nested arrays.</p>
+                  <p><strong>Requirements:</strong></p>
+                  <ul>
+                    <li>Define <code>Cell = "X" | "O" | null</code> and <code>Board = Cell[][]</code></li>
+                    <li><code>makeMove(board, row, col, player): Board</code> &mdash; must NOT mutate input, returns new board</li>
+                    <li><code>checkWinner(board): "X" | "O" | null</code> &mdash; checks rows, cols, and diagonals</li>
+                    <li><code>isBoardFull(board): boolean</code></li>
+                  </ul>
+                  <div class="code-block"><div class="code-header"><span class="code-lang">typescript &mdash; starter</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">type Cell  = "X" | "O" | null;
+type Board = Cell[][];
+
+const EMPTY_BOARD: Board = [
+  [null, null, null],
+  [null, null, null],
+  [null, null, null],
+];
+
+function makeMove(board: Board, row: number, col: number, player: "X" | "O"): Board {
+  // TODO: return a NEW Board with the move applied (don't mutate!)
+  // Hint: board.map((r, rIdx) => rIdx === row ? r.map((c, cIdx) => cIdx === col ? player : c) : [...r])
+}
+
+function checkWinner(board: Board): "X" | "O" | null {
+  // TODO: check all 3 rows, 3 columns, 2 diagonals
+  // Return the winner or null
+}
+
+function isBoardFull(board: Board): boolean {
+  // TODO: return true if every cell is non-null
+}
+
+// Test:
+// let b = makeMove(EMPTY_BOARD, 1, 1, "X"); // center
+// b = makeMove(b, 0, 0, "O");
+// b = makeMove(b, 0, 1, "X");
+// b = makeMove(b, 2, 2, "O");
+// b = makeMove(b, 2, 1, "X");
+// console.log(checkWinner(b)); // null or "X" depending on board</code></pre></div>
+                  <p><strong>Hint:</strong> For <code>makeMove</code>, use nested <code>.map()</code> calls &mdash; outer map handles rows, inner map handles cells. This creates a new 2D array without mutation.</p>
+                </div>
+              </div>
+
+              <div class="tab-pane" data-pane="n-sum">
+                <ul class="summary-list">
+                  <li><code>T[][]</code> is an array of arrays &mdash; <code>arr[i]</code> gives <code>T[]</code>, <code>arr[i][j]</code> gives <code>T</code></li>
+                  <li>TypeScript tracks nesting depth automatically &mdash; one <code>[]</code> per dimension</li>
+                  <li>Use arrays of tuples (<code>[T, U][]</code>) when each sub-array has a fixed structure and length</li>
+                  <li>Use type aliases for complex nested types to keep code readable</li>
+                  <li><code>.flat()</code> and <code>.flatMap()</code> are typed correctly &mdash; they reduce nesting level in the return type</li>
+                  <li>TypeScript cannot enforce row length &mdash; runtime validation is needed for strict rectangular grids</li>
+                  <li>Avoid going beyond 2 levels of nesting; consider flattening or restructuring</li>
+                </ul>
+                <div class="mental-model">Mental model: A nested array is a <strong>grid of typed slots</strong> &mdash; each outer index selects a row, each inner index selects a cell in that row.</div>
+              </div>
+
+            </div>
+          </div>
+        </details>
+
+      </div><!-- end .topic-panels -->
+
+      <!-- ═══════════════════════ MINI-PROJECT ═══════════════════════ -->
+      <div class="mini-project" id="mini-project">
+        <h3>&#9733; Mini-Project: Product Inventory System</h3>
+
+        <h4>What You&rsquo;ll Build</h4>
+        <ul>
+          <li>A typed product inventory with add / remove operations on a <code>Product[]</code></li>
+          <li>A readonly catalog snapshot to prevent accidental mutation after a save-point</li>
+          <li>A search function returning <code>[Product | null, string]</code> tuples</li>
+          <li>A CSV batch importer using <code>string[][]</code> nested arrays</li>
+          <li>A 2D inventory grid organised by category using <code>Product[][]</code></li>
+        </ul>
+
+        <h4>TypeScript Concepts Used</h4>
+        <ul>
+          <li><strong>Arrays</strong> &mdash; <code>Product[]</code> inventory, typed push / filter, typed iteration</li>
+          <li><strong>Readonly Arrays</strong> &mdash; <code>readonly Product[]</code> snapshots, immutable config</li>
+          <li><strong>Tuples</strong> &mdash; search results as <code>[Product | null, string]</code>, operations as <code>[boolean, string]</code></li>
+          <li><strong>Nested Arrays</strong> &mdash; CSV data as <code>string[][]</code>, category grid as <code>Product[][]</code></li>
+        </ul>
+
+        <h4>Architecture</h4>
+        <p>Purely functional module: all functions take state as a parameter and return new state. The CSV importer bridges <code>string[][]</code> (raw boundary) to <code>Product[]</code> (typed domain). No mutation anywhere.</p>
+
+        <div class="code-block"><div class="code-header"><span class="code-lang">typescript &mdash; complete starter code</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">// =====================================================
+// Product Inventory System — Module 3 Mini-Project
+// =====================================================
+
+// ── Types ─────────────────────────────────────────
+interface Product {
+  id:       number;
+  name:     string;
+  category: string;
+  price:    number;
+  stock:    number;
+}
+
+type Inventory       = Product[];
+type CatalogSnapshot = readonly Product[];
+
+// Tuple: [found product or null, status message]
+type SearchResult = [product: Product | null, message: string];
+
+// Tuple: [success flag, message]
+type OpResult = [success: boolean, message: string];
+
+
+// ── Core Operations ────────────────────────────────
+
+function addProduct(inv: Inventory, p: Product): [Inventory, OpResult] {
+  // TODO: return error tuple if p.id already exists
+  // otherwise return [...inv, p] and a success tuple
+}
+
+function removeProduct(inv: Inventory, id: number): [Inventory, OpResult] {
+  // TODO: filter out the product, return new inventory + result
+}
+
+function updateStock(inv: Inventory, id: number, delta: number): [Inventory, OpResult] {
+  // TODO: find product by id, return error if not found
+  // return new inventory with updated stock (stock + delta, min 0)
+}
+
+function searchProduct(inv: Inventory, query: string): SearchResult {
+  // TODO: case-insensitive search by name
+  // return [product, "Found: {name}"] or [null, "Not found: {query}"]
+}
+
+function createSnapshot(inv: Inventory): CatalogSnapshot {
+  // TODO: return the inventory as a readonly array
+  // (just a type-level cast — same reference at runtime)
+}
+
+
+// ── CSV Importer ───────────────────────────────────
+
+// CSV columns: id, name, category, price, stock
+function parseCSVRow(row: string[], rowIndex: number): Product | null {
+  // TODO: validate row has 5 columns
+  // parse id, price, stock as numbers — return null if NaN
+  // return Product object
+}
+
+function importFromCSV(
+  csv: string[][]
+): { products: Product[]; errors: string[] } {
+  // TODO: skip header row (csv[0])
+  // call parseCSVRow on each data row
+  // collect valid products and error messages
+}
+
+
+// ── Inventory Grid ─────────────────────────────────
+
+function organiseByCategory(inv: Inventory): Product[][] {
+  // TODO: group products by category
+  // return array-of-arrays: one sub-array per category
+}
+
+
+// ── Test Harness ───────────────────────────────────
+
+let inventory: Inventory = [];
+
+let op: OpResult;
+[inventory, op] = addProduct(inventory, { id:1, name:"TypeScript Guide",   category:"books",    price:39.99, stock:10 });
+[inventory, op] = addProduct(inventory, { id:2, name:"React Course",       category:"courses",  price:49.99, stock:5  });
+[inventory, op] = addProduct(inventory, { id:3, name:"Mechanical Keyboard",category:"hardware", price:149,   stock:3  });
+[inventory, op] = addProduct(inventory, { id:4, name:"Node.js Guide",      category:"books",    price:29.99, stock:8  });
+
+console.log("Count:",    inventory.length);    // 4
+console.log("Op:",       op[1]);               // "Product added"
+
+const [found, msg] = searchProduct(inventory, "react");
+console.log(msg);                              // "Found: React Course"
+
+const snapshot: CatalogSnapshot = createSnapshot(inventory);
+// snapshot.push(...)  // would Error: 'push' not on ReadonlyArray
+
+const grid = organiseByCategory(inventory);
+console.log("Categories:", grid.length);       // 3
+
+const csvData: string[][] = [
+  ["id","name","category","price","stock"],
+  ["5","VS Code Extension","tools","0","999"],
+  ["bad","broken row","tools","9.99","10"],    // invalid id
+];
+const { products, errors } = importFromCSV(csvData);
+console.log("Imported:", products.length);    // 1
+console.log("Errors:",   errors.length);      // 1</code></pre></div>
+
+        <h4>Step-by-Step Build Instructions</h4>
+        <ol>
+          <li style="margin-bottom:7px"><strong>Implement <code>addProduct</code> and <code>removeProduct</code></strong> &mdash; return new arrays (never mutate) with opResult tuples.</li>
+          <li style="margin-bottom:7px"><strong>Implement <code>updateStock</code></strong> &mdash; use <code>.map()</code> to update the matching product immutably; clamp stock at 0.</li>
+          <li style="margin-bottom:7px"><strong>Implement <code>searchProduct</code></strong> &mdash; use <code>.find()</code> with a lowercase comparison; return a <code>SearchResult</code> tuple.</li>
+          <li style="margin-bottom:7px"><strong>Implement <code>createSnapshot</code></strong> &mdash; just cast the inventory: <code>return inventory as CatalogSnapshot</code>. Confirm that <code>snapshot.push()</code> errors.</li>
+          <li style="margin-bottom:7px"><strong>Build the CSV importer</strong> &mdash; <code>parseCSVRow</code> first (use <code>Number()</code> to parse, check <code>isNaN</code>), then <code>importFromCSV</code>.</li>
+          <li style="margin-bottom:7px"><strong>Build <code>organiseByCategory</code></strong> &mdash; use <code>.reduce()</code> to group into a <code>Record&lt;string, Product[]&gt;</code>, then <code>Object.values()</code>.</li>
+          <li style="margin-bottom:7px"><strong>Run the test harness</strong> &mdash; verify all <code>console.log</code> outputs match expected values.</li>
+        </ol>
+
+        <div class="stretch">
+          <h4>Stretch Goals</h4>
+          <ul>
+            <li><strong>Low-stock alert</strong> &mdash; <code>getLowStock(inv: Inventory, threshold: number): readonly Product[]</code> using filter and returning a readonly snapshot.</li>
+            <li><strong>Price-range search</strong> &mdash; <code>findInRange(inv: Inventory, range: [min: number, max: number]): Product[]</code> using a named tuple for the range parameter.</li>
+            <li><strong>Inventory diff</strong> &mdash; <code>diff(before: CatalogSnapshot, after: CatalogSnapshot): [added: Product[], removed: Product[]]</code> &mdash; a named tuple of changes.</li>
+          </ul>
+        </div>
+      </div>
+
+    </section>
+  </main>
+</div>
+
+<button id="back-to-top" aria-label="Back to top">&#8593;</button>
+
+<script>
+// ── Syntax Highlighter ─────────────────────────────
+const KW = 'const|let|var|function|return|interface|type|class|extends|implements|new|this|if|else|for|while|do|switch|case|break|continue|import|export|default|from|async|await|typeof|keyof|readonly|as|in|of|public|private|protected|static|abstract|enum|declare|namespace|infer';
+const TP = 'never|any|unknown|void|null|undefined|true|false|string|number|boolean|bigint|symbol|object';
+const KW_RE = new RegExp('\\b(' + KW + ')\\b', 'g');
+const TP_RE = new RegExp('\\b(' + TP + ')\\b', 'g');
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function highlightLine(line) {
+  // Find line comment (not inside a string)
+  let inStr = false, strCh = '', ci = -1;
+  for (let i = 0; i < line.length - 1; i++) {
+    const c = line[i];
+    if (!inStr) {
+      if (c === '"' || c === "'" || c === '`') { inStr = true; strCh = c; }
+      else if (c === '/' && line[i+1] === '/') { ci = i; break; }
+    } else if (c === strCh && (i === 0 || line[i-1] !== '\\')) { inStr = false; }
+  }
+  let comment = '';
+  if (ci >= 0) { comment = '<span class="cmt">' + esc(line.slice(ci)) + '</span>'; line = line.slice(0, ci); }
+
+  let h = esc(line);
+  // Strings (simple — covers most cases without template interpolation complexity)
+  h = h.replace(/(&quot;(?:[^&\\]|\\.|&amp;|&lt;|&gt;)*?&quot;|&#039;(?:[^&\\]|\\.|&amp;|&lt;|&gt;)*?&#039;|`[^`]*`)/g, '<span class="str">$1</span>');
+  h = h.replace(KW_RE, '<span class="kw">$1</span>');
+  h = h.replace(TP_RE, '<span class="tp">$1</span>');
+  h = h.replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="num">$1</span>');
+  return h + comment;
+}
+
+document.querySelectorAll('code.ts-code').forEach(el => {
+  el.innerHTML = el.textContent.split('\n').map(highlightLine).join('\n');
+});
+
+// ── Copy Buttons ───────────────────────────────────
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const code = btn.closest('.code-block').querySelector('code');
+    navigator.clipboard.writeText(code.textContent).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+    });
+  });
+});
+
+// ── Tab Switching ──────────────────────────────────
+document.querySelectorAll('.panel-tabs').forEach(tabBar => {
+  tabBar.addEventListener('click', e => {
+    const btn = e.target.closest('.tab');
+    if (!btn) return;
+    const inner = btn.closest('.panel-inner');
+    const id = btn.dataset.tab;
+    inner.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    inner.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    inner.querySelector('[data-pane="' + id + '"]').classList.add('active');
+  });
+});
+
+// ── Progress Bar ───────────────────────────────────
+const progBar = document.getElementById('progress-bar');
+window.addEventListener('scroll', () => {
+  const total = document.documentElement.scrollHeight - window.innerHeight;
+  progBar.style.width = (total > 0 ? window.scrollY / total * 100 : 0) + '%';
+}, { passive: true });
+
+// ── Back to Top ────────────────────────────────────
+const backBtn = document.getElementById('back-to-top');
+window.addEventListener('scroll', () => {
+  backBtn.classList.toggle('visible', window.scrollY > 400);
+}, { passive: true });
+backBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+// ── Topic Search ───────────────────────────────────
+document.getElementById('topicSearch').addEventListener('input', e => {
+  const q = e.target.value.toLowerCase();
+  document.querySelectorAll('.topic-panel').forEach(p => {
+    const name = p.querySelector('.topic-name').textContent.toLowerCase();
+    p.style.display = name.includes(q) ? '' : 'none';
+  });
+});
+
+// ── Module Checkboxes ──────────────────────────────
+function applyCompleted(id, checked) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('completed', checked);
+}
+document.querySelectorAll('.module-check').forEach(cb => {
+  const id = cb.dataset.id;
+  const saved = localStorage.getItem('ts-mod-' + id) === 'true';
+  cb.checked = saved;
+  applyCompleted(id, saved);
+  cb.addEventListener('change', () => {
+    localStorage.setItem('ts-mod-' + id, cb.checked);
+    applyCompleted(id, cb.checked);
+  });
+});
+
+// ── Scroll-Spy ─────────────────────────────────────
+const navLinks = document.querySelectorAll('#module-nav a[href^="#"]');
+const spy = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + id));
+    }
+  });
+}, { rootMargin: '-15% 0px -70% 0px' });
+
+document.querySelectorAll('.topic-panel[id], #mini-project').forEach(el => spy.observe(el));
+
+// Smooth scroll for sidebar links
+navLinks.forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+</body>
+</html>

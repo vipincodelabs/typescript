@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phase 2 — Module 4: Generics Fundamentals | TypeScript Learning Path</title>
+  <style>
+    :root {
+      --bg: #0f1117; --bg-card: #1a1f2e; --bg-code: #1e2433;
+      --border: #2d3748; --text: #e2e8f0; --text-muted: #94a3b8;
+      --accent: #3b82f6; --accent-hover: #2563eb;
+      --success: #10b981; --warning: #f59e0b; --error: #ef4444;
+      --sidebar-width: 260px; --header-height: 56px; --radius: 8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 15px; line-height: 1.7; }
+    #progress-bar { position: fixed; top: var(--header-height); left: 0; height: 3px; background: var(--accent); width: 0%; z-index: 1000; transition: width 0.1s; }
+    #site-header { position: fixed; top: 0; left: 0; right: 0; height: var(--header-height); background: rgba(15,17,23,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 24px; gap: 12px; z-index: 999; }
+    #site-header h1 { font-size: 18px; font-weight: 600; }
+    .phase-badge { padding: 2px 10px; background: var(--accent); border-radius: 20px; font-size: 12px; font-weight: 600; }
+    #layout { display: flex; margin-top: var(--header-height); min-height: calc(100vh - var(--header-height)); }
+    #sidebar { position: fixed; top: var(--header-height); left: 0; width: var(--sidebar-width); height: calc(100vh - var(--header-height)); overflow-y: auto; background: var(--bg-card); border-right: 1px solid var(--border); padding: 20px 16px; }
+    #topicSearch { width: 100%; padding: 8px 12px; background: var(--bg-code); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-size: 13px; margin-bottom: 16px; outline: none; }
+    #topicSearch:focus { border-color: var(--accent); }
+    .nav-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); padding: 4px 12px 8px; margin-top: 12px; }
+    #module-nav { list-style: none; }
+    #module-nav li a { display: block; padding: 8px 12px; color: var(--text-muted); text-decoration: none; border-radius: var(--radius); font-size: 13px; transition: all .2s; }
+    #module-nav li a:hover, #module-nav li a.active { background: rgba(59,130,246,.15); color: var(--accent); }
+    #content { margin-left: var(--sidebar-width); padding: 32px 40px; max-width: 900px; flex: 1; }
+    .module { margin-bottom: 60px; }
+    .module-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid var(--border); flex-wrap: wrap; }
+    .module-header h2 { font-size: 24px; font-weight: 700; }
+    .module-check { width: 18px; height: 18px; accent-color: var(--success); cursor: pointer; }
+    .module-header.completed h2 { text-decoration: line-through; color: var(--text-muted); }
+    .completed-label { font-size: 12px; font-weight: 600; color: var(--success); display: none; }
+    .module-header.completed .completed-label { display: inline; }
+    .module-intro { color: var(--text-muted); margin-bottom: 24px; font-size: 15px; line-height: 1.8; }
+    .topics-table { width: 100%; border-collapse: collapse; margin-bottom: 32px; font-size: 14px; }
+    .topics-table th { text-align: left; padding: 10px 14px; background: var(--bg-code); color: var(--text-muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; border-bottom: 2px solid var(--border); }
+    .topics-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .topics-table tr:hover td { background: rgba(59,130,246,.05); }
+    .badge { padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+    .badge.beginner { background: rgba(16,185,129,.2); color: var(--success); }
+    .badge.intermediate { background: rgba(245,158,11,.2); color: var(--warning); }
+    .badge.advanced { background: rgba(239,68,68,.2); color: var(--error); }
+    .topic-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 12px; overflow: hidden; }
+    .topic-panel summary { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; cursor: pointer; list-style: none; user-select: none; transition: background .2s; }
+    .topic-panel summary:hover { background: rgba(59,130,246,.08); }
+    .topic-panel[open] summary { background: rgba(59,130,246,.1); border-bottom: 1px solid var(--border); }
+    .topic-panel summary::marker, .topic-panel summary::-webkit-details-marker { display: none; }
+    .summary-left { display: flex; align-items: center; gap: 10px; }
+    .topic-arrow { font-size: 12px; color: var(--text-muted); transition: transform .2s; }
+    .topic-panel[open] .topic-arrow { transform: rotate(90deg); }
+    .topic-name { font-weight: 600; font-size: 15px; }
+    .panel-tabs { display: flex; flex-wrap: wrap; gap: 4px; padding: 12px 20px; background: var(--bg); border-bottom: 1px solid var(--border); }
+    .tab { padding: 4px 12px; background: transparent; border: 1px solid var(--border); border-radius: 20px; color: var(--text-muted); font-size: 12px; cursor: pointer; transition: all .2s; white-space: nowrap; }
+    .tab:hover { border-color: var(--accent); color: var(--accent); }
+    .tab.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+    .panel-content { padding: 24px 20px; }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+    .tab-pane h4 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); margin-bottom: 10px; margin-top: 20px; }
+    .tab-pane h4:first-child { margin-top: 0; }
+    .tab-pane p { color: var(--text); margin-bottom: 12px; line-height: 1.8; }
+    .tab-pane ul, .tab-pane ol { padding-left: 20px; margin-bottom: 12px; }
+    .tab-pane li { margin-bottom: 6px; line-height: 1.7; }
+    .code-block { background: var(--bg-code); border: 1px solid var(--border); border-radius: var(--radius); margin: 12px 0; overflow: hidden; }
+    .code-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; background: rgba(255,255,255,.03); border-bottom: 1px solid var(--border); }
+    .code-lang { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); }
+    .copy-btn { padding: 3px 10px; background: transparent; border: 1px solid var(--border); border-radius: 4px; color: var(--text-muted); font-size: 12px; cursor: pointer; transition: all .2s; }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .code-block pre { padding: 16px 14px; overflow-x: auto; font-family: 'Fira Code', Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.7; }
+    .ts-code .kw  { color: #c792ea; }
+    .ts-code .type{ color: #82aaff; }
+    .ts-code .str { color: #c3e88d; }
+    .ts-code .num { color: #f78c6c; }
+    .ts-code .cmt { color: #546e7a; font-style: italic; }
+    .ts-code .fn  { color: #82aaff; }
+    .ts-code .param{ color: #ffcb6b; }
+    .ts-code .op  { color: #89ddff; }
+    .interview-q { background: var(--bg-code); border-left: 3px solid var(--accent); padding: 12px 16px; margin-bottom: 16px; border-radius: 0 var(--radius) var(--radius) 0; }
+    .interview-q .q-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .difficulty-tag { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; }
+    .difficulty-tag.easy   { background: rgba(16,185,129,.2); color: var(--success); }
+    .difficulty-tag.medium { background: rgba(245,158,11,.2);  color: var(--warning); }
+    .difficulty-tag.hard   { background: rgba(239,68,68,.2);   color: var(--error); }
+    .interview-q strong { color: var(--text); font-weight: 600; }
+    .interview-q p { color: var(--text-muted); margin-top: 6px; font-size: 14px; margin-bottom: 0; }
+    .mistake-block { background: var(--bg-code); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; }
+    .mistake-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+    .mistake-label.wrong { color: var(--error); }
+    .mistake-label.correct { color: var(--success); }
+    .practice-item { display: flex; gap: 12px; margin-bottom: 14px; align-items: flex-start; }
+    .practice-num { flex-shrink: 0; width: 24px; height: 24px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; margin-top: 2px; }
+    .exercise-box { background: var(--bg-code); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 12px; }
+    .exercise-box h4 { color: var(--warning) !important; text-transform: uppercase; letter-spacing: .06em; margin-top: 0 !important; }
+    .takeaway-list { list-style: none; padding: 0; }
+    .takeaway-list li { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .takeaway-list li:last-child { border-bottom: none; }
+    .takeaway-list li::before { content: "→"; color: var(--accent); flex-shrink: 0; font-weight: 700; }
+    .mental-model { background: rgba(59,130,246,.1); border: 1px solid var(--accent); border-radius: var(--radius); padding: 14px 18px; margin-top: 16px; font-style: italic; }
+    .mini-project { background: var(--bg-card); border: 2px solid var(--accent); border-radius: var(--radius); padding: 28px; margin-top: 40px; }
+    .mini-project h3 { font-size: 20px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+    .mini-project h4 { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; margin-top: 20px; margin-bottom: 10px; }
+    .mini-project p { line-height: 1.8; margin-bottom: 10px; }
+    .mini-project ul, .mini-project ol { padding-left: 20px; }
+    .mini-project li { margin-bottom: 6px; line-height: 1.7; }
+    #back-to-top { position: fixed; bottom: 32px; right: 32px; width: 40px; height: 40px; background: var(--accent); color: #fff; border: none; border-radius: 50%; font-size: 18px; cursor: pointer; opacity: 0; transform: translateY(10px); transition: all .3s; z-index: 999; }
+    #back-to-top.visible { opacity: 1; transform: translateY(0); }
+    #back-to-top:hover { background: var(--accent-hover); }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<header id="site-header">
+  <h1>Phase 2 — Module 4: Generics Fundamentals</h1>
+  <span class="phase-badge">Intermediate TypeScript</span>
+</header>
+
+<div id="layout">
+
+  <nav id="sidebar">
+    <input type="text" id="topicSearch" placeholder="Search topics…" />
+    <div class="nav-section-title">Phase 2 · Module 4</div>
+    <ul id="module-nav">
+      <li><a href="#module-4">Module 4</a></li>
+    </ul>
+    <div class="nav-section-title">Topics</div>
+    <ul id="topic-nav">
+      <li><a href="#topic-gf">Generic Functions</a></li>
+      <li><a href="#topic-gi">Generic Interfaces</a></li>
+      <li><a href="#topic-gt">Generic Types</a></li>
+      <li><a href="#topic-con">Constraints</a></li>
+    </ul>
+  </nav>
+
+  <main id="content">
+    <section id="module-4" class="module">
+      <div class="module-header" id="module-4-header">
+        <label style="display:flex;align-items:center;gap:12px;cursor:pointer">
+          <input type="checkbox" class="module-check" data-id="module-4" />
+          <h2>Module 4: Generics Fundamentals</h2>
+        </label>
+        <span class="completed-label">✓ Completed</span>
+      </div>
+
+      <p class="module-intro">
+        Generics are the feature that separates intermediate TypeScript from beginner TypeScript. They let you write
+        functions, interfaces, and types that work with <em>any</em> type while maintaining complete type safety —
+        no <code>any</code>, no casting, no guessing. Think of generics as a rubber stamp that preserves whatever
+        shape you pour through it. By the end of this module you'll write reusable, type-safe utilities that feel
+        as flexible as JavaScript but as safe as fully typed code.
+      </p>
+
+      <table class="topics-table">
+        <thead>
+          <tr><th>Topic</th><th>What You'll Learn</th><th>Difficulty</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Generic Functions</strong></td><td>Write functions that work with any type while preserving type information end-to-end</td><td><span class="badge beginner">Beginner</span></td></tr>
+          <tr><td><strong>Generic Interfaces</strong></td><td>Design reusable interface shapes that adapt to the types they hold</td><td><span class="badge intermediate">Intermediate</span></td></tr>
+          <tr><td><strong>Generic Types</strong></td><td>Create type aliases with parameters for composable type transformations</td><td><span class="badge intermediate">Intermediate</span></td></tr>
+          <tr><td><strong>Constraints</strong></td><td>Restrict what types are allowed as type arguments using extends</td><td><span class="badge advanced">Advanced</span></td></tr>
+        </tbody>
+      </table>
+
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <!--  TOPIC 1 — GENERIC FUNCTIONS                                       -->
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <div class="topic-panels">
+        <details class="topic-panel" id="topic-gf">
+          <summary>
+            <div class="summary-left"><span class="topic-arrow">▶</span><span class="topic-name">Generic Functions</span></div>
+            <span class="badge beginner">Beginner</span>
+          </summary>
+          <div class="panel-tabs">
+            <button class="tab active" data-tab="def">Definition</button>
+            <button class="tab" data-tab="why">Why It Exists</button>
+            <button class="tab" data-tab="when">When to Use</button>
+            <button class="tab" data-tab="notwhen">When NOT to Use</button>
+            <button class="tab" data-tab="int">How It Works</button>
+            <button class="tab" data-tab="syn">Syntax</button>
+            <button class="tab" data-tab="ex">Example</button>
+            <button class="tab" data-tab="rw">Real-World</button>
+            <button class="tab" data-tab="uc">Use Cases</button>
+            <button class="tab" data-tab="mis">Mistakes</button>
+            <button class="tab" data-tab="bp">Best Practices</button>
+            <button class="tab" data-tab="iq">Interview Qs</button>
+            <button class="tab" data-tab="exc">Exercise</button>
+            <button class="tab" data-tab="sum">Summary</button>
+          </div>
+          <div class="panel-content">
+
+            <div class="tab-pane active" data-pane="def">
+              <h4>Simple Explanation</h4>
+              <p>A generic function is like a mold you can pour any material into — the shape it produces is always consistent, but it adapts to whatever you put in. You write the function logic once and TypeScript automatically figures out the specific type each time you call it.</p>
+              <h4>Technical Explanation</h4>
+              <p>A generic function declares one or more <strong>type parameters</strong> (written between <code>&lt;angle brackets&gt;</code>) alongside its regular parameters. These type parameters act as placeholders that TypeScript resolves — through explicit annotation or automatic inference — at each call site. The key guarantee: type information flows through the function without being lost, unlike with <code>any</code>.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="why">
+              <h4>The Problem Without Generics</h4>
+              <p>Without generics you face a painful trade-off: write one overload per type, or surrender type safety with <code>any</code>.</p>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// Without generics — loses the specific type</span>
+<span class="kw">function</span> <span class="fn">identity</span>(<span class="param">arg</span>: <span class="type">any</span>): <span class="type">any</span> { <span class="kw">return</span> arg; }
+
+<span class="kw">const</span> result = identity(<span class="str">"hello"</span>);
+result.toUpperCase();  <span class="cmt">// no autocomplete, no safety</span>
+result.doesNotExist(); <span class="cmt">// TypeScript won't catch this bug!</span></code></pre></div>
+              <h4>The Solution With Generics</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// With generics — type information is preserved</span>
+<span class="kw">function</span> <span class="fn">identity</span>&lt;<span class="type">T</span>&gt;(<span class="param">arg</span>: <span class="type">T</span>): <span class="type">T</span> { <span class="kw">return</span> arg; }
+
+<span class="kw">const</span> result = identity(<span class="str">"hello"</span>); <span class="cmt">// result: string</span>
+result.toUpperCase();  <span class="cmt">// ✓</span>
+result.doesNotExist(); <span class="cmt">// ✗ Error caught at compile time</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="when">
+              <h4>When Generic Functions Are the Right Tool</h4>
+              <ul>
+                <li><strong>The return type mirrors the input type</strong> — if you return what you receive, the output type should match the input.</li>
+                <li><strong>Writing array or collection utilities</strong> — <code>first</code>, <code>last</code>, <code>chunk</code>, <code>zip</code> work on any element type.</li>
+                <li><strong>Building API fetch wrappers</strong> — the response shape changes per endpoint: <code>get&lt;User&gt;('/api/user')</code>.</li>
+                <li><strong>Writing transformation wrappers</strong> — caching, retry, debounce utilities work generically without caring about the inner type.</li>
+                <li><strong>Avoiding near-duplicate functions</strong> — if you're writing <code>processString</code>, <code>processNumber</code>, <code>processUser</code>, that's a generic waiting to be written.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="notwhen">
+              <h4>When NOT to Use Generic Functions</h4>
+              <ul>
+                <li><strong>When the function only ever works with one type</strong> — just type it directly; don't add a pointless <code>&lt;T&gt;</code>.</li>
+                <li><strong>When a union type is simpler</strong> — if a function accepts string or number, <code>string | number</code> is cleaner than a constrained generic.</li>
+                <li><strong>When you have 4+ type parameters</strong> — design smell; break it into smaller composable pieces.</li>
+                <li><strong>When T only appears in one position (input OR output, not both)</strong> — generics add value when the type relationship flows end-to-end. If T appears only once, use <code>unknown</code> instead.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="int">
+              <h4>What TypeScript Does Under the Hood</h4>
+              <p>Generics are a <strong>purely compile-time feature</strong>. Here's what happens step by step:</p>
+              <ol>
+                <li>You write <code>function identity&lt;T&gt;(arg: T): T</code> — TypeScript stores this as a template with a free variable <code>T</code>.</li>
+                <li>At each call site, TypeScript performs <strong>type argument inference</strong>. When you write <code>identity("hello")</code> it sees the argument is <code>string</code> and sets <code>T = string</code>.</li>
+                <li>TypeScript then validates the function body with <code>T</code> replaced by <code>string</code>, verifying all constraints hold.</li>
+                <li>At compilation, all type annotations are <strong>erased completely</strong> — zero runtime cost.</li>
+              </ol>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// TypeScript source</span>
+<span class="kw">function</span> <span class="fn">identity</span>&lt;<span class="type">T</span>&gt;(<span class="param">arg</span>: <span class="type">T</span>): <span class="type">T</span> { <span class="kw">return</span> arg; }
+
+<span class="cmt">// Compiled JavaScript — generics are completely erased</span>
+<span class="kw">function</span> <span class="fn">identity</span>(arg) { <span class="kw">return</span> arg; }</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="syn">
+              <h4>Fully Annotated Syntax</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// Basic generic function declaration</span>
+<span class="kw">function</span> <span class="fn">identity</span>&lt;<span class="type">T</span>&gt;(<span class="param">arg</span>: <span class="type">T</span>): <span class="type">T</span> {
+<span class="cmt">//              ^^^  ^^^^^  ^</span>
+<span class="cmt">//              |    |      return type — T flows through</span>
+<span class="cmt">//              |    parameter type — placeholder resolved at call site</span>
+<span class="cmt">//              type parameter declaration</span>
+  <span class="kw">return</span> arg;
+}
+
+<span class="cmt">// Arrow function generic</span>
+<span class="kw">const</span> identity = &lt;<span class="type">T</span>&gt;(<span class="param">arg</span>: <span class="type">T</span>): <span class="type">T</span> <span class="op">=&gt;</span> arg;
+
+<span class="cmt">// Multiple type parameters</span>
+<span class="kw">function</span> <span class="fn">pair</span>&lt;<span class="type">A</span>, <span class="type">B</span>&gt;(<span class="param">first</span>: <span class="type">A</span>, <span class="param">second</span>: <span class="type">B</span>): [<span class="type">A</span>, <span class="type">B</span>] {
+  <span class="kw">return</span> [first, second];
+}
+
+<span class="cmt">// Explicit type arg (usually unnecessary — TypeScript infers)</span>
+<span class="kw">const</span> r1 = identity&lt;<span class="type">string</span>&gt;(<span class="str">"hello"</span>); <span class="cmt">// explicit</span>
+<span class="kw">const</span> r2 = identity(<span class="str">"hello"</span>);          <span class="cmt">// inferred — prefer this</span>
+
+<span class="cmt">// In .tsx files, trailing comma disambiguates from JSX</span>
+<span class="kw">const</span> fn = &lt;<span class="type">T</span>,&gt;(<span class="param">arg</span>: <span class="type">T</span>): <span class="type">T</span> <span class="op">=&gt;</span> arg;</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="ex">
+              <h4>Practical Code Example</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// Generic array utilities — write once, works for any element type</span>
+
+<span class="kw">function</span> <span class="fn">getFirst</span>&lt;<span class="type">T</span>&gt;(<span class="param">arr</span>: <span class="type">T</span>[]): <span class="type">T</span> | <span class="kw">undefined</span> {
+  <span class="kw">return</span> arr[<span class="num">0</span>];
+}
+
+<span class="kw">function</span> <span class="fn">getLast</span>&lt;<span class="type">T</span>&gt;(<span class="param">arr</span>: <span class="type">T</span>[]): <span class="type">T</span> | <span class="kw">undefined</span> {
+  <span class="kw">return</span> arr[arr.length <span class="op">-</span> <span class="num">1</span>];
+}
+
+<span class="kw">function</span> <span class="fn">swap</span>&lt;<span class="type">A</span>, <span class="type">B</span>&gt;(<span class="param">pair</span>: [<span class="type">A</span>, <span class="type">B</span>]): [<span class="type">B</span>, <span class="type">A</span>] {
+  <span class="kw">return</span> [pair[<span class="num">1</span>], pair[<span class="num">0</span>]];
+}
+
+<span class="kw">function</span> <span class="fn">chunk</span>&lt;<span class="type">T</span>&gt;(<span class="param">arr</span>: <span class="type">T</span>[], <span class="param">size</span>: <span class="type">number</span>): <span class="type">T</span>[][] {
+  <span class="kw">const</span> result: <span class="type">T</span>[][] = [];
+  <span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i &lt; arr.length; i += size) result.push(arr.slice(i, i + size));
+  <span class="kw">return</span> result;
+}
+
+<span class="kw">const</span> nums = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>];
+<span class="kw">const</span> first = getFirst(nums);    <span class="cmt">// Type: number | undefined</span>
+<span class="kw">const</span> parts = chunk(nums, <span class="num">2</span>);   <span class="cmt">// Type: number[][]</span>
+
+<span class="kw">const</span> strs = [<span class="str">"a"</span>, <span class="str">"b"</span>, <span class="str">"c"</span>];
+<span class="kw">const</span> firstStr = getFirst(strs); <span class="cmt">// Type: string | undefined</span>
+
+<span class="kw">const</span> swapped = swap([<span class="num">42</span>, <span class="str">"hello"</span>]); <span class="cmt">// Type: [string, number]</span>
+<span class="cmt">// Output: ["hello", 42]</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="rw">
+              <h4>Real-World Example</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// Typed API fetch wrapper — used across an Express + React app</span>
+
+<span class="kw">interface</span> <span class="type">ApiError</span> { message: <span class="type">string</span>; code: <span class="type">number</span>; }
+
+<span class="kw">async function</span> <span class="fn">apiFetch</span>&lt;<span class="type">T</span>&gt;(
+  <span class="param">url</span>: <span class="type">string</span>,
+  <span class="param">options</span>?: <span class="type">RequestInit</span>
+): <span class="type">Promise</span>&lt;<span class="type">T</span>&gt; {
+  <span class="kw">const</span> res = <span class="kw">await</span> fetch(url, options);
+  <span class="kw">if</span> (!res.ok) {
+    <span class="kw">const</span> err: <span class="type">ApiError</span> = <span class="kw">await</span> res.json();
+    <span class="kw">throw new</span> <span class="type">Error</span>(err.message);
+  }
+  <span class="kw">return</span> res.json() <span class="kw">as</span> <span class="type">Promise</span>&lt;<span class="type">T</span>&gt;;
+}
+
+<span class="kw">interface</span> <span class="type">User</span>    { id: <span class="type">number</span>; name: <span class="type">string</span>; email: <span class="type">string</span>; }
+<span class="kw">interface</span> <span class="type">Product</span> { id: <span class="type">number</span>; title: <span class="type">string</span>; price: <span class="type">number</span>; }
+
+<span class="cmt">// Each call site gets the exact type — no casting needed</span>
+<span class="kw">const</span> user    = <span class="kw">await</span> apiFetch&lt;<span class="type">User</span>&gt;(<span class="str">'/api/users/1'</span>);
+console.log(user.email);          <span class="cmt">// ✓ string</span>
+
+<span class="kw">const</span> products = <span class="kw">await</span> apiFetch&lt;<span class="type">Product</span>[]&gt;(<span class="str">'/api/products'</span>);
+console.log(products[<span class="num">0</span>].price);  <span class="cmt">// ✓ number</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="uc">
+              <h4>Real-World Use Cases</h4>
+              <ul>
+                <li><strong>React's useState hook</strong> — <code>useState&lt;User | null&gt;(null)</code> types state precisely without runtime checks everywhere.</li>
+                <li><strong>React Query's useQuery</strong> — <code>useQuery&lt;User[], Error&gt;</code> types both data and error so components get full autocomplete.</li>
+                <li><strong>Axios/fetch wrappers</strong> — every team's internal HTTP client uses generics so each endpoint call returns the right type without casting.</li>
+                <li><strong>Lodash utilities</strong> — <code>_.chunk&lt;T&gt;</code>, <code>_.groupBy&lt;T&gt;</code> preserve the element type through each transformation.</li>
+                <li><strong>Async retry/timeout wrappers</strong> — a <code>withRetry&lt;T&gt;</code> function wraps any async operation without losing its return type.</li>
+                <li><strong>Promise combinators</strong> — <code>Promise.all&lt;[A, B, C]&gt;</code> is itself generic so destructured results have the right types.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="mis">
+              <h4>Common Mistakes</h4>
+              <div class="mistake-block">
+                <div class="mistake-label wrong">Mistake 1 — Using any inside the generic body</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// WRONG — defeats the purpose entirely</span>
+<span class="kw">function</span> <span class="fn">wrap</span>&lt;<span class="type">T</span>&gt;(<span class="param">val</span>: <span class="type">T</span>): { value: <span class="type">any</span> } { <span class="kw">return</span> { value: val }; }
+
+<span class="cmt">// CORRECT — T flows all the way through</span>
+<span class="kw">function</span> <span class="fn">wrap</span>&lt;<span class="type">T</span>&gt;(<span class="param">val</span>: <span class="type">T</span>): { value: <span class="type">T</span> } { <span class="kw">return</span> { value: val }; }</code></pre></div>
+                <p>Once you use <code>any</code> in the return type, callers lose all type information.</p>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label wrong">Mistake 2 — Unnecessary explicit type arguments</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// WRONG — verbose, TypeScript can infer this</span>
+<span class="kw">const</span> r = identity&lt;<span class="type">string</span>&gt;(<span class="str">"hello"</span>);
+
+<span class="cmt">// CORRECT — let inference do the work</span>
+<span class="kw">const</span> r = identity(<span class="str">"hello"</span>);</code></pre></div>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label wrong">Mistake 3 — Generic where T appears only once</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// WRONG — T only in input, return is void; generic adds nothing</span>
+<span class="kw">function</span> <span class="fn">log</span>&lt;<span class="type">T</span>&gt;(<span class="param">val</span>: <span class="type">T</span>): <span class="kw">void</span> { console.log(val); }
+
+<span class="cmt">// CORRECT — unknown or any is more honest here</span>
+<span class="kw">function</span> <span class="fn">log</span>(<span class="param">val</span>: <span class="kw">unknown</span>): <span class="kw">void</span> { console.log(val); }</code></pre></div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="bp">
+              <h4>Best Practices</h4>
+              <div class="practice-item"><div class="practice-num">1</div><div><strong>Use conventional single-letter names: T (primary), K (key), V (value), E (element), R (return)</strong><p>This is established convention. Longer names like <code>TItem</code> are considered noise.</p></div></div>
+              <div class="practice-item"><div class="practice-num">2</div><div><strong>Let TypeScript infer type arguments — only specify them when inference would be wrong</strong><p>Type argument inference is one of TypeScript's best features. Forcing explicit args everywhere adds noise.</p></div></div>
+              <div class="practice-item"><div class="practice-num">3</div><div><strong>Constrain type parameters when you access their properties</strong><p>If you access <code>arg.length</code> inside a generic, add <code>T extends { length: number }</code>. Without it TypeScript can't verify T has that property.</p></div></div>
+              <div class="practice-item"><div class="practice-num">4</div><div><strong>Keep generic functions focused — one concern per type parameter</strong><p>If you reach <code>fn&lt;A, B, C, D&gt;</code>, the function is doing too much. Split into smaller generic functions that compose cleanly.</p></div></div>
+              <div class="practice-item"><div class="practice-num">5</div><div><strong>Prefer T[] over Array&lt;T&gt; for simple arrays</strong><p>Both work. Most style guides prefer <code>T[]</code> for simple cases; <code>Array&lt;T&gt;</code> for nested arrays where <code>T[][]</code> is confusing.</p></div></div>
+            </div>
+
+            <div class="tab-pane" data-pane="iq">
+              <h4>Interview Questions</h4>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag easy">Easy</span><strong>Q: What is a generic function and why use it over any?</strong></div>
+                <p>A generic function uses type parameters to write one function that works with multiple types while preserving type safety. Unlike <code>any</code>, a generic maintains the relationship between input and output types — if you pass a <code>string</code>, you get a <code>string</code> back. <code>identity&lt;T&gt;(arg: T): T</code> guarantees the return matches the input; <code>identity(arg: any): any</code> throws that information away.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag medium">Medium</span><strong>Q: How does TypeScript infer type arguments for generic functions?</strong></div>
+                <p>TypeScript uses <strong>type argument inference</strong> — it examines the types of arguments at the call site and unifies them with the type parameter. When you call <code>identity("hello")</code>, TypeScript sees the argument is <code>string</code> and sets <code>T = string</code>. Inference flows from argument types, not from how the return value is used. You can override it with an explicit type argument: <code>identity&lt;string&gt;("hello")</code>.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag medium">Medium</span><strong>Q: How do you write a generic arrow function in a .tsx file?</strong></div>
+                <p>The parser sees <code>&lt;T&gt;</code> and thinks it's JSX, causing a parse error. Fix it with a trailing comma — <code>&lt;T,&gt;</code> — which signals "this is a type parameter, not JSX". Alternatively use <code>&lt;T extends unknown&gt;</code>. Most teams prefer the trailing comma: <code>const fn = &lt;T,&gt;(arg: T): T =&gt; arg</code>.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag hard">Hard</span><strong>Q: What's the difference between a generic function and a function overload?</strong></div>
+                <p>A generic function expresses that the function works <em>uniformly</em> across types — the same logic handles all cases. Overloads express that a function has <em>different behaviors</em> for different input types. Use generics when logic is truly the same regardless of type (utilities, wrappers). Use overloads when the function does something fundamentally different based on what it receives — e.g., returning a string when given a string and a number when given a number can't be expressed as a single generic.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag hard">Hard</span><strong>Q: Can TypeScript infer a generic's type from the return context rather than the argument?</strong></div>
+                <p>No — TypeScript only infers type parameters from <em>argument types</em>, not from how the return value is used. Writing <code>const x: string = identity()</code> hoping TypeScript infers <code>T = string</code> won't work. This is why <code>JSON.parse</code> returns <code>any</code> — there's no argument to infer the return type from, so a generic would require explicit annotation at every call site, which is worse ergonomics.</p>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="exc">
+              <h4>Practice Challenge</h4>
+              <div class="exercise-box">
+                <h4>Goal</h4>
+                <p>Build a typed array utilities module with four generic functions.</p>
+                <h4>Requirements</h4>
+                <ul>
+                  <li>All functions must be generic and type-safe (no <code>any</code>)</li>
+                  <li><code>head(arr)</code> — returns first element or <code>undefined</code></li>
+                  <li><code>tail(arr)</code> — returns all elements after the first</li>
+                  <li><code>zip(arr1, arr2)</code> — pairs elements into tuples: <code>[A, B][]</code>, stopping at shorter length</li>
+                  <li><code>unique(arr)</code> — returns array with duplicates removed using Set</li>
+                </ul>
+              </div>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">function</span> <span class="fn">head</span>&lt;<span class="type">T</span>&gt;(<span class="param">arr</span>: <span class="type">T</span>[]): <span class="type">T</span> | <span class="kw">undefined</span> {
+  <span class="cmt">// TODO</span>
+}
+
+<span class="kw">function</span> <span class="fn">tail</span>&lt;<span class="type">T</span>&gt;(<span class="param">arr</span>: <span class="type">T</span>[]): <span class="type">T</span>[] {
+  <span class="cmt">// TODO</span>
+}
+
+<span class="kw">function</span> <span class="fn">zip</span>&lt;<span class="type">A</span>, <span class="type">B</span>&gt;(<span class="param">arr1</span>: <span class="type">A</span>[], <span class="param">arr2</span>: <span class="type">B</span>[]): [<span class="type">A</span>, <span class="type">B</span>][] {
+  <span class="cmt">// TODO: stop at Math.min(arr1.length, arr2.length)</span>
+}
+
+<span class="kw">function</span> <span class="fn">unique</span>&lt;<span class="type">T</span>&gt;(<span class="param">arr</span>: <span class="type">T</span>[]): <span class="type">T</span>[] {
+  <span class="cmt">// TODO: [...new Set(arr)]</span>
+}
+
+console.log(head([<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>]));              <span class="cmt">// 1</span>
+console.log(tail([<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>]));              <span class="cmt">// [2, 3]</span>
+console.log(zip([<span class="num">1</span>,<span class="num">2</span>], [<span class="str">"a"</span>,<span class="str">"b"</span>]));     <span class="cmt">// [[1,"a"],[2,"b"]]</span>
+console.log(unique([<span class="num">1</span>,<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>,<span class="num">2</span>]));       <span class="cmt">// [1, 2, 3]</span></code></pre></div>
+              <p><strong>Hint:</strong> For <code>zip</code>, iterate <code>Array.from({ length: Math.min(...) }, (_, i) =&gt; [arr1[i], arr2[i]])</code>.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="sum">
+              <h4>Key Takeaways</h4>
+              <ul class="takeaway-list">
+                <li>Generic functions use <code>&lt;T&gt;</code> to write one function that works safely with any type.</li>
+                <li>TypeScript infers type parameters from call-site arguments — you rarely need to specify them explicitly.</li>
+                <li>Generics are erased at compile time — compiled JavaScript looks exactly like untyped JavaScript.</li>
+                <li>The key benefit over <code>any</code>: the relationship between input and output types is preserved and verified.</li>
+                <li>Conventional names: <code>T</code> primary, <code>K</code> key, <code>V</code> value, <code>E</code> element, <code>R</code> return.</li>
+                <li>When T appears in only one position (not bridging input to output), prefer <code>unknown</code> instead.</li>
+              </ul>
+              <div class="mental-model">Mental model: A generic function is a <em>type-preserving pipe</em> — whatever shape goes in comes out the other end with the same shape, no matter what you pour through it.</div>
+            </div>
+          </div>
+        </details>
+
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <!--  TOPIC 2 — GENERIC INTERFACES                                      -->
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <details class="topic-panel" id="topic-gi">
+          <summary>
+            <div class="summary-left"><span class="topic-arrow">▶</span><span class="topic-name">Generic Interfaces</span></div>
+            <span class="badge intermediate">Intermediate</span>
+          </summary>
+          <div class="panel-tabs">
+            <button class="tab active" data-tab="def">Definition</button>
+            <button class="tab" data-tab="why">Why It Exists</button>
+            <button class="tab" data-tab="when">When to Use</button>
+            <button class="tab" data-tab="notwhen">When NOT to Use</button>
+            <button class="tab" data-tab="int">How It Works</button>
+            <button class="tab" data-tab="syn">Syntax</button>
+            <button class="tab" data-tab="ex">Example</button>
+            <button class="tab" data-tab="rw">Real-World</button>
+            <button class="tab" data-tab="uc">Use Cases</button>
+            <button class="tab" data-tab="mis">Mistakes</button>
+            <button class="tab" data-tab="bp">Best Practices</button>
+            <button class="tab" data-tab="iq">Interview Qs</button>
+            <button class="tab" data-tab="exc">Exercise</button>
+            <button class="tab" data-tab="sum">Summary</button>
+          </div>
+          <div class="panel-content">
+
+            <div class="tab-pane active" data-pane="def">
+              <h4>Simple Explanation</h4>
+              <p>A generic interface is a blueprint that describes the same structure for different kinds of data. Like a shipping box template — the template (lid, sides, label slots) is always the same, but you specify whether it holds books, electronics, or food when you use it.</p>
+              <h4>Technical Explanation</h4>
+              <p>A generic interface declares type parameters between angle brackets after the interface name. Properties, method signatures, and index signatures throughout the interface can reference those parameters. When you use the interface you supply concrete types — <code>Box&lt;string&gt;</code>, <code>Box&lt;number&gt;</code> — and TypeScript enforces the resulting shape. Generic interfaces are entirely compile-time; no JavaScript is emitted.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="why">
+              <h4>The Problem Without Generic Interfaces</h4>
+              <p>Without them you'd write a separate interface for every variation of the same shape — <code>UserApiResponse</code>, <code>PostApiResponse</code>, <code>OrderApiResponse</code> — all with identical structure except the data type.</p>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// Without generic interfaces — explosion of near-duplicate code</span>
+<span class="kw">interface</span> <span class="type">UserApiResponse</span>  { data: <span class="type">User</span>;  status: <span class="type">number</span>; ok: <span class="type">boolean</span>; }
+<span class="kw">interface</span> <span class="type">PostApiResponse</span>  { data: <span class="type">Post</span>;  status: <span class="type">number</span>; ok: <span class="type">boolean</span>; }
+<span class="kw">interface</span> <span class="type">OrderApiResponse</span> { data: <span class="type">Order</span>; status: <span class="type">number</span>; ok: <span class="type">boolean</span>; }</code></pre></div>
+              <h4>With Generic Interfaces</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// One generic interface handles all cases</span>
+<span class="kw">interface</span> <span class="type">ApiResponse</span>&lt;<span class="type">T</span>&gt; { data: <span class="type">T</span>; status: <span class="type">number</span>; ok: <span class="type">boolean</span>; }
+
+<span class="kw">const</span> userResp: <span class="type">ApiResponse</span>&lt;<span class="type">User</span>&gt;  = { data: user,  status: <span class="num">200</span>, ok: <span class="kw">true</span> };
+<span class="kw">const</span> postResp: <span class="type">ApiResponse</span>&lt;<span class="type">Post</span>&gt;  = { data: post,  status: <span class="num">200</span>, ok: <span class="kw">true</span> };
+<span class="kw">const</span> errResp:  <span class="type">ApiResponse</span>&lt;<span class="kw">null</span>&gt;  = { data: <span class="kw">null</span>, status: <span class="num">404</span>, ok: <span class="kw">false</span> };</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="when">
+              <h4>When to Use Generic Interfaces</h4>
+              <ul>
+                <li><strong>API response shapes</strong> — the wrapper structure (status, error, pagination) is always the same; only the payload type changes.</li>
+                <li><strong>Repository / data-access patterns</strong> — a <code>Repository&lt;T&gt;</code> interface defines <code>findById</code>, <code>save</code>, <code>delete</code> for any entity type.</li>
+                <li><strong>Event systems</strong> — <code>EventHandler&lt;T&gt;</code> types callback functions where T is the event payload.</li>
+                <li><strong>Paginated lists</strong> — <code>PaginatedResult&lt;T&gt;</code> wraps any collection with page metadata.</li>
+                <li><strong>Form state</strong> — <code>FormState&lt;T&gt;</code> holds values, errors, and dirty fields where T is the form data shape.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="notwhen">
+              <h4>When NOT to Use Generic Interfaces</h4>
+              <ul>
+                <li><strong>When used with only one concrete type</strong> — if <code>UserRepository</code> is the only implementation, skip the generic.</li>
+                <li><strong>When the type parameter never appears in any property</strong> — a generic interface where T is unused is pointless indirection.</li>
+                <li><strong>When a union type is more precise</strong> — sometimes <code>{ result: User } | { result: Error }</code> is clearer because it encodes semantics the generic can't.</li>
+                <li><strong>When over-abstraction hides intent</strong> — a concrete, named interface sometimes communicates more than a generic one.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="int">
+              <h4>How Generic Interfaces Work Internally</h4>
+              <p>Generic interfaces are entirely a TypeScript compile-time concept. When you write <code>ApiResponse&lt;User&gt;</code>, TypeScript creates a virtual type where every occurrence of <code>T</code> is substituted with <code>User</code>. This virtual type is then used for all structural checks — never materialized in memory or emitted as JavaScript.</p>
+              <p>TypeScript uses <strong>structural subtyping</strong> for interface checks. An object satisfies <code>ApiResponse&lt;User&gt;</code> if it has all the required properties with the right types — TypeScript doesn't care how the object was declared, only that it has the right shape.</p>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// Plain object satisfies ApiResponse&lt;User&gt; structurally — no class needed</span>
+<span class="kw">const</span> response = { data: { id: <span class="num">1</span>, name: <span class="str">"Alice"</span>, email: <span class="str">"a@b.com"</span> }, status: <span class="num">200</span>, ok: <span class="kw">true</span> };
+<span class="kw">const</span> typed: <span class="type">ApiResponse</span>&lt;<span class="type">User</span>&gt; = response; <span class="cmt">// ✓</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="syn">
+              <h4>Fully Annotated Syntax</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// Basic generic interface</span>
+<span class="kw">interface</span> <span class="type">Container</span>&lt;<span class="type">T</span>&gt; {
+<span class="cmt">//         ^^^^^^^^^  ^^^</span>
+<span class="cmt">//         |          type parameter used throughout the body</span>
+<span class="cmt">//         interface name</span>
+  value: <span class="type">T</span>;
+  transform: (<span class="param">fn</span>: (<span class="param">v</span>: <span class="type">T</span>) <span class="op">=&gt;</span> <span class="type">T</span>) <span class="op">=&gt;</span> <span class="type">Container</span>&lt;<span class="type">T</span>&gt;;
+}
+
+<span class="cmt">// Multiple type parameters</span>
+<span class="kw">interface</span> <span class="type">KeyValue</span>&lt;<span class="type">K</span>, <span class="type">V</span>&gt; {
+  key: <span class="type">K</span>;
+  value: <span class="type">V</span>;
+  toString(): <span class="type">string</span>;
+}
+
+<span class="cmt">// Default type parameter (TypeScript 4.7+)</span>
+<span class="kw">interface</span> <span class="type">Result</span>&lt;<span class="type">T</span> = <span class="kw">unknown</span>&gt; {
+  data: <span class="type">T</span>;
+  error: <span class="type">string</span> | <span class="kw">null</span>;
+}
+
+<span class="cmt">// Usage</span>
+<span class="kw">const</span> pair: <span class="type">KeyValue</span>&lt;<span class="type">string</span>, <span class="type">number</span>&gt; = { key: <span class="str">"age"</span>, value: <span class="num">30</span>, toString: () <span class="op">=&gt;</span> <span class="str">"age:30"</span> };
+
+<span class="cmt">// Class implementing a generic interface</span>
+<span class="kw">class</span> <span class="type">UserRepo</span> <span class="kw">implements</span> <span class="type">Repository</span>&lt;<span class="type">User</span>&gt; { <span class="cmt">/* ... */</span> }</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="ex">
+              <h4>Practical Code Example</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// Generic Repository interface — classic data access pattern</span>
+
+<span class="kw">interface</span> <span class="type">Repository</span>&lt;<span class="type">T</span>, <span class="type">ID</span> = <span class="type">number</span>&gt; {
+  findById(id: <span class="type">ID</span>): <span class="type">Promise</span>&lt;<span class="type">T</span> | <span class="kw">null</span>&gt;;
+  findAll(): <span class="type">Promise</span>&lt;<span class="type">T</span>[]&gt;;
+  save(entity: <span class="type">T</span>): <span class="type">Promise</span>&lt;<span class="type">T</span>&gt;;
+  delete(id: <span class="type">ID</span>): <span class="type">Promise</span>&lt;<span class="kw">void</span>&gt;;
+}
+
+<span class="kw">interface</span> <span class="type">User</span>    { id: <span class="type">number</span>; name: <span class="type">string</span>; email: <span class="type">string</span>; }
+<span class="kw">interface</span> <span class="type">Product</span> { id: <span class="type">number</span>; title: <span class="type">string</span>; price: <span class="type">number</span>; }
+
+<span class="kw">class</span> <span class="type">UserRepository</span> <span class="kw">implements</span> <span class="type">Repository</span>&lt;<span class="type">User</span>&gt; {
+  <span class="kw">async</span> <span class="fn">findById</span>(<span class="param">id</span>: <span class="type">number</span>): <span class="type">Promise</span>&lt;<span class="type">User</span> | <span class="kw">null</span>&gt; { <span class="kw">return null</span>; }
+  <span class="kw">async</span> <span class="fn">findAll</span>(): <span class="type">Promise</span>&lt;<span class="type">User</span>[]&gt; { <span class="kw">return</span> []; }
+  <span class="kw">async</span> <span class="fn">save</span>(<span class="param">user</span>: <span class="type">User</span>): <span class="type">Promise</span>&lt;<span class="type">User</span>&gt; { <span class="kw">return</span> user; }
+  <span class="kw">async</span> <span class="fn">delete</span>(<span class="param">id</span>: <span class="type">number</span>): <span class="type">Promise</span>&lt;<span class="kw">void</span>&gt; {}
+}
+
+<span class="kw">class</span> <span class="type">ProductRepository</span> <span class="kw">implements</span> <span class="type">Repository</span>&lt;<span class="type">Product</span>&gt; {
+  <span class="kw">async</span> <span class="fn">findById</span>(<span class="param">id</span>: <span class="type">number</span>): <span class="type">Promise</span>&lt;<span class="type">Product</span> | <span class="kw">null</span>&gt; { <span class="kw">return null</span>; }
+  <span class="kw">async</span> <span class="fn">findAll</span>(): <span class="type">Promise</span>&lt;<span class="type">Product</span>[]&gt; { <span class="kw">return</span> []; }
+  <span class="kw">async</span> <span class="fn">save</span>(<span class="param">p</span>: <span class="type">Product</span>): <span class="type">Promise</span>&lt;<span class="type">Product</span>&gt; { <span class="kw">return</span> p; }
+  <span class="kw">async</span> <span class="fn">delete</span>(<span class="param">id</span>: <span class="type">number</span>): <span class="type">Promise</span>&lt;<span class="kw">void</span>&gt; {}
+}</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="rw">
+              <h4>Real-World Example</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// Paginated API response — common REST pattern</span>
+
+<span class="kw">interface</span> <span class="type">PaginatedResponse</span>&lt;<span class="type">T</span>&gt; {
+  data: <span class="type">T</span>[];
+  pagination: { page: <span class="type">number</span>; pageSize: <span class="type">number</span>; total: <span class="type">number</span>; totalPages: <span class="type">number</span>; };
+}
+
+<span class="kw">interface</span> <span class="type">ApiSuccess</span>&lt;<span class="type">T</span>&gt; { ok: <span class="kw">true</span>; data: <span class="type">T</span>; }
+<span class="kw">interface</span> <span class="type">ApiFailure</span>     { ok: <span class="kw">false</span>; error: { message: <span class="type">string</span>; code: <span class="type">string</span> }; }
+<span class="kw">type</span> <span class="type">ApiResult</span>&lt;<span class="type">T</span>&gt; = <span class="type">ApiSuccess</span>&lt;<span class="type">T</span>&gt; | <span class="type">ApiFailure</span>;
+
+<span class="kw">interface</span> <span class="type">User</span> { id: <span class="type">number</span>; name: <span class="type">string</span>; }
+
+<span class="cmt">// Express route handler — clean, fully typed response</span>
+<span class="kw">async function</span> <span class="fn">getUsersHandler</span>(req: <span class="type">Request</span>, res: <span class="type">Response</span>) {
+  <span class="kw">const</span> page = <span class="type">Number</span>(req.query.page) || <span class="num">1</span>;
+  <span class="kw">const</span> users: <span class="type">User</span>[] = <span class="kw">await</span> userRepo.findAll();
+  <span class="kw">const</span> payload: <span class="type">ApiResult</span>&lt;<span class="type">PaginatedResponse</span>&lt;<span class="type">User</span>&gt;&gt; = {
+    ok: <span class="kw">true</span>,
+    data: { data: users, pagination: { page, pageSize: <span class="num">20</span>, total: users.length, totalPages: <span class="num">1</span> } }
+  };
+  res.json(payload);
+}</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="uc">
+              <h4>Real-World Use Cases</h4>
+              <ul>
+                <li><strong>Repository pattern in NestJS/Express</strong> — a single <code>Repository&lt;T&gt;</code> interface contracts all data-access objects consistently, making them swappable in tests.</li>
+                <li><strong>React Query</strong> — <code>UseQueryResult&lt;T&gt;</code> is a generic interface that types <code>data</code>, <code>error</code>, <code>isLoading</code> per query.</li>
+                <li><strong>Event bus systems</strong> — <code>EventBus&lt;EventMap&gt;</code> interfaces type-safely route events to handlers based on event name.</li>
+                <li><strong>React Hook Form</strong> — <code>UseFormReturn&lt;T&gt;</code> holds all form state for a specific data shape.</li>
+                <li><strong>Zod schemas</strong> — internally use generic interfaces to make <code>z.object()</code> return a typed schema based on the object shape provided.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="mis">
+              <h4>Common Mistakes</h4>
+              <div class="mistake-block">
+                <div class="mistake-label wrong">Mistake 1 — Forgetting to pass type arguments</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// WRONG — T becomes unknown, all type info lost</span>
+<span class="kw">const</span> box: <span class="type">Container</span> = { value: <span class="str">"hello"</span> };
+
+<span class="cmt">// CORRECT — always provide the type argument</span>
+<span class="kw">const</span> box: <span class="type">Container</span>&lt;<span class="type">string</span>&gt; = { value: <span class="str">"hello"</span> };</code></pre></div>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label wrong">Mistake 2 — Generic with only one practical use</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// WRONG — over-engineered if User is the only use</span>
+<span class="kw">interface</span> <span class="type">Wrapper</span>&lt;<span class="type">T</span>&gt; { user: <span class="type">T</span> }
+<span class="kw">const</span> w: <span class="type">Wrapper</span>&lt;<span class="type">User</span>&gt; = { user: { id: <span class="num">1</span> } };
+
+<span class="cmt">// CORRECT — just define it concretely</span>
+<span class="kw">interface</span> <span class="type">UserWrapper</span> { user: <span class="type">User</span> }</code></pre></div>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label wrong">Mistake 3 — Using type alias when classes need to implement</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// WRONG — type aliases work for implements but miss declaration merging</span>
+<span class="kw">type</span> <span class="type">Repository</span>&lt;<span class="type">T</span>&gt; = { findById(id: <span class="type">number</span>): <span class="type">Promise</span>&lt;<span class="type">T</span>&gt; };
+
+<span class="cmt">// CORRECT — use interface for contracts that classes implement</span>
+<span class="kw">interface</span> <span class="type">Repository</span>&lt;<span class="type">T</span>&gt; { findById(id: <span class="type">number</span>): <span class="type">Promise</span>&lt;<span class="type">T</span>&gt;; }</code></pre></div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="bp">
+              <h4>Best Practices</h4>
+              <div class="practice-item"><div class="practice-num">1</div><div><strong>Add default type parameters for common cases</strong><p>If 90% of usages need a specific type, make it the default: <code>interface Result&lt;T = unknown&gt;</code>. Reduces boilerplate without losing flexibility.</p></div></div>
+              <div class="practice-item"><div class="practice-num">2</div><div><strong>Document each type parameter with a comment</strong><p>Especially for multiple params: <code>/** @template T - the entity, ID - the primary key type */</code> prevents confusion.</p></div></div>
+              <div class="practice-item"><div class="practice-num">3</div><div><strong>Prefer interfaces over type aliases for extensible shapes</strong><p>Generic interfaces can be extended and implemented by classes. If you expect the shape to grow or be implemented, use an interface.</p></div></div>
+              <div class="practice-item"><div class="practice-num">4</div><div><strong>Interface methods can have their own type parameters</strong><p><code>map&lt;U&gt;(fn: (v: T) =&gt; U): Container&lt;U&gt;</code> — the method's <code>U</code> is independent of the interface's <code>T</code>. Use this for fluent/builder patterns.</p></div></div>
+              <div class="practice-item"><div class="practice-num">5</div><div><strong>Use generic interfaces to make implementations interchangeable</strong><p>The power of <code>Repository&lt;T&gt;</code> is that <code>PostgresUserRepo</code>, <code>InMemoryUserRepo</code>, and <code>MockUserRepo</code> all satisfy the same contract.</p></div></div>
+            </div>
+
+            <div class="tab-pane" data-pane="iq">
+              <h4>Interview Questions</h4>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag easy">Easy</span><strong>Q: What's the difference between a regular interface and a generic interface?</strong></div>
+                <p>A regular interface describes a fixed shape — every property has a concrete type. A generic interface describes a shape template where one or more property types are parameters filled in at usage time. <code>interface Box { value: string }</code> always holds a string; <code>interface Box&lt;T&gt; { value: T }</code> holds whatever type you specify. Generic interfaces eliminate duplication when you need the same structure for different data types.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag medium">Medium</span><strong>Q: Can a class implement a generic interface?</strong></div>
+                <p>Yes. A class provides concrete types for all type parameters in the <code>implements</code> clause: <code>class UserRepo implements Repository&lt;User&gt;</code>. TypeScript then checks that all methods match the resolved type. The class can also be generic itself: <code>class GenericRepo&lt;T&gt; implements Repository&lt;T&gt;</code>.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag medium">Medium</span><strong>Q: What happens if you use a generic interface without passing a type argument?</strong></div>
+                <p>TypeScript uses the default type parameter if one is defined (e.g. <code>T = unknown</code>). If there's no default, it raises an error requiring you to supply the argument. With strict mode enabled you'll always get an error. Always pass type arguments explicitly — silent <code>unknown</code> propagation defeats the purpose.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag hard">Hard</span><strong>Q: Can an interface method have its own type parameters independent of the interface's?</strong></div>
+                <p>Yes. For example: <code>interface Transformer&lt;T&gt; { map&lt;U&gt;(fn: (val: T) =&gt; U): Transformer&lt;U&gt;; }</code>. Here T is the interface's type parameter and U is the method's own type parameter. This lets <code>map</code> return a differently-typed container. This pattern appears in fluent interfaces, builder patterns, and functional types like Option or Either monads.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag hard">Hard</span><strong>Q: When do you choose a generic interface over a generic type alias?</strong></div>
+                <p>Use a generic <em>interface</em> when the shape needs to be implemented by classes, extended by other interfaces, or benefits from declaration merging. Use a generic <em>type alias</em> when you need to express computed/conditional types, union/intersection shapes, or recursive types — things interfaces can't do. Rule of thumb: data shapes and contracts → interface; transformations and computed types → type alias.</p>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="exc">
+              <h4>Practice Challenge</h4>
+              <div class="exercise-box">
+                <h4>Goal</h4>
+                <p>Design a type-safe event system interface.</p>
+                <h4>Requirements</h4>
+                <ul>
+                  <li>Create a <code>TypedEventEmitter&lt;Events&gt;</code> interface where <code>Events</code> is a record of event names to payload types</li>
+                  <li>The <code>on&lt;K extends keyof Events&gt;</code> method accepts an event name and a handler that receives <code>Events[K]</code></li>
+                  <li>The <code>emit&lt;K extends keyof Events&gt;</code> method accepts the event name and the correct payload</li>
+                  <li>Implement a simple <code>EventBus</code> class that satisfies the interface</li>
+                </ul>
+              </div>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">type</span> <span class="type">EventMap</span> = <span class="type">Record</span>&lt;<span class="type">string</span>, <span class="kw">unknown</span>&gt;;
+
+<span class="kw">interface</span> <span class="type">TypedEventEmitter</span>&lt;<span class="type">Events</span> <span class="kw">extends</span> <span class="type">EventMap</span>&gt; {
+  on&lt;<span class="type">K</span> <span class="kw">extends</span> <span class="kw">keyof</span> <span class="type">Events</span>&gt;(event: <span class="type">K</span>, handler: (<span class="param">payload</span>: <span class="type">Events</span>[<span class="type">K</span>]) <span class="op">=&gt;</span> <span class="kw">void</span>): <span class="kw">void</span>;
+  emit&lt;<span class="type">K</span> <span class="kw">extends</span> <span class="kw">keyof</span> <span class="type">Events</span>&gt;(event: <span class="type">K</span>, payload: <span class="type">Events</span>[<span class="type">K</span>]): <span class="kw">void</span>;
+}
+
+<span class="kw">type</span> <span class="type">AppEvents</span> = {
+  userLoggedIn: { userId: <span class="type">number</span> };
+  orderPlaced:  { orderId: <span class="type">string</span>; total: <span class="type">number</span> };
+};
+
+<span class="cmt">// TODO: implement EventBus&lt;Events&gt; using a Map of listeners</span>
+<span class="kw">class</span> <span class="type">EventBus</span>&lt;<span class="type">Events</span> <span class="kw">extends</span> <span class="type">EventMap</span>&gt; <span class="kw">implements</span> <span class="type">TypedEventEmitter</span>&lt;<span class="type">Events</span>&gt; {
+  <span class="cmt">// TODO</span>
+}
+
+<span class="kw">const</span> bus = <span class="kw">new</span> <span class="type">EventBus</span>&lt;<span class="type">AppEvents</span>&gt;();
+bus.on(<span class="str">"userLoggedIn"</span>, p <span class="op">=&gt;</span> console.log(p.userId)); <span class="cmt">// p.userId is number ✓</span></code></pre></div>
+              <p><strong>Hint:</strong> Store handlers in a <code>Map&lt;string, Function[]&gt;</code> — the interesting part is getting the interface types right.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="sum">
+              <h4>Key Takeaways</h4>
+              <ul class="takeaway-list">
+                <li>Generic interfaces describe reusable shape templates where one or more property types vary at usage time.</li>
+                <li>They eliminate interface duplication when the structure is the same but the payload type differs.</li>
+                <li>Classes can implement generic interfaces with concrete types, enabling interchangeable implementations.</li>
+                <li>Unlike type aliases, generic interfaces support declaration merging and are the preferred choice for class contracts.</li>
+                <li>Always supply type arguments when using a generic interface — relying on implicit <code>unknown</code> defeats the purpose.</li>
+                <li>Interface methods can declare their own independent type parameters.</li>
+              </ul>
+              <div class="mental-model">Mental model: A generic interface is a <em>blueprint with blank slots</em> — the structure is fixed, but you fill in the type slots when you build something from it.</div>
+            </div>
+          </div>
+        </details>
+
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <!--  TOPIC 3 — GENERIC TYPES                                           -->
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <details class="topic-panel" id="topic-gt">
+          <summary>
+            <div class="summary-left"><span class="topic-arrow">▶</span><span class="topic-name">Generic Types</span></div>
+            <span class="badge intermediate">Intermediate</span>
+          </summary>
+          <div class="panel-tabs">
+            <button class="tab active" data-tab="def">Definition</button>
+            <button class="tab" data-tab="why">Why It Exists</button>
+            <button class="tab" data-tab="when">When to Use</button>
+            <button class="tab" data-tab="notwhen">When NOT to Use</button>
+            <button class="tab" data-tab="int">How It Works</button>
+            <button class="tab" data-tab="syn">Syntax</button>
+            <button class="tab" data-tab="ex">Example</button>
+            <button class="tab" data-tab="rw">Real-World</button>
+            <button class="tab" data-tab="uc">Use Cases</button>
+            <button class="tab" data-tab="mis">Mistakes</button>
+            <button class="tab" data-tab="bp">Best Practices</button>
+            <button class="tab" data-tab="iq">Interview Qs</button>
+            <button class="tab" data-tab="exc">Exercise</button>
+            <button class="tab" data-tab="sum">Summary</button>
+          </div>
+          <div class="panel-content">
+
+            <div class="tab-pane active" data-pane="def">
+              <h4>Simple Explanation</h4>
+              <p>A generic type alias is a named, reusable type transformation — like a function that takes types as input and produces a new type as output. Write it once and use it to create typed variations by plugging in different types.</p>
+              <h4>Technical Explanation</h4>
+              <p>Generic type aliases use the <code>type</code> keyword with one or more type parameters. They can represent anything: object shapes, unions, function signatures, conditional types, and recursive structures. Unlike generic interfaces, they can express unions, intersections, and conditional types — making them the more powerful choice for type-level computations and transformations.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="why">
+              <h4>The Problem</h4>
+              <p>In large codebases, you repeat the same type patterns: nullable values, optional wrappers, success/error results. Without generic type aliases you either duplicate code or write <code>T | null</code> inline everywhere — losing the semantic meaning of naming the concept.</p>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// Without generic types — null patterns repeated everywhere</span>
+<span class="kw">interface</span> <span class="type">Service</span> {
+  getUser(): <span class="type">Promise</span>&lt;<span class="type">User</span> | <span class="kw">null</span>&gt;;
+  getPost(): <span class="type">Promise</span>&lt;<span class="type">Post</span> | <span class="kw">null</span>&gt;;
+  getOrder(): <span class="type">Promise</span>&lt;<span class="type">Order</span> | <span class="kw">null</span>&gt;;
+}
+
+<span class="cmt">// With generic type alias — named, semantic, reusable</span>
+<span class="kw">type</span> <span class="type">Maybe</span>&lt;<span class="type">T</span>&gt; = <span class="type">T</span> | <span class="kw">null</span>;
+
+<span class="kw">interface</span> <span class="type">Service</span> {
+  getUser(): <span class="type">Promise</span>&lt;<span class="type">Maybe</span>&lt;<span class="type">User</span>&gt;&gt;;
+  getPost(): <span class="type">Promise</span>&lt;<span class="type">Maybe</span>&lt;<span class="type">Post</span>&gt;&gt;;
+  getOrder(): <span class="type">Promise</span>&lt;<span class="type">Maybe</span>&lt;<span class="type">Order</span>&gt;&gt;;
+}</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="when">
+              <h4>When to Use Generic Type Aliases</h4>
+              <ul>
+                <li><strong>Union types with a parameter</strong> — <code>type Maybe&lt;T&gt; = T | null</code>, <code>type Result&lt;T&gt; = T | Error</code></li>
+                <li><strong>Conditional types</strong> — <code>type NonNullable&lt;T&gt; = T extends null | undefined ? never : T</code></li>
+                <li><strong>Function type aliases</strong> — <code>type Handler&lt;T&gt; = (event: T) =&gt; void</code></li>
+                <li><strong>Intersection / decoration</strong> — <code>type WithId&lt;T&gt; = T &amp; { id: string }</code></li>
+                <li><strong>Utility type patterns</strong> — same approach TypeScript's built-in <code>Partial&lt;T&gt;</code>, <code>Required&lt;T&gt;</code>, <code>Readonly&lt;T&gt;</code> use</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="notwhen">
+              <h4>When NOT to Use Generic Type Aliases</h4>
+              <ul>
+                <li><strong>When a class will implement the shape</strong> — classes can implement interfaces but not type aliases. Use a generic interface instead.</li>
+                <li><strong>When you need declaration merging</strong> — interfaces support merging across multiple declarations; type aliases don't.</li>
+                <li><strong>When the alias adds no clarity</strong> — if the name doesn't communicate more than the inline type, skip the alias.</li>
+                <li><strong>When the alias is overly complex</strong> — if your type spans 10 lines with nested conditionals, break it into smaller named intermediate types.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="int">
+              <h4>How Generic Type Aliases Work Internally</h4>
+              <p>Generic type aliases are <strong>eagerly evaluated when used, lazily defined</strong> — TypeScript doesn't resolve them until you instantiate them with type arguments. When you write <code>Maybe&lt;User&gt;</code>, TypeScript substitutes <code>T = User</code> and evaluates to <code>User | null</code>.</p>
+              <p>Type aliases can be <strong>recursive</strong> because TypeScript allows a type to reference itself in certain positions:</p>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// Recursive generic type — TypeScript handles this correctly</span>
+<span class="kw">type</span> <span class="type">Tree</span>&lt;<span class="type">T</span>&gt; = {
+  value: <span class="type">T</span>;
+  left: <span class="type">Tree</span>&lt;<span class="type">T</span>&gt; | <span class="kw">null</span>;
+  right: <span class="type">Tree</span>&lt;<span class="type">T</span>&gt; | <span class="kw">null</span>;
+};
+
+<span class="cmt">// Infinite recursion — NOT valid: no base case</span>
+<span class="kw">type</span> <span class="type">Bad</span>&lt;<span class="type">T</span>&gt; = <span class="type">Bad</span>&lt;<span class="type">T</span>&gt;; <span class="cmt">// ✗ Error</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="syn">
+              <h4>Fully Annotated Syntax</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// Simple union — nullable wrapper</span>
+<span class="kw">type</span> <span class="type">Maybe</span>&lt;<span class="type">T</span>&gt; = <span class="type">T</span> | <span class="kw">null</span>;
+<span class="cmt">//   ^^^^^  ^^^   ^^^^^^^^</span>
+<span class="cmt">//   |      |     type expression (T substituted at usage)</span>
+<span class="cmt">//   |      type parameter</span>
+<span class="cmt">//   alias name</span>
+
+<span class="cmt">// Generic function type alias</span>
+<span class="kw">type</span> <span class="type">Predicate</span>&lt;<span class="type">T</span>&gt; = (<span class="param">value</span>: <span class="type">T</span>) <span class="op">=&gt;</span> <span class="type">boolean</span>;
+
+<span class="cmt">// Intersection — adds properties to T</span>
+<span class="kw">type</span> <span class="type">WithTimestamps</span>&lt;<span class="type">T</span>&gt; = <span class="type">T</span> & { createdAt: <span class="type">Date</span>; updatedAt: <span class="type">Date</span>; };
+
+<span class="cmt">// Discriminated union with default type parameter</span>
+<span class="kw">type</span> <span class="type">Result</span>&lt;<span class="type">T</span>, <span class="type">E</span> = <span class="type">string</span>&gt; =
+  | { ok: <span class="kw">true</span>;  value: <span class="type">T</span> }
+  | { ok: <span class="kw">false</span>; error: <span class="type">E</span> };
+
+<span class="cmt">// Usage</span>
+<span class="kw">const</span> x: <span class="type">Maybe</span>&lt;<span class="type">string</span>&gt; = <span class="str">"hello"</span>; <span class="cmt">// string | null</span>
+<span class="kw">const</span> y: <span class="type">Maybe</span>&lt;<span class="type">string</span>&gt; = <span class="kw">null</span>;    <span class="cmt">// also valid</span>
+<span class="kw">const</span> z: <span class="type">Result</span>&lt;<span class="type">User</span>&gt;  = { ok: <span class="kw">true</span>, value: user };</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="ex">
+              <h4>Practical Code Example</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// Reusable generic type aliases</span>
+
+<span class="kw">type</span> <span class="type">Maybe</span>&lt;<span class="type">T</span>&gt;       = <span class="type">T</span> | <span class="kw">null</span> | <span class="kw">undefined</span>;
+<span class="kw">type</span> <span class="type">Result</span>&lt;<span class="type">T</span>, <span class="type">E</span> = <span class="type">string</span>&gt; = { ok: <span class="kw">true</span>; value: <span class="type">T</span> } | { ok: <span class="kw">false</span>; error: <span class="type">E</span> };
+<span class="kw">type</span> <span class="type">AsyncResult</span>&lt;<span class="type">T</span>&gt; = <span class="type">Promise</span>&lt;<span class="type">Result</span>&lt;<span class="type">T</span>&gt;&gt;;
+<span class="kw">type</span> <span class="type">WithId</span>&lt;<span class="type">T</span>&gt;      = <span class="type">T</span> & { id: <span class="type">string</span> };
+<span class="kw">type</span> <span class="type">Predicate</span>&lt;<span class="type">T</span>&gt;   = (<span class="param">val</span>: <span class="type">T</span>) <span class="op">=&gt;</span> <span class="type">boolean</span>;
+
+<span class="kw">interface</span> <span class="type">User</span> { name: <span class="type">string</span>; email: <span class="type">string</span>; age: <span class="type">number</span>; }
+
+<span class="kw">async function</span> <span class="fn">findUser</span>(<span class="param">id</span>: <span class="type">string</span>): <span class="type">AsyncResult</span>&lt;<span class="type">WithId</span>&lt;<span class="type">User</span>&gt;&gt; {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> user = { id, name: <span class="str">"Alice"</span>, email: <span class="str">"a@b.com"</span>, age: <span class="num">28</span> };
+    <span class="kw">return</span> { ok: <span class="kw">true</span>, value: user };
+  } <span class="kw">catch</span> {
+    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="str">"User not found"</span> };
+  }
+}
+
+<span class="kw">const</span> isAdult: <span class="type">Predicate</span>&lt;<span class="type">User</span>&gt; = u <span class="op">=&gt;</span> u.age >= <span class="num">18</span>;
+
+<span class="kw">const</span> result = <span class="kw">await</span> findUser(<span class="str">"123"</span>);
+<span class="kw">if</span> (result.ok) {
+  console.log(result.value.name); <span class="cmt">// ✓ string</span>
+} <span class="kw">else</span> {
+  console.log(result.error);      <span class="cmt">// ✓ string</span>
+}</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="rw">
+              <h4>Real-World Example</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// Express service layer with typed Result pattern</span>
+
+<span class="kw">type</span> <span class="type">ApiResult</span>&lt;<span class="type">T</span>&gt; =
+  | { success: <span class="kw">true</span>;  data: <span class="type">T</span>;  message?: <span class="type">string</span> }
+  | { success: <span class="kw">false</span>; error: <span class="type">string</span>; statusCode: <span class="type">number</span> };
+
+<span class="kw">type</span> <span class="type">ServiceResponse</span>&lt;<span class="type">T</span>&gt; = <span class="type">Promise</span>&lt;<span class="type">ApiResult</span>&lt;<span class="type">T</span>&gt;&gt;;
+
+<span class="kw">interface</span> <span class="type">User</span> { id: <span class="type">number</span>; name: <span class="type">string</span>; email: <span class="type">string</span>; }
+
+<span class="kw">class</span> <span class="type">UserService</span> {
+  <span class="kw">async</span> <span class="fn">getById</span>(<span class="param">id</span>: <span class="type">number</span>): <span class="type">ServiceResponse</span>&lt;<span class="type">User</span>&gt; {
+    <span class="kw">const</span> user = <span class="kw">await</span> db.findUser(id);
+    <span class="kw">if</span> (!user) <span class="kw">return</span> { success: <span class="kw">false</span>, error: <span class="str">"Not found"</span>, statusCode: <span class="num">404</span> };
+    <span class="kw">return</span> { success: <span class="kw">true</span>, data: user };
+  }
+}
+
+router.get(<span class="str">"/users/:id"</span>, <span class="kw">async</span> (req, res) <span class="op">=&gt;</span> {
+  <span class="kw">const</span> result = <span class="kw">await</span> userService.getById(Number(req.params.id));
+  <span class="kw">if</span> (!result.success) <span class="kw">return</span> res.status(result.statusCode).json({ error: result.error });
+  res.json({ data: result.data }); <span class="cmt">// result.data is User ✓</span>
+});</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="uc">
+              <h4>Real-World Use Cases</h4>
+              <ul>
+                <li><strong>Result/Either patterns</strong> — <code>Result&lt;T, E&gt;</code> types async operations that can succeed or fail, replacing thrown exceptions with typed return values. Used in fp-ts and effect-ts.</li>
+                <li><strong>React component prop utilities</strong> — <code>type WithOptional&lt;T, K extends keyof T&gt; = Omit&lt;T, K&gt; &amp; Partial&lt;Pick&lt;T, K&gt;&gt;</code> makes specific props optional.</li>
+                <li><strong>Drizzle ORM entity decoration</strong> — <code>WithTimestamps&lt;T&gt;</code> adds <code>createdAt</code>/<code>updatedAt</code> to any entity type without modifying the base type.</li>
+                <li><strong>Zod schema inference</strong> — <code>z.infer&lt;typeof schema&gt;</code> is itself a generic type alias that extracts the TypeScript type from a Zod schema.</li>
+                <li><strong>Zustand store slices</strong> — <code>type StoreSlice&lt;T&gt;</code> helps type individual slices of a combined store.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="mis">
+              <h4>Common Mistakes</h4>
+              <div class="mistake-block">
+                <div class="mistake-label wrong">Mistake 1 — Shadowing built-in utility type names</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// WRONG — shadows the built-in Record type globally</span>
+<span class="kw">type</span> <span class="type">Record</span>&lt;<span class="type">T</span>&gt; = { data: <span class="type">T</span> };
+
+<span class="cmt">// CORRECT — use a unique name</span>
+<span class="kw">type</span> <span class="type">DataRecord</span>&lt;<span class="type">T</span>&gt; = { data: <span class="type">T</span> };</code></pre></div>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label wrong">Mistake 2 — Type alias when interface is more appropriate</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// WRONG — use interface when classes implement it</span>
+<span class="kw">type</span> <span class="type">Repository</span>&lt;<span class="type">T</span>&gt; = { findById(id: <span class="type">number</span>): <span class="type">Promise</span>&lt;<span class="type">T</span>&gt;; };
+
+<span class="cmt">// CORRECT</span>
+<span class="kw">interface</span> <span class="type">Repository</span>&lt;<span class="type">T</span>&gt; { findById(id: <span class="type">number</span>): <span class="type">Promise</span>&lt;<span class="type">T</span>&gt;; }</code></pre></div>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label wrong">Mistake 3 — Deeply nested generics without named intermediates</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// WRONG — unreadable at a glance</span>
+<span class="kw">type</span> <span class="type">X</span>&lt;<span class="type">T</span>&gt; = <span class="type">Promise</span>&lt;<span class="type">Result</span>&lt;<span class="type">PaginatedResponse</span>&lt;<span class="type">WithTimestamps</span>&lt;<span class="type">T</span>&gt;&gt;, <span class="type">ApiError</span>&gt;&gt;;
+
+<span class="cmt">// CORRECT — name the components</span>
+<span class="kw">type</span> <span class="type">TimestampedEntity</span>&lt;<span class="type">T</span>&gt; = <span class="type">WithTimestamps</span>&lt;<span class="type">T</span>&gt;;
+<span class="kw">type</span> <span class="type">PagedResult</span>&lt;<span class="type">T</span>&gt;       = <span class="type">PaginatedResponse</span>&lt;<span class="type">TimestampedEntity</span>&lt;<span class="type">T</span>&gt;&gt;;
+<span class="kw">type</span> <span class="type">AsyncPagedResult</span>&lt;<span class="type">T</span>&gt;  = <span class="type">Promise</span>&lt;<span class="type">Result</span>&lt;<span class="type">PagedResult</span>&lt;<span class="type">T</span>&gt;, <span class="type">ApiError</span>&gt;&gt;;</code></pre></div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="bp">
+              <h4>Best Practices</h4>
+              <div class="practice-item"><div class="practice-num">1</div><div><strong>Choose type alias over interface for unions, intersections, and conditional types</strong><p>Interfaces cannot express <code>A | B</code>, <code>A &amp; B</code>, or <code>T extends U ? X : Y</code>. When your type involves any of these, use a type alias.</p></div></div>
+              <div class="practice-item"><div class="practice-num">2</div><div><strong>Name aliases semantically, not structurally</strong><p>Name them after what they <em>mean</em> (<code>Maybe</code>, <code>Result</code>, <code>Paginated</code>), not what they look like (<code>NullableT</code>, <code>ObjectOrError</code>).</p></div></div>
+              <div class="practice-item"><div class="practice-num">3</div><div><strong>Add default type parameters for common defaults</strong><p><code>type Result&lt;T, E = Error&gt;</code> lets most callers write <code>Result&lt;User&gt;</code> while allowing <code>Result&lt;User, string&gt;</code> when needed.</p></div></div>
+              <div class="practice-item"><div class="practice-num">4</div><div><strong>Break deeply nested generics into named intermediate types</strong><p>When a type expression exceeds ~60 characters, name its components. The extra lines save hours of debugging confusion.</p></div></div>
+              <div class="practice-item"><div class="practice-num">5</div><div><strong>Check TypeScript's built-in utility types before rolling your own</strong><p>Before writing a mapped type manually, check if <code>Partial&lt;T&gt;</code>, <code>Required&lt;T&gt;</code>, <code>Pick&lt;T, K&gt;</code>, <code>Omit&lt;T, K&gt;</code> already does what you need.</p></div></div>
+            </div>
+
+            <div class="tab-pane" data-pane="iq">
+              <h4>Interview Questions</h4>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag easy">Easy</span><strong>Q: What's the difference between a generic interface and a generic type alias?</strong></div>
+                <p>Both define named, reusable type shapes with type parameters. Key differences: (1) Only interfaces can be implemented by classes and extended with <code>extends</code>. (2) Only type aliases can express unions (<code>A | B</code>), intersections (<code>A &amp; B</code>), and conditional types. (3) Interfaces support declaration merging; type aliases don't. Use interfaces for class contracts and extensible shapes; type aliases for computed or compositional types.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag medium">Medium</span><strong>Q: Can a generic type alias reference itself (be recursive)?</strong></div>
+                <p>Yes — TypeScript supports recursive type aliases in certain positions. A type can reference itself in property value positions (not directly as the entire type). <code>type Tree&lt;T&gt; = { value: T; children: Tree&lt;T&gt;[] }</code> is valid because <code>Tree&lt;T&gt;</code> appears inside an array, giving TypeScript enough structure to avoid infinite expansion. However, <code>type Bad&lt;T&gt; = Bad&lt;T&gt;</code> is not valid — it has no base case.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag medium">Medium</span><strong>Q: What does <code>type WithId&lt;T&gt; = T &amp; { id: string }</code> do?</strong></div>
+                <p>This creates an intersection type that combines any type T with an additional <code>id: string</code> property. If T is <code>{ name: string; age: number }</code>, then <code>WithId&lt;T&gt;</code> is <code>{ name: string; age: number; id: string }</code>. It's used to "decorate" any type with extra properties — useful for adding database-assigned fields (ids, timestamps) to domain types that don't include them in their pure form.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag hard">Hard</span><strong>Q: What is the Result&lt;T, E&gt; pattern and why is it preferred over thrown exceptions in some codebases?</strong></div>
+                <p>The <code>Result&lt;T, E&gt;</code> pattern returns a discriminated union instead of throwing: <code>type Result&lt;T, E = Error&gt; = { ok: true; value: T } | { ok: false; error: E }</code>. It's preferred when errors are expected outcomes (not exceptional), when callers must be forced to handle failures, and when you want typed error information instead of catching an untyped <code>unknown</code>. TypeScript's type narrowing on the <code>ok</code> discriminant makes handling both paths ergonomic and safe.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag hard">Hard</span><strong>Q: How do TypeScript's built-in utility types like Partial&lt;T&gt; work?</strong></div>
+                <p>Built-in utility types are generic type aliases using <strong>mapped types</strong>. <code>Partial&lt;T&gt;</code> is defined as <code>type Partial&lt;T&gt; = { [K in keyof T]?: T[K] }</code>. The <code>keyof T</code> produces a union of all keys in T, the <code>in</code> operator maps over them, and <code>?</code> makes each property optional. This is entirely compile-time — no JavaScript is emitted. You can write your own: <code>type Required&lt;T&gt; = { [K in keyof T]-?: T[K] }</code> where <code>-?</code> removes optionality.</p>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="exc">
+              <h4>Practice Challenge</h4>
+              <div class="exercise-box">
+                <h4>Goal</h4>
+                <p>Build a <code>Result&lt;T, E&gt;</code> type and helper functions that make it ergonomic to use.</p>
+                <h4>Requirements</h4>
+                <ul>
+                  <li>Define <code>Result&lt;T, E = string&gt;</code> as a discriminated union</li>
+                  <li>Write <code>ok&lt;T&gt;(value: T): Result&lt;T, never&gt;</code> to create a success result</li>
+                  <li>Write <code>err&lt;E&gt;(error: E): Result&lt;never, E&gt;</code> for a failure result</li>
+                  <li>Write <code>map&lt;T, U, E&gt;(result: Result&lt;T, E&gt;, fn: (v: T) =&gt; U): Result&lt;U, E&gt;</code></li>
+                </ul>
+              </div>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">type</span> <span class="type">Result</span>&lt;<span class="type">T</span>, <span class="type">E</span> = <span class="type">string</span>&gt; =
+  <span class="cmt">// TODO: define discriminated union</span>
+  ;
+
+<span class="kw">function</span> <span class="fn">ok</span>&lt;<span class="type">T</span>&gt;(<span class="param">value</span>: <span class="type">T</span>): <span class="type">Result</span>&lt;<span class="type">T</span>, <span class="kw">never</span>&gt; {
+  <span class="cmt">// TODO</span>
+}
+
+<span class="kw">function</span> <span class="fn">err</span>&lt;<span class="type">E</span>&gt;(<span class="param">error</span>: <span class="type">E</span>): <span class="type">Result</span>&lt;<span class="kw">never</span>, <span class="type">E</span>&gt; {
+  <span class="cmt">// TODO</span>
+}
+
+<span class="kw">function</span> <span class="fn">map</span>&lt;<span class="type">T</span>, <span class="type">U</span>, <span class="type">E</span>&gt;(
+  <span class="param">result</span>: <span class="type">Result</span>&lt;<span class="type">T</span>, <span class="type">E</span>&gt;,
+  <span class="param">fn</span>: (<span class="param">v</span>: <span class="type">T</span>) <span class="op">=&gt;</span> <span class="type">U</span>
+): <span class="type">Result</span>&lt;<span class="type">U</span>, <span class="type">E</span>&gt; {
+  <span class="cmt">// TODO: narrow on ok, apply fn or pass error through</span>
+}
+
+<span class="cmt">// Test: safe JSON parse</span>
+<span class="kw">function</span> <span class="fn">safeJsonParse</span>&lt;<span class="type">T</span>&gt;(<span class="param">json</span>: <span class="type">string</span>): <span class="type">Result</span>&lt;<span class="type">T</span>&gt; {
+  <span class="kw">try</span> { <span class="kw">return</span> ok(<span class="type">JSON</span>.parse(json) <span class="kw">as</span> <span class="type">T</span>); }
+  <span class="kw">catch</span> { <span class="kw">return</span> err(<span class="str">"Invalid JSON"</span>); }
+}</code></pre></div>
+              <p><strong>Hint:</strong> The <code>map</code> function should narrow on the <code>ok</code> property to decide which branch to take.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="sum">
+              <h4>Key Takeaways</h4>
+              <ul class="takeaway-list">
+                <li>Generic type aliases use <code>type</code> to create named, parameterized type expressions.</li>
+                <li>Unlike interfaces, they can express unions, intersections, conditional types, and recursive structures.</li>
+                <li>Use type aliases for transformations (<code>Maybe&lt;T&gt;</code>, <code>Result&lt;T&gt;</code>); interfaces for shapes that classes implement.</li>
+                <li>Default type parameters (<code>type X&lt;T = string&gt;</code>) reduce boilerplate at common call sites.</li>
+                <li>Generic type aliases are completely erased at compile time — no runtime impact.</li>
+                <li>Break deeply nested generic expressions into named intermediate types for readability.</li>
+              </ul>
+              <div class="mental-model">Mental model: A generic type alias is a <em>type-level function</em> — you call it with type arguments and it returns a new type, just like a regular function returns a value.</div>
+            </div>
+          </div>
+        </details>
+
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <!--  TOPIC 4 — CONSTRAINTS                                             -->
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <details class="topic-panel" id="topic-con">
+          <summary>
+            <div class="summary-left"><span class="topic-arrow">▶</span><span class="topic-name">Constraints</span></div>
+            <span class="badge advanced">Advanced</span>
+          </summary>
+          <div class="panel-tabs">
+            <button class="tab active" data-tab="def">Definition</button>
+            <button class="tab" data-tab="why">Why It Exists</button>
+            <button class="tab" data-tab="when">When to Use</button>
+            <button class="tab" data-tab="notwhen">When NOT to Use</button>
+            <button class="tab" data-tab="int">How It Works</button>
+            <button class="tab" data-tab="syn">Syntax</button>
+            <button class="tab" data-tab="ex">Example</button>
+            <button class="tab" data-tab="rw">Real-World</button>
+            <button class="tab" data-tab="uc">Use Cases</button>
+            <button class="tab" data-tab="mis">Mistakes</button>
+            <button class="tab" data-tab="bp">Best Practices</button>
+            <button class="tab" data-tab="iq">Interview Qs</button>
+            <button class="tab" data-tab="exc">Exercise</button>
+            <button class="tab" data-tab="sum">Summary</button>
+          </div>
+          <div class="panel-content">
+
+            <div class="tab-pane active" data-pane="def">
+              <h4>Simple Explanation</h4>
+              <p>A generic constraint is a rule that limits what types are allowed as a type argument — like a job posting that says "must have 5 years of experience." Not just anyone qualifies, but many different people can, as long as they meet the requirement.</p>
+              <h4>Technical Explanation</h4>
+              <p>Generic constraints use the <code>extends</code> keyword to require that a type parameter satisfies a minimum shape. <code>T extends { id: number }</code> means T can be <em>any type</em> as long as it has at least a numeric <code>id</code> property. This allows the function body to safely access those required properties without TypeScript complaining that T might not have them.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="why">
+              <h4>The Problem Without Constraints</h4>
+              <p>Without constraints, TypeScript can't let you access any properties on a generic type — because T could be anything, including a primitive that has no properties.</p>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// Without constraints — TypeScript blocks property access</span>
+<span class="kw">function</span> <span class="fn">getLength</span>&lt;<span class="type">T</span>&gt;(<span class="param">arg</span>: <span class="type">T</span>): <span class="type">number</span> {
+  <span class="kw">return</span> arg.length; <span class="cmt">// ✗ Error: Property 'length' does not exist on type 'T'</span>
+}</code></pre></div>
+              <h4>The Solution With Constraints</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">interface</span> <span class="type">HasLength</span> { length: <span class="type">number</span>; }
+
+<span class="kw">function</span> <span class="fn">getLength</span>&lt;<span class="type">T</span> <span class="kw">extends</span> <span class="type">HasLength</span>&gt;(<span class="param">arg</span>: <span class="type">T</span>): <span class="type">number</span> {
+  <span class="kw">return</span> arg.length; <span class="cmt">// ✓ T is guaranteed to have .length</span>
+}
+
+getLength(<span class="str">"hello"</span>);        <span class="cmt">// ✓ string has .length = 5</span>
+getLength([<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]);      <span class="cmt">// ✓ arrays have .length = 3</span>
+getLength({ length: <span class="num">10</span> });  <span class="cmt">// ✓ plain objects with length work too</span>
+getLength(<span class="num">42</span>);              <span class="cmt">// ✗ Error: number has no .length</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="when">
+              <h4>When to Use Generic Constraints</h4>
+              <ul>
+                <li><strong>When you access properties on T inside the function</strong> — if you use <code>arg.id</code> or any property, T must be constrained to have it.</li>
+                <li><strong>When you want to restrict a generic to specific types</strong> — <code>T extends string | number</code> limits T to primitives.</li>
+                <li><strong>When using keyof to get a key of T</strong> — <code>K extends keyof T</code> ensures K is a valid key of T.</li>
+                <li><strong>When building type-safe property getters</strong> — <code>function get&lt;T, K extends keyof T&gt;(obj: T, key: K): T[K]</code></li>
+                <li><strong>When building utilities that work on objects with specific shapes</strong> — sortable items, entities with IDs, objects with timestamps.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="notwhen">
+              <h4>When NOT to Use Generic Constraints</h4>
+              <ul>
+                <li><strong>Don't constrain to a concrete type</strong> — <code>T extends User</code> means T can only be User. At that point just use <code>User</code> directly.</li>
+                <li><strong>Don't over-constrain</strong> — only require the properties you actually use. Constraining to a 10-property interface when you use 2 makes the function unnecessarily restrictive.</li>
+                <li><strong>Don't confuse class extends with constraint extends</strong> — in generics, <code>extends</code> means "is assignable to", not "inherits from".</li>
+                <li><strong>Don't use constraints as a substitute for proper type narrowing</strong> — inside the function body, you might still need <code>typeof</code> checks even with constraints.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="int">
+              <h4>How Constraints Work Internally</h4>
+              <p>When TypeScript sees <code>T extends SomeType</code>, it stores this as a constraint on the type variable. At every call site, TypeScript checks if the supplied type argument <em>satisfies</em> the constraint using <strong>structural subtyping</strong> — the argument type must have at minimum all the properties and methods required by <code>SomeType</code>.</p>
+              <p>Inside the function body, TypeScript "widens" knowledge about T: it now knows T has everything <code>SomeType</code> has, plus potentially more. It won't let you access properties beyond what the constraint guarantees.</p>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">interface</span> <span class="type">Named</span> { name: <span class="type">string</span>; }
+
+<span class="kw">function</span> <span class="fn">greet</span>&lt;<span class="type">T</span> <span class="kw">extends</span> <span class="type">Named</span>&gt;(<span class="param">person</span>: <span class="type">T</span>): <span class="type">string</span> {
+  <span class="kw">return</span> <span class="str">`Hello, ${person.name}`</span>; <span class="cmt">// ✓ name is guaranteed by constraint</span>
+  <span class="cmt">// person.age — ✗ NOT accessible: constraint only guarantees `name`</span>
+}
+
+greet({ name: <span class="str">"Alice"</span> });                          <span class="cmt">// ✓ satisfies Named</span>
+greet({ name: <span class="str">"Bob"</span>, dept: <span class="str">"Eng"</span>, salary: <span class="num">100000</span> }); <span class="cmt">// ✓ extra props ok</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="syn">
+              <h4>Fully Annotated Syntax</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// Constraint with inline object shape</span>
+<span class="kw">function</span> <span class="fn">getName</span>&lt;<span class="type">T</span> <span class="kw">extends</span> { name: <span class="type">string</span> }&gt;(<span class="param">obj</span>: <span class="type">T</span>): <span class="type">string</span> {
+<span class="cmt">//                   ^^^^^^^^^^^^^^^^^^^^^^^^^</span>
+<span class="cmt">//                   T must have at least a `name: string` property</span>
+  <span class="kw">return</span> obj.name;
+}
+
+<span class="cmt">// keyof constraint — K must be a valid key of T</span>
+<span class="kw">function</span> <span class="fn">getProperty</span>&lt;<span class="type">T</span>, <span class="type">K</span> <span class="kw">extends</span> <span class="kw">keyof</span> <span class="type">T</span>&gt;(<span class="param">obj</span>: <span class="type">T</span>, <span class="param">key</span>: <span class="type">K</span>): <span class="type">T</span>[<span class="type">K</span>] {
+<span class="cmt">//                        ^^^^^^^^^^^^^^^^^^^                ^^^^</span>
+<span class="cmt">//                        K must be one of T's keys          return type is the value at that key</span>
+  <span class="kw">return</span> obj[key];
+}
+
+<span class="cmt">// Constraint to union type</span>
+<span class="kw">function</span> <span class="fn">printId</span>&lt;<span class="type">T</span> <span class="kw">extends</span> <span class="type">string</span> | <span class="type">number</span>&gt;(<span class="param">id</span>: <span class="type">T</span>): <span class="kw">void</span> {
+  console.log(<span class="str">`ID: ${id}`</span>);
+}
+
+<span class="cmt">// Constraint with named interface</span>
+<span class="kw">interface</span> <span class="type">Entity</span> { id: <span class="type">number</span>; createdAt: <span class="type">Date</span>; }
+<span class="kw">function</span> <span class="fn">findById</span>&lt;<span class="type">T</span> <span class="kw">extends</span> <span class="type">Entity</span>&gt;(<span class="param">items</span>: <span class="type">T</span>[], <span class="param">id</span>: <span class="type">number</span>): <span class="type">T</span> | <span class="kw">undefined</span> {
+  <span class="kw">return</span> items.find(item <span class="op">=&gt;</span> item.id === id);
+}</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="ex">
+              <h4>Practical Code Example</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// Type-safe entity utilities using constraints</span>
+
+<span class="kw">interface</span> <span class="type">Entity</span> { id: <span class="type">number</span>; createdAt: <span class="type">Date</span>; }
+
+<span class="kw">function</span> <span class="fn">findById</span>&lt;<span class="type">T</span> <span class="kw">extends</span> <span class="type">Entity</span>&gt;(<span class="param">items</span>: <span class="type">T</span>[], <span class="param">id</span>: <span class="type">number</span>): <span class="type">T</span> | <span class="kw">undefined</span> {
+  <span class="kw">return</span> items.find(item <span class="op">=&gt;</span> item.id === id);
+}
+
+<span class="kw">function</span> <span class="fn">sortByCreated</span>&lt;<span class="type">T</span> <span class="kw">extends</span> <span class="type">Entity</span>&gt;(<span class="param">items</span>: <span class="type">T</span>[]): <span class="type">T</span>[] {
+  <span class="kw">return</span> [...items].sort((a, b) <span class="op">=&gt;</span> a.createdAt.getTime() <span class="op">-</span> b.createdAt.getTime());
+}
+
+<span class="kw">function</span> <span class="fn">getProperty</span>&lt;<span class="type">T</span>, <span class="type">K</span> <span class="kw">extends</span> <span class="kw">keyof</span> <span class="type">T</span>&gt;(<span class="param">obj</span>: <span class="type">T</span>, <span class="param">key</span>: <span class="type">K</span>): <span class="type">T</span>[<span class="type">K</span>] {
+  <span class="kw">return</span> obj[key];
+}
+
+<span class="kw">interface</span> <span class="type">User</span>    <span class="kw">extends</span> <span class="type">Entity</span> { name: <span class="type">string</span>; email: <span class="type">string</span>; }
+<span class="kw">interface</span> <span class="type">Product</span> <span class="kw">extends</span> <span class="type">Entity</span> { title: <span class="type">string</span>; price: <span class="type">number</span>; }
+
+<span class="kw">const</span> users: <span class="type">User</span>[] = [{ id: <span class="num">1</span>, name: <span class="str">"Alice"</span>, email: <span class="str">"a@b.com"</span>, createdAt: <span class="kw">new</span> <span class="type">Date</span>() }];
+
+<span class="kw">const</span> found  = findById(users, <span class="num">1</span>);            <span class="cmt">// Type: User | undefined ✓</span>
+<span class="kw">const</span> sorted = sortByCreated(users);          <span class="cmt">// Type: User[] ✓</span>
+<span class="kw">const</span> name   = getProperty(users[<span class="num">0</span>], <span class="str">"name"</span>); <span class="cmt">// Type: string ✓</span>
+<span class="cmt">// getProperty(users[0], "invalid") — ✗ Error: "invalid" not a key of User</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="rw">
+              <h4>Real-World Example</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// Drizzle ORM-style type-safe column selector</span>
+
+<span class="kw">type</span> <span class="type">TableSchema</span> = <span class="type">Record</span>&lt;<span class="type">string</span>, <span class="kw">unknown</span>&gt;;
+
+<span class="kw">interface</span> <span class="type">QueryBuilder</span>&lt;<span class="type">T</span> <span class="kw">extends</span> <span class="type">TableSchema</span>&gt; {
+  select&lt;<span class="type">K</span> <span class="kw">extends</span> <span class="kw">keyof</span> <span class="type">T</span>&gt;(...<span class="param">columns</span>: <span class="type">K</span>[]): <span class="type">QueryBuilder</span>&lt;<span class="type">Pick</span>&lt;<span class="type">T</span>, <span class="type">K</span>&gt;&gt;;
+  where(<span class="param">condition</span>: <span class="type">string</span>): <span class="type">QueryBuilder</span>&lt;<span class="type">T</span>&gt;;
+  execute(): <span class="type">Promise</span>&lt;<span class="type">T</span>[]&gt;;
+}
+
+<span class="kw">type</span> <span class="type">UsersTable</span> = {
+  id: <span class="type">number</span>; name: <span class="type">string</span>; email: <span class="type">string</span>; passwordHash: <span class="type">string</span>;
+};
+
+<span class="kw">declare function</span> <span class="fn">from</span>&lt;<span class="type">T</span> <span class="kw">extends</span> <span class="type">TableSchema</span>&gt;(<span class="param">table</span>: <span class="type">string</span>): <span class="type">QueryBuilder</span>&lt;<span class="type">T</span>&gt;;
+
+<span class="kw">const</span> users = <span class="kw">await</span> from&lt;<span class="type">UsersTable</span>&gt;(<span class="str">"users"</span>)
+  .select(<span class="str">"id"</span>, <span class="str">"name"</span>, <span class="str">"email"</span>)  <span class="cmt">// ✓ valid columns only</span>
+  <span class="cmt">// .select("invalid") — ✗ Error: not a key of UsersTable</span>
+  .where(<span class="str">"active = true"</span>)
+  .execute();
+<span class="cmt">// users is Pick&lt;UsersTable, "id" | "name" | "email"&gt;[] — no passwordHash ✓</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="uc">
+              <h4>Real-World Use Cases</h4>
+              <ul>
+                <li><strong>Type-safe property access</strong> — <code>getProperty&lt;T, K extends keyof T&gt;</code> is the foundation of every typed Lodash/underscore equivalent.</li>
+                <li><strong>ORM query builders</strong> — Drizzle ORM and Prisma use <code>K extends keyof T</code> constraints to prevent querying non-existent columns at compile time.</li>
+                <li><strong>React generic components</strong> — <code>function List&lt;T extends { id: string }&gt;({ items }: { items: T[] })</code> ensures every list item has an id for React keys.</li>
+                <li><strong>Event handler typing</strong> — <code>on&lt;K extends keyof EventMap&gt;</code> ensures event names and payload types stay in sync.</li>
+                <li><strong>Form validation</strong> — <code>validate&lt;T extends FormShape&gt;</code> ensures the validator handles the correct field structure.</li>
+                <li><strong>Sorting utilities</strong> — constraining T to have a comparable property enables type-safe sort implementations.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="mis">
+              <h4>Common Mistakes</h4>
+              <div class="mistake-block">
+                <div class="mistake-label wrong">Mistake 1 — Over-constraining defeats generics</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// WRONG — so constrained it's no longer generic</span>
+<span class="kw">function</span> <span class="fn">processUser</span>&lt;<span class="type">T</span> <span class="kw">extends</span> <span class="type">User</span>&gt;(<span class="param">user</span>: <span class="type">T</span>): <span class="kw">void</span> { <span class="cmt">/* ... */</span> }
+
+<span class="cmt">// CORRECT — just use User directly</span>
+<span class="kw">function</span> <span class="fn">processUser</span>(<span class="param">user</span>: <span class="type">User</span>): <span class="kw">void</span> { <span class="cmt">/* ... */</span> }</code></pre></div>
+                <p>Generics add value when you need flexibility across multiple types. If T can only be one concrete type, the generic is noise.</p>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label wrong">Mistake 2 — Confusing constraint extends with class inheritance</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// In generics, `extends` means "is assignable to", NOT "inherits from"</span>
+<span class="kw">interface</span> <span class="type">HasName</span> { name: <span class="type">string</span>; }
+<span class="kw">function</span> <span class="fn">greet</span>&lt;<span class="type">T</span> <span class="kw">extends</span> <span class="type">HasName</span>&gt;(<span class="param">x</span>: <span class="type">T</span>): <span class="kw">void</span> { <span class="cmt">/* ... */</span> }
+
+<span class="cmt">// Plain object satisfies HasName — no class inheritance required</span>
+greet({ name: <span class="str">"Alice"</span>, age: <span class="num">30</span> }); <span class="cmt">// ✓ structural match is enough</span></code></pre></div>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label wrong">Mistake 3 — Assuming constraints give access to extra properties</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">interface</span> <span class="type">HasName</span> { name: <span class="type">string</span>; }
+
+<span class="kw">function</span> <span class="fn">process</span>&lt;<span class="type">T</span> <span class="kw">extends</span> <span class="type">HasName</span>&gt;(<span class="param">x</span>: <span class="type">T</span>): <span class="kw">void</span> {
+  console.log(x.age); <span class="cmt">// ✗ Error — constraint only guarantees .name</span>
+  <span class="cmt">// Add to constraint if needed: T extends HasName & { age: number }</span>
+}</code></pre></div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="bp">
+              <h4>Best Practices</h4>
+              <div class="practice-item"><div class="practice-num">1</div><div><strong>Constrain minimally — only require what you actually use</strong><p>If you only access <code>.id</code>, constrain to <code>{ id: number }</code>, not to a full entity interface. Minimal constraints maximize reusability.</p></div></div>
+              <div class="practice-item"><div class="practice-num">2</div><div><strong>Name constraint interfaces to express intent</strong><p><code>T extends Identifiable</code> reads better than <code>T extends { id: number }</code> when "having an id" is a concept that appears in multiple places.</p></div></div>
+              <div class="practice-item"><div class="practice-num">3</div><div><strong>Master <code>K extends keyof T</code> — it's one of the most used patterns</strong><p>The pattern <code>getProperty&lt;T, K extends keyof T&gt;(obj: T, key: K): T[K]</code> is foundational. It ensures keys are valid and return types are inferred correctly.</p></div></div>
+              <div class="practice-item"><div class="practice-num">4</div><div><strong>Combine constraints with intersection when you need multiple requirements</strong><p><code>T extends HasId &amp; HasTimestamps</code> is cleaner than writing a new interface that extends both. For one-off combinations, inline intersection constraints are fine.</p></div></div>
+              <div class="practice-item"><div class="practice-num">5</div><div><strong>Acid test: can you replace the generic with a specific type and lose nothing? Remove it.</strong><p>Unnecessary generics add complexity without benefit. If the function effectively only ever handles one real type, drop the generic.</p></div></div>
+            </div>
+
+            <div class="tab-pane" data-pane="iq">
+              <h4>Interview Questions</h4>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag easy">Easy</span><strong>Q: What does <code>T extends SomeType</code> mean in a generic constraint?</strong></div>
+                <p>In a generic constraint, <code>T extends SomeType</code> means "T must be assignable to SomeType" — it must have at minimum all the properties SomeType requires. It does NOT mean T inherits from SomeType in the class inheritance sense. It's purely structural: any type with the right shape satisfies the constraint, regardless of how it was declared. Plain objects, classes, and interfaces can all satisfy the same constraint.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag medium">Medium</span><strong>Q: What is the <code>K extends keyof T</code> pattern and when do you use it?</strong></div>
+                <p><code>K extends keyof T</code> constrains K to be a union of T's property names. It's used for type-safe property access: <code>function getProperty&lt;T, K extends keyof T&gt;(obj: T, key: K): T[K]</code> ensures key is a real property of obj and the return type automatically matches the value type at that key. This pattern appears in ORM query builders, typed config readers, and any code that manipulates objects by key.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag medium">Medium</span><strong>Q: Can you use a class as a generic constraint?</strong></div>
+                <p>Yes. <code>T extends ClassName</code> means T must be assignable to <code>ClassName</code> — it must have all the class's public properties and methods. TypeScript's structural type system doesn't require T to actually extend the class via inheritance; a plain object or different class with the same public shape would also satisfy the constraint. If you need an actual runtime instance, accept the class type directly rather than using it as a generic constraint.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag hard">Hard</span><strong>Q: What's the difference between <code>T extends object</code> and <code>T extends {}</code>?</strong></div>
+                <p><code>T extends object</code> constrains T to non-primitive types — excludes <code>string</code>, <code>number</code>, <code>boolean</code>, <code>symbol</code>, <code>bigint</code>, <code>null</code>, and <code>undefined</code>. <code>T extends {}</code> (empty object) allows everything that is <em>not</em> <code>null</code> or <code>undefined</code> — including primitives, because they're structurally compatible with <code>{}</code>. Use <code>T extends object</code> when you need an actual object; use <code>T extends Record&lt;string, unknown&gt;</code> for a key-value indexable object. Avoid <code>T extends {}</code> as a "non-null" constraint — use <code>NonNullable&lt;T&gt;</code> instead.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag hard">Hard</span><strong>Q: How do you write a merge function where TypeScript knows the exact resulting type?</strong></div>
+                <p>Use constraints and intersection types: <code>function merge&lt;A extends object, B extends object&gt;(a: A, b: B): A &amp; B { return { ...a, ...b } as A &amp; B; }</code>. TypeScript infers the intersection of A and B as the return type, so the caller gets a type that has all properties of both arguments. The <code>as A &amp; B</code> cast is needed internally because TypeScript can't automatically verify that spread produces an intersection — a known limitation. This pattern is used in <code>Object.assign</code>-style utilities and deep merge helpers.</p>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="exc">
+              <h4>Practice Challenge</h4>
+              <div class="exercise-box">
+                <h4>Goal</h4>
+                <p>Build a type-safe data filtering system using generic constraints.</p>
+                <h4>Requirements</h4>
+                <ul>
+                  <li>Write <code>filterByProperty&lt;T, K extends keyof T&gt;(items: T[], key: K, value: T[K]): T[]</code></li>
+                  <li>Write <code>sortByKey&lt;T, K extends keyof T&gt;(items: T[], key: K): T[]</code></li>
+                  <li>Write <code>groupBy&lt;T, K extends keyof T&gt;(items: T[], key: K): Record&lt;string, T[]&gt;</code></li>
+                  <li>Test all three with a <code>Product</code> interface (id, name, category, price)</li>
+                </ul>
+              </div>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">interface</span> <span class="type">Product</span> {
+  id: <span class="type">number</span>; name: <span class="type">string</span>; category: <span class="type">string</span>; price: <span class="type">number</span>;
+}
+
+<span class="kw">function</span> <span class="fn">filterByProperty</span>&lt;<span class="type">T</span>, <span class="type">K</span> <span class="kw">extends</span> <span class="kw">keyof</span> <span class="type">T</span>&gt;(
+  <span class="param">items</span>: <span class="type">T</span>[], <span class="param">key</span>: <span class="type">K</span>, <span class="param">value</span>: <span class="type">T</span>[<span class="type">K</span>]
+): <span class="type">T</span>[] {
+  <span class="cmt">// TODO: items.filter(item => item[key] === value)</span>
+}
+
+<span class="kw">function</span> <span class="fn">sortByKey</span>&lt;<span class="type">T</span>, <span class="type">K</span> <span class="kw">extends</span> <span class="kw">keyof</span> <span class="type">T</span>&gt;(<span class="param">items</span>: <span class="type">T</span>[], <span class="param">key</span>: <span class="type">K</span>): <span class="type">T</span>[] {
+  <span class="cmt">// TODO: [...items].sort(...)</span>
+}
+
+<span class="kw">function</span> <span class="fn">groupBy</span>&lt;<span class="type">T</span>, <span class="type">K</span> <span class="kw">extends</span> <span class="kw">keyof</span> <span class="type">T</span>&gt;(<span class="param">items</span>: <span class="type">T</span>[], <span class="param">key</span>: <span class="type">K</span>): <span class="type">Record</span>&lt;<span class="type">string</span>, <span class="type">T</span>[]&gt; {
+  <span class="cmt">// TODO: reduce into object keyed by item[key]</span>
+}
+
+<span class="kw">const</span> products: <span class="type">Product</span>[] = [
+  { id: <span class="num">1</span>, name: <span class="str">"Laptop"</span>,  category: <span class="str">"Electronics"</span>, price: <span class="num">999</span> },
+  { id: <span class="num">2</span>, name: <span class="str">"Phone"</span>,   category: <span class="str">"Electronics"</span>, price: <span class="num">699</span> },
+  { id: <span class="num">3</span>, name: <span class="str">"T-Shirt"</span>, category: <span class="str">"Clothing"</span>,     price: <span class="num">29</span>  },
+];
+
+<span class="kw">const</span> electronics = filterByProperty(products, <span class="str">"category"</span>, <span class="str">"Electronics"</span>);
+<span class="cmt">// filterByProperty(products, "category", 42) — ✗ Error! 42 is not string</span>
+<span class="kw">const</span> byPrice = sortByKey(products, <span class="str">"price"</span>);
+<span class="kw">const</span> grouped = groupBy(products, <span class="str">"category"</span>);</code></pre></div>
+              <p><strong>Hint:</strong> For <code>groupBy</code>, use <code>items.reduce((acc, item) =&gt; { const k = String(item[key]); (acc[k] ??= []).push(item); return acc; }, {} as Record&lt;string, T[]&gt;)</code>.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="sum">
+              <h4>Key Takeaways</h4>
+              <ul class="takeaway-list">
+                <li>Constraints use <code>extends</code> to require that a type parameter satisfies a minimum shape.</li>
+                <li>In constraints, <code>extends</code> means "is assignable to" (structural), not "inherits from" (nominal).</li>
+                <li><code>K extends keyof T</code> is one of the most important patterns — enables type-safe property access with inferred return types.</li>
+                <li>Constrain only what you need — minimal constraints maximize a function's reusability.</li>
+                <li>Inside the function body, you can only access properties guaranteed by the constraint, not extras that might exist.</li>
+                <li>If a constraint makes T effectively one specific type, remove the generic and use that type directly.</li>
+              </ul>
+              <div class="mental-model">Mental model: A constraint is a <em>job requirement</em> — it defines the minimum qualifications, and many different types can qualify as long as they meet them.</div>
+            </div>
+          </div>
+        </details>
+      </div><!-- end topic-panels -->
+
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <!--  MINI PROJECT                                                       -->
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <div class="mini-project">
+        <h3>Module 4 Mini-Project: API Response Wrapper</h3>
+        <p>Apply all four concepts from this module to build a type-safe API client utility library usable across a full-stack TypeScript application.</p>
+
+        <h4>What You'll Build</h4>
+        <ul>
+          <li>A generic <code>ApiResponse&lt;T&gt;</code> interface that wraps any API payload</li>
+          <li>A generic <code>apiFetch&lt;T&gt;</code> function that fetches and types API responses</li>
+          <li>A <code>Result&lt;T, E&gt;</code> generic type for error handling without thrown exceptions</li>
+          <li>A paginated variant <code>PaginatedResponse&lt;T&gt;</code> for list endpoints</li>
+          <li>Constrained helper functions: <code>findById</code>, <code>mapResult</code></li>
+        </ul>
+
+        <h4>TypeScript Concepts Used</h4>
+        <ul>
+          <li><strong>Generic Functions</strong> — <code>apiFetch&lt;T&gt;</code>, <code>mapResult&lt;T, U&gt;</code></li>
+          <li><strong>Generic Interfaces</strong> — <code>ApiResponse&lt;T&gt;</code>, <code>PaginatedResponse&lt;T&gt;</code></li>
+          <li><strong>Generic Types</strong> — <code>Result&lt;T, E&gt;</code>, <code>AsyncResult&lt;T&gt;</code></li>
+          <li><strong>Constraints</strong> — <code>T extends { id: number }</code> for entity utilities</li>
+        </ul>
+
+        <h4>Starter Code</h4>
+        <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// api-client.ts</span>
+
+<span class="cmt">// TODO 1: Define ApiResponse&lt;T&gt; interface — data, status, ok, message?</span>
+<span class="kw">interface</span> <span class="type">ApiResponse</span>&lt;<span class="type">T</span>&gt; { <span class="cmt">/* your fields */</span> }
+
+<span class="cmt">// TODO 2: Define PaginatedResponse&lt;T&gt; — items, page, pageSize, total</span>
+<span class="kw">interface</span> <span class="type">PaginatedResponse</span>&lt;<span class="type">T</span>&gt; { <span class="cmt">/* your fields */</span> }
+
+<span class="cmt">// TODO 3: Define Result&lt;T, E = string&gt; discriminated union</span>
+<span class="kw">type</span> <span class="type">Result</span>&lt;<span class="type">T</span>, <span class="type">E</span> = <span class="type">string</span>&gt; = <span class="cmt">/* ... */</span>;
+<span class="kw">type</span> <span class="type">AsyncResult</span>&lt;<span class="type">T</span>&gt;     = <span class="type">Promise</span>&lt;<span class="type">Result</span>&lt;<span class="type">T</span>&gt;&gt;;
+
+<span class="cmt">// TODO 4: apiFetch&lt;T&gt; — fetches URL, returns AsyncResult&lt;T&gt;</span>
+<span class="kw">async function</span> <span class="fn">apiFetch</span>&lt;<span class="type">T</span>&gt;(<span class="param">url</span>: <span class="type">string</span>, <span class="param">options</span>?: <span class="type">RequestInit</span>): <span class="type">AsyncResult</span>&lt;<span class="type">T</span>&gt; {
+  <span class="cmt">// try/catch the fetch; return { ok: true, value } or { ok: false, error }</span>
+}
+
+<span class="cmt">// TODO 5: mapResult&lt;T, U, E&gt; — transforms the value inside a Result</span>
+<span class="kw">function</span> <span class="fn">mapResult</span>&lt;<span class="type">T</span>, <span class="type">U</span>, <span class="type">E</span> = <span class="type">string</span>&gt;(
+  <span class="param">result</span>: <span class="type">Result</span>&lt;<span class="type">T</span>, <span class="type">E</span>&gt;,
+  <span class="param">fn</span>: (<span class="param">v</span>: <span class="type">T</span>) <span class="op">=&gt;</span> <span class="type">U</span>
+): <span class="type">Result</span>&lt;<span class="type">U</span>, <span class="type">E</span>&gt; { <span class="cmt">/* TODO */</span> }
+
+<span class="cmt">// TODO 6: findById with T extends { id: number } constraint</span>
+<span class="kw">function</span> <span class="fn">findById</span>&lt;<span class="type">T</span> <span class="kw">extends</span> { id: <span class="type">number</span> }&gt;(
+  <span class="param">items</span>: <span class="type">T</span>[], <span class="param">id</span>: <span class="type">number</span>
+): <span class="type">T</span> | <span class="kw">undefined</span> { <span class="cmt">/* TODO */</span> }
+
+<span class="cmt">// Domain types</span>
+<span class="kw">interface</span> <span class="type">User</span> { id: <span class="type">number</span>; name: <span class="type">string</span>; email: <span class="type">string</span>; }
+<span class="kw">interface</span> <span class="type">Post</span> { id: <span class="type">number</span>; title: <span class="type">string</span>; userId: <span class="type">number</span>; }
+
+<span class="cmt">// Usage test</span>
+<span class="kw">async function</span> <span class="fn">main</span>() {
+  <span class="kw">const</span> usersResult = <span class="kw">await</span> apiFetch&lt;<span class="type">User</span>[]&gt;(<span class="str">"/api/users"</span>);
+  <span class="kw">if</span> (usersResult.ok) {
+    <span class="kw">const</span> user = findById(usersResult.value, <span class="num">1</span>);
+    console.log(user?.name); <span class="cmt">// string | undefined ✓</span>
+  }
+}</code></pre></div>
+
+        <h4>Step-by-Step Instructions</h4>
+        <ol>
+          <li>Define <code>ApiResponse&lt;T&gt;</code>, <code>PaginatedResponse&lt;T&gt;</code>, and <code>Result&lt;T, E&gt;</code></li>
+          <li>Implement <code>apiFetch&lt;T&gt;</code> — catch both network errors and non-OK HTTP status</li>
+          <li>Implement <code>mapResult</code> — narrow on the <code>ok</code> property, apply fn or pass error through</li>
+          <li>Implement <code>findById</code> using the <code>T extends { id: number }</code> constraint</li>
+          <li>Write an <code>async main()</code> that fetches users, finds one by ID, and fetches their posts using <code>PaginatedResponse&lt;Post&gt;</code></li>
+        </ol>
+
+        <h4>Stretch Goals</h4>
+        <ul>
+          <li>Add <code>withRetry&lt;T&gt;(fn: () =&gt; AsyncResult&lt;T&gt;, retries: number): AsyncResult&lt;T&gt;</code></li>
+          <li>Add <code>combine&lt;A, B&gt;(ra: Result&lt;A&gt;, rb: Result&lt;B&gt;): Result&lt;[A, B]&gt;</code> — succeeds only if both succeed</li>
+          <li>Create a typed cache wrapper: <code>cached&lt;T&gt;(key: string, fn: () =&gt; AsyncResult&lt;T&gt;): AsyncResult&lt;T&gt;</code></li>
+        </ul>
+      </div>
+
+    </section>
+  </main>
+</div>
+
+<button id="back-to-top" title="Back to top">↑</button>
+
+<script>
+// Progress bar
+const bar = document.getElementById('progress-bar');
+window.addEventListener('scroll', () => {
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  bar.style.width = `${(window.scrollY / h) * 100}%`;
+});
+
+// Back to top
+const btt = document.getElementById('back-to-top');
+window.addEventListener('scroll', () => btt.classList.toggle('visible', window.scrollY > 400));
+btt.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+// Tab switching — per-panel, independent state
+document.querySelectorAll('.panel-tabs').forEach(tabs => {
+  tabs.addEventListener('click', e => {
+    const btn = e.target.closest('.tab');
+    if (!btn) return;
+    const panel = tabs.closest('.topic-panel');
+    const name = btn.dataset.tab;
+    panel.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    panel.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    panel.querySelector(`[data-pane="${name}"]`)?.classList.add('active');
+  });
+});
+
+// Copy buttons
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const code = btn.closest('.code-block').querySelector('code');
+    navigator.clipboard.writeText(code.innerText).then(() => {
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy', 1500);
+    });
+  });
+});
+
+// Module checkboxes with localStorage
+document.querySelectorAll('.module-check').forEach(cb => {
+  const id = cb.dataset.id;
+  const header = document.getElementById(`${id}-header`);
+  if (localStorage.getItem(`module-${id}`) === 'true') {
+    cb.checked = true;
+    header?.classList.add('completed');
+  }
+  cb.addEventListener('change', () => {
+    localStorage.setItem(`module-${id}`, cb.checked);
+    header?.classList.toggle('completed', cb.checked);
+  });
+});
+
+// Topic search
+document.getElementById('topicSearch').addEventListener('input', e => {
+  const q = e.target.value.toLowerCase();
+  document.querySelectorAll('.topic-panel').forEach(panel => {
+    const name = panel.querySelector('.topic-name')?.textContent.toLowerCase() ?? '';
+    panel.style.display = name.includes(q) ? '' : 'none';
+  });
+});
+
+// Scroll-spy sidebar
+const allNavLinks = document.querySelectorAll('#module-nav a, #topic-nav a');
+const spyObs = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      allNavLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === `#${id}`));
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.module, .topic-panel').forEach(el => spyObs.observe(el));
+
+// Smooth scroll for sidebar links
+allNavLinks.forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+
+</body>
+</html>

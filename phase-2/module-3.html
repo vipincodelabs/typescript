@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Phase 2 · Module 3: Enums | TypeScript Learning Path</title>
+<style>
+:root{
+  --bg:#0f1117;--bg-card:#1a1f2e;--bg-code:#1e2433;--border:#2d3748;
+  --text:#e2e8f0;--text-muted:#94a3b8;--accent:#3b82f6;--accent-hover:#2563eb;
+  --success:#10b981;--warning:#f59e0b;--error:#ef4444;
+  --sidebar-width:260px;--header-height:56px;--radius:8px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.7}
+a{color:var(--accent);text-decoration:none}
+a:hover{color:var(--accent-hover);text-decoration:underline}
+
+#progress-bar{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--accent),#a855f7);z-index:1000;transition:width .1s}
+
+#site-header{
+  position:sticky;top:0;z-index:900;
+  background:rgba(15,17,23,.95);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--border);
+  height:var(--header-height);display:flex;align-items:center;
+  padding:0 24px;gap:12px;
+}
+#site-header h1{font-size:1.05rem;font-weight:600;color:var(--text)}
+.hdr-badge{background:var(--accent);color:#fff;font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:20px;white-space:nowrap}
+
+#layout{display:flex;min-height:calc(100vh - var(--header-height))}
+
+#sidebar{
+  width:var(--sidebar-width);min-width:var(--sidebar-width);
+  position:sticky;top:var(--header-height);align-self:flex-start;
+  height:calc(100vh - var(--header-height));overflow-y:auto;
+  background:var(--bg-card);border-right:1px solid var(--border);
+  padding:20px 16px;
+}
+#sidebar::-webkit-scrollbar{width:4px}
+#sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+#topicSearch{
+  width:100%;padding:8px 12px;border-radius:var(--radius);
+  background:var(--bg);border:1px solid var(--border);
+  color:var(--text);font-size:.85rem;margin-bottom:16px;outline:none;
+}
+#topicSearch:focus{border-color:var(--accent)}
+.sb-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:8px;font-weight:600;display:block}
+#module-nav{list-style:none}
+#module-nav li{margin-bottom:2px}
+#module-nav a{
+  display:block;padding:6px 10px;border-radius:6px;
+  color:var(--text-muted);font-size:.85rem;transition:all .15s;
+}
+#module-nav a:hover,#module-nav a.active{background:rgba(59,130,246,.12);color:var(--accent)}
+
+#content{flex:1;padding:32px 40px;max-width:980px}
+
+.module-header{
+  display:flex;align-items:center;gap:12px;
+  padding:18px 22px;background:var(--bg-card);
+  border:1px solid var(--border);border-radius:var(--radius);
+  margin-bottom:18px;
+}
+.module-header label{display:flex;align-items:center;gap:12px;cursor:pointer;flex:1}
+.module-header h2{font-size:1.35rem;font-weight:700}
+.module-check{width:18px;height:18px;accent-color:var(--success);cursor:pointer;flex-shrink:0}
+.done-badge{background:var(--success);color:#fff;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:20px;display:none}
+.module-completed .module-header{border-color:var(--success)}
+.module-completed h2{text-decoration:line-through;color:var(--text-muted)}
+.module-completed .done-badge{display:inline-block}
+.module-intro{color:var(--text-muted);margin-bottom:22px;font-size:.95rem;line-height:1.8}
+
+.topics-table{width:100%;border-collapse:collapse;margin-bottom:26px;font-size:.9rem}
+.topics-table th{background:var(--bg-code);padding:10px 14px;text-align:left;color:var(--text-muted);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em}
+.topics-table td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+.topics-table tr:last-child td{border-bottom:none}
+.topics-table tr:hover td{background:rgba(255,255,255,.02)}
+
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:700;letter-spacing:.03em}
+.badge.beginner{background:rgba(16,185,129,.15);color:var(--success)}
+.badge.intermediate{background:rgba(245,158,11,.15);color:var(--warning)}
+.badge.advanced{background:rgba(239,68,68,.15);color:var(--error)}
+
+.topic-panels{display:flex;flex-direction:column;gap:10px;margin-bottom:26px}
+details.topic-panel{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:border-color .2s}
+details.topic-panel[open]{border-color:var(--accent)}
+details.topic-panel summary{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer;list-style:none;user-select:none}
+details.topic-panel summary::-webkit-details-marker{display:none}
+.summary-arrow{margin-left:auto;color:var(--text-muted);transition:transform .2s;font-size:.85rem}
+details[open] .summary-arrow{transform:rotate(90deg)}
+.topic-name{font-weight:600;font-size:.98rem}
+
+.panel-tabs{display:flex;flex-wrap:wrap;gap:4px;padding:10px 16px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:rgba(0,0,0,.15)}
+.tab{padding:4px 11px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:.76rem;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap}
+.tab:hover{border-color:var(--accent);color:var(--accent)}
+.tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.panel-content{padding:22px}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+.tab-pane h4{font-size:.92rem;font-weight:700;color:var(--text);margin:18px 0 7px}
+.tab-pane h4:first-child{margin-top:0}
+.tab-pane p{color:var(--text-muted);margin-bottom:13px;line-height:1.8}
+.tab-pane ul,.tab-pane ol{padding-left:20px;color:var(--text-muted);margin-bottom:13px}
+.tab-pane li{margin-bottom:6px;line-height:1.75}
+.tab-pane strong{color:var(--text)}
+.tab-pane code{background:var(--bg-code);padding:1px 5px;border-radius:3px;font-size:.83rem;color:#a5b4fc;font-family:'Fira Code',Consolas,monospace}
+
+.code-block{background:var(--bg-code);border:1px solid var(--border);border-radius:var(--radius);margin:10px 0;overflow:hidden}
+.code-header{display:flex;justify-content:space-between;align-items:center;padding:7px 14px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.03)}
+.code-lang{font-size:.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase}
+.copy-btn{background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:.72rem;padding:2px 9px;border-radius:4px;cursor:pointer;transition:all .15s}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+.copy-btn.copied{border-color:var(--success);color:var(--success)}
+pre{margin:0;padding:14px 16px;overflow-x:auto}
+code.ts-code{font-family:'Fira Code','Cascadia Code',Consolas,monospace;font-size:.84rem;line-height:1.7;color:var(--text);white-space:pre}
+code.ts-code .kw{color:#60a5fa}
+code.ts-code .str{color:#34d399}
+code.ts-code .num{color:#fbbf24}
+code.ts-code .cmt{color:#4b5e7a;font-style:italic}
+code.ts-code .type{color:#a78bfa}
+
+.qa-block{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px}
+.qa-q{color:var(--text);font-weight:600;margin-bottom:7px;font-size:.9rem}
+.qa-a{color:var(--text-muted);font-size:.87rem;line-height:1.8}
+.qa-level{font-size:.69rem;font-weight:700;padding:1px 7px;border-radius:10px;margin-right:7px}
+.qa-level.easy{background:rgba(16,185,129,.15);color:var(--success)}
+.qa-level.medium{background:rgba(245,158,11,.15);color:var(--warning)}
+.qa-level.hard{background:rgba(239,68,68,.15);color:var(--error)}
+
+.exercise-block{background:rgba(59,130,246,.05);border:1px solid rgba(59,130,246,.2);border-radius:var(--radius);padding:18px 20px}
+.exercise-block .goal{font-size:.95rem;font-weight:600;color:var(--text);margin-bottom:10px}
+
+.mini-project{background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(168,85,247,.08));border:1px solid rgba(59,130,246,.25);border-radius:var(--radius);padding:26px;margin-top:30px}
+.mini-project h3{font-size:1.15rem;font-weight:700;margin-bottom:14px}
+.mini-project h4{font-size:.82rem;font-weight:700;color:var(--accent);margin:14px 0 8px;text-transform:uppercase;letter-spacing:.06em}
+.mini-project ul,.mini-project ol{padding-left:20px;color:var(--text-muted)}
+.mini-project li{margin-bottom:5px;line-height:1.7}
+
+#back-to-top{position:fixed;bottom:30px;right:30px;background:var(--accent);color:#fff;width:42px;height:42px;border-radius:50%;border:none;font-size:1.1rem;cursor:pointer;box-shadow:0 4px 16px rgba(59,130,246,.4);display:none;align-items:center;justify-content:center;transition:background .2s,transform .2s;z-index:800}
+#back-to-top:hover{background:var(--accent-hover);transform:translateY(-2px)}
+#back-to-top.visible{display:flex}
+::-webkit-scrollbar{width:7px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<header id="site-header">
+  <span class="hdr-badge">Phase 2</span>
+  <h1>Module 3: Enums</h1>
+</header>
+
+<div id="layout">
+
+<nav id="sidebar">
+  <input type="text" id="topicSearch" placeholder="Search topics…" autocomplete="off"/>
+  <span class="sb-label">Topics</span>
+  <ul id="module-nav">
+    <li><a href="#topic-numeric">Numeric Enums</a></li>
+    <li><a href="#topic-string">String Enums</a></li>
+    <li><a href="#topic-const">Const Enums</a></li>
+    <li><a href="#mini-project">Mini-Project</a></li>
+  </ul>
+</nav>
+
+<main id="content">
+<section id="module-3" class="module">
+
+  <div class="module-header">
+    <label>
+      <input type="checkbox" class="module-check" data-id="module-3"/>
+      <h2>Module 3: Enums</h2>
+    </label>
+    <span class="done-badge">✓ Done</span>
+  </div>
+
+  <p class="module-intro">
+    Enums are one of TypeScript's most distinctive features — they don't exist in vanilla JavaScript at all. An enum defines a closed set of named constants, replacing magic numbers and disconnected string literals with self-documenting, type-safe names. This module covers all three flavors: numeric enums that map names to auto-incrementing integers (with bidirectional lookup), string enums that serialize to human-readable text, and const enums that vanish entirely at compile time for zero-overhead constants. You'll learn exactly when to reach for each kind, and when a simple union type might serve you better.
+  </p>
+
+  <table class="topics-table">
+    <thead>
+      <tr><th>Topic</th><th>What You'll Learn</th><th>Difficulty</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Numeric Enums</strong></td>
+        <td>Auto-incrementing integers, reverse lookup, bit flags, custom initializers</td>
+        <td><span class="badge intermediate">Intermediate</span></td>
+      </tr>
+      <tr>
+        <td><strong>String Enums</strong></td>
+        <td>Explicit string values, serialization safety, nominal typing, runtime behavior</td>
+        <td><span class="badge intermediate">Intermediate</span></td>
+      </tr>
+      <tr>
+        <td><strong>Const Enums</strong></td>
+        <td>Compile-time inlining, zero runtime overhead, isolatedModules limitations</td>
+        <td><span class="badge advanced">Advanced</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="topic-panels">
+
+    <!-- ═══════════════════════════════════════════════════════════
+         TOPIC 1: NUMERIC ENUMS
+    ════════════════════════════════════════════════════════════ -->
+    <details class="topic-panel" id="topic-numeric">
+      <summary>
+        <span class="topic-name">Numeric Enums</span>
+        <span class="badge intermediate">Intermediate</span>
+        <span class="summary-arrow">▶</span>
+      </summary>
+      <div class="panel-tabs">
+        <button class="tab active" data-tab="ne-def">Definition</button>
+        <button class="tab" data-tab="ne-why">Why It Exists</button>
+        <button class="tab" data-tab="ne-use">When to Use</button>
+        <button class="tab" data-tab="ne-not">When NOT to Use</button>
+        <button class="tab" data-tab="ne-int">How It Works</button>
+        <button class="tab" data-tab="ne-syn">Syntax</button>
+        <button class="tab" data-tab="ne-ex">Example</button>
+        <button class="tab" data-tab="ne-rw">Real-World</button>
+        <button class="tab" data-tab="ne-uc">Use Cases</button>
+        <button class="tab" data-tab="ne-mis">Mistakes</button>
+        <button class="tab" data-tab="ne-bp">Best Practices</button>
+        <button class="tab" data-tab="ne-iq">Interview Qs</button>
+        <button class="tab" data-tab="ne-ch">Exercise</button>
+        <button class="tab" data-tab="ne-sum">Summary</button>
+      </div>
+      <div class="panel-content">
+
+        <div class="tab-pane active" data-pane="ne-def">
+          <h4>Simple Explanation</h4>
+          <p>A numeric enum is like a numbered list where TypeScript automatically assigns a number to each label. If you define <code>Up</code>, <code>Down</code>, <code>Left</code>, <code>Right</code>, TypeScript quietly assigns 0, 1, 2, 3 behind the scenes. You write the name; TypeScript handles the number.</p>
+          <h4>Technical Explanation</h4>
+          <p>A numeric enum maps string identifiers to integer values at compile time. The compiler starts at 0 (or a custom initializer) and auto-increments for each subsequent member. Crucially, it also generates a <strong>reverse mapping</strong> in the compiled JavaScript — so you can look up a member's name by its number: <code>Direction[0] === "Up"</code>. The enum becomes a real JavaScript object with entries in both directions.</p>
+        </div>
+
+        <div class="tab-pane" data-pane="ne-why">
+          <h4>The Problem It Solves</h4>
+          <p>In JavaScript, fixed value sets are typically loose constants or magic numbers. When someone writes <code>if (status === 2)</code>, you have no idea what 2 means without reading the entire codebase. There's no grouping, no autocomplete, and no protection against passing <code>99</code> where only 0–4 is valid.</p>
+          <div class="code-block"><div class="code-header"><span class="code-lang">javascript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">// Without enums — magic numbers everywhere
+function processOrder(status) {
+  if (status === 2) {        // What does 2 mean? Shipped? Cancelled?
+    console.log("Shipped!");
+  }
+}
+processOrder(2);   // Works, but is 2 correct?
+processOrder(99);  // No error! Silently wrong.</code></pre></div>
+          <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">// With numeric enum — intent is self-documenting
+enum OrderStatus { Pending, Processing, Shipped, Delivered, Cancelled }
+
+function processOrder(status: OrderStatus): void {
+  if (status === OrderStatus.Shipped) {
+    console.log("Shipped!");
+  }
+}
+
+processOrder(OrderStatus.Shipped);  // ✓ clear intent
+// processOrder(99);  // ✗ Error: '99' not assignable to type 'OrderStatus'</code></pre></div>
+        </div>
+
+        <div class="tab-pane" data-pane="ne-use">
+          <h4>When Numeric Enums Are the Right Choice</h4>
+          <ul>
+            <li><strong>State machines with ordering:</strong> Order status, workflow stages — when you need to compare states: <code>if (status &lt;= OrderStatus.Processing)</code>.</li>
+            <li><strong>Role hierarchies:</strong> <code>enum Role { Guest, User, Moderator, Admin }</code> — numeric ordering lets you do <code>if (role &gt;= Role.Moderator)</code> for tiered checks.</li>
+            <li><strong>Bit flag permissions:</strong> <code>Read = 1, Write = 2, Execute = 4</code> — combine with <code>|</code>, test with <code>&amp;</code>. Numeric values are required for bitwise logic.</li>
+            <li><strong>Reverse lookup needed:</strong> When you receive a numeric code from a database or API and need to show a human-readable label: <code>OrderStatus[code]</code>.</li>
+            <li><strong>Exhaustive switch statements:</strong> TypeScript's exhaustiveness checking works perfectly with enums in switch blocks.</li>
+          </ul>
+        </div>
+
+        <div class="tab-pane" data-pane="ne-not">
+          <h4>When to Avoid Numeric Enums</h4>
+          <ul>
+            <li><strong>Serialization boundaries:</strong> <code>JSON.stringify({ status: OrderStatus.Shipped })</code> produces <code>{"status":2}</code> — meaningless to API consumers or DBA reviewing the database. Use string enums instead.</li>
+            <li><strong>Simple boolean toggles:</strong> Two states (active/inactive, on/off) — a <code>boolean</code> is cleaner and more obvious.</li>
+            <li><strong>Open-ended sets:</strong> If new values will be added by external parties, a union type <code>type Status = "pending" | "shipped"</code> is easier to extend safely.</li>
+            <li><strong>Library tree-shaking:</strong> Numeric enums generate real JS objects bundlers can't eliminate. Prefer <code>const enum</code> or <code>as const</code> objects in published libraries.</li>
+          </ul>
+        </div>
+
+        <div class="tab-pane" data-pane="ne-int">
+          <h4>What TypeScript Compiles to</h4>
+          <p>TypeScript compiles numeric enums into an IIFE that builds a bidirectional object. The trick: JavaScript assignment expressions evaluate to their assigned value, so TypeScript exploits this to run two assignments in one statement.</p>
+          <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">enum Direction { Up, Down, Left, Right }</code></pre></div>
+          <div class="code-block"><div class="code-header"><span class="code-lang">javascript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">var Direction;
+(function (Direction) {
+  Direction[Direction["Up"] = 0] = "Up";
+  // Direction["Up"] = 0  →  evaluates to 0
+  // Direction[0] = "Up"  →  runs as the outer assignment
+  Direction[Direction["Down"] = 1] = "Down";
+  Direction[Direction["Left"] = 2] = "Left";
+  Direction[Direction["Right"] = 3] = "Right";
+})(Direction || (Direction = {}));
+
+// Resulting object has BOTH directions:
+// { Up:0, Down:1, Left:2, Right:3, 0:"Up", 1:"Down", 2:"Left", 3:"Right" }</code></pre></div>
+          <p>The IIFE pattern <code>(Direction || (Direction = {}))</code> supports declaration merging — running it multiple times extends the same object. This bidirectional object enables both <code>Direction.Up === 0</code> and <code>Direction[0] === "Up"</code>.</p>
+        </div>
+
+        <div class="tab-pane" data-pane="ne-syn">
+          <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">enum Direction {         // 'enum' keyword, then PascalCase name
+  Up,                    // auto-assigned: 0
+  Down,                  // auto-assigned: 1
+  Left,                  // auto-assigned: 2
+  Right                  // auto-assigned: 3
+}
+
+enum StatusCode {
+  OK          = 200,     // explicit initializer — overrides auto-increment
+  Created     = 201,     // subsequent members continue from here
+  BadRequest  = 400,     // can jump to any integer
+  NotFound    = 404,
+  ServerError = 500
+}
+
+enum Permission {
+  None    = 0,
+  Read    = 1 &lt;&lt; 0,     // bit shift: evaluates to 1
+  Write   = 1 &lt;&lt; 1,     // bit shift: evaluates to 2
+  Execute = 1 &lt;&lt; 2,     // bit shift: evaluates to 4
+  All     = Read | Write | Execute  // references to other members: 7
+}
+
+const dir: Direction = Direction.Up;   // type uses the enum name
+console.log(dir);           // Output: 0  (the numeric value)
+console.log(Direction[0]);  // Output: "Up"  (reverse lookup)
+
+const perms = Permission.Read | Permission.Write;  // combine: 3
+const canRead = (perms &amp; Permission.Read) !== 0;   // check: true</code></pre></div>
+          <p>Enum names and members use PascalCase by convention. Custom initializers can be integer literals, bit-shift expressions, or arithmetic on earlier member references.</p>
+        </div>
+
+        <div class="tab-pane" data-pane="ne-ex">
+          <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">enum OrderStatus {
+  Pending    = 0,
+  Processing = 1,
+  Shipped    = 2,
+  Delivered  = 3,
+  Cancelled  = 4
+}
+
+function getStatusLabel(status: OrderStatus): string {
+  switch (status) {
+    case OrderStatus.Pending:    return "Awaiting confirmation";
+    case OrderStatus.Processing: return "Being prepared";
+    case OrderStatus.Shipped:    return "On the way";
+    case OrderStatus.Delivered:  return "Delivered successfully";
+    case OrderStatus.Cancelled:  return "Order cancelled";
+  }
+}
+
+// Reverse lookup — convert numeric code to human name
+const code = 2;
+const name = OrderStatus[code];          // "Shipped"
+console.log(`Code ${code} = ${name}`);   // Output: Code 2 = Shipped
+
+// Numeric ordering — role-based access
+enum UserRole { Guest = 0, Customer = 1, Support = 2, Admin = 3 }
+
+function requiresRole(userRole: UserRole, minRole: UserRole): boolean {
+  return userRole &gt;= minRole;  // numeric comparison works naturally
+}
+
+requiresRole(UserRole.Admin, UserRole.Support);   // true
+requiresRole(UserRole.Guest, UserRole.Customer);  // false
+
+// Type safety — rejects invalid numbers at compile time
+function canRefund(status: OrderStatus): boolean {
+  return status === OrderStatus.Delivered;
+}
+// canRefund(5);  // ✗ Error: '5' is not assignable to parameter of type 'OrderStatus'</code></pre></div>
+        </div>
+
+        <div class="tab-pane" data-pane="ne-rw">
+          <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">// Express route handler — order status update with role authorization
+
+enum OrderStatus { Pending=0, Processing=1, Shipped=2, Delivered=3, Cancelled=4 }
+enum UserRole    { Guest=0, Customer=1, Support=2, Admin=3 }
+
+interface Order {
+  id:        string;
+  userId:    string;
+  status:    OrderStatus;
+  updatedAt: Date;
+}
+
+interface AuthUser {
+  id:   string;
+  role: UserRole;
+}
+
+// Business rule: only Support+ can cancel after shipping
+function canTransition(
+  order: Order, newStatus: OrderStatus, actor: AuthUser
+): boolean {
+  if (newStatus === OrderStatus.Cancelled) {
+    if (order.status &gt;= OrderStatus.Shipped) return actor.role &gt;= UserRole.Support;
+    return order.status &lt;= OrderStatus.Processing; // customer can cancel early
+  }
+  return true; // other transitions are unrestricted here
+}
+
+async function handleStatusUpdate(
+  req: { body: { orderId: string; status: number }; user: AuthUser },
+  res: { json: (v: unknown) =&gt; void; status: (n: number) =&gt; any }
+): Promise&lt;void&gt; {
+  const newStatus = req.body.status as OrderStatus;
+
+  // Validate: is this a real enum value?
+  if (typeof newStatus !== "number" || !(newStatus in OrderStatus)) {
+    res.status(400).json({ error: "Invalid status code" });
+    return;
+  }
+
+  // Reverse lookup for logging — shows "Shipped" not "2"
+  console.log(`Transition request: → ${OrderStatus[newStatus]}`);
+  res.json({ status: newStatus, label: OrderStatus[newStatus] });
+}</code></pre></div>
+        </div>
+
+        <div class="tab-pane" data-pane="ne-uc">
+          <ul>
+            <li><strong>HTTP status codes:</strong> <code>enum HttpCode { OK=200, NotFound=404, ServerError=500 }</code> — switch statements become readable without memorizing every code.</li>
+            <li><strong>Role-based access:</strong> Numeric ordering lets you write <code>if (role &gt;= Role.Admin)</code> for tiered permissions — impossible with string enums.</li>
+            <li><strong>Game state machines:</strong> <code>enum GameState { MainMenu, Loading, Playing, Paused, GameOver }</code> — typed transitions between a closed set of states.</li>
+            <li><strong>WebSocket opcodes:</strong> RFC 6455 defines numeric opcodes (1=TEXT, 2=BINARY, 8=CLOSE, 9=PING) — numeric enums map these directly to meaningful names.</li>
+            <li><strong>Permission bit flags:</strong> Combining <code>Read | Write</code> produces a number you can store in a single database integer column, then decompose later.</li>
+            <li><strong>Sort direction:</strong> <code>enum SortOrder { Asc=1, Desc=-1 }</code> — the numeric value doubles as the sort multiplier in query builders.</li>
+          </ul>
+        </div>
+
+        <div class="tab-pane" data-pane="ne-mis">
+          <h4>1. Assuming TypeScript rejects all invalid numbers</h4>
+          <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">// WRONG assumption
+enum Color { Red, Green, Blue }
+const c: Color = 100;  // TypeScript ALLOWS this — no error!
+// Intentional: enables bit-flag combinations (Read | Write = 3, not a single member)
+
+// CORRECT: validate at runtime for data from external sources
+function setColor(c: Color): void {
+  if (!(c in Color)) throw new Error(`Invalid color: ${c}`);
+}</code></pre></div>
+          <h4>2. Using numeric enums in JSON responses</h4>
+          <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">// WRONG — API consumers see numbers, not names
+enum Status { Active, Inactive }
+JSON.stringify({ status: Status.Active });  // '{"status":0}' — meaningless
+
+// CORRECT — use string enum for anything serialized
+enum Status { Active = "ACTIVE", Inactive = "INACTIVE" }
+JSON.stringify({ status: Status.Active });  // '{"status":"ACTIVE"}'</code></pre></div>
+          <h4>3. Expecting reverse lookup on string enums</h4>
+          <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">// WRONG — carrying numeric habit to string enums
+enum Dir { Up = "UP" }
+(Dir as any)["UP"];  // undefined — string enums have NO reverse mapping
+
+// CORRECT — reverse lookup only exists for numeric enums
+enum NumDir { Up = 0 }
+NumDir[NumDir.Up];   // "Up" ✓</code></pre></div>
+          <h4>4. Heterogeneous enums (mixing types)</h4>
+          <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">// BAD — TypeScript allows but it's confusing and almost never useful
+enum Mixed { A = 1, B = "hello" }
+
+// GOOD — pick one type consistently
+enum Directions { Up = "UP", Down = "DOWN" }  // all string
+enum Priority   { Low = 1, Medium = 2, High = 3 }  // all numeric</code></pre></div>
+        </div>
+
+        <div class="tab-pane" data-pane="ne-bp">
+          <ol>
+            <li><strong>PascalCase for names and members.</strong> <code>enum OrderStatus { Pending, Shipped }</code> — the TypeScript community standard. Not <code>ORDER_STATUS</code> or <code>orderStatus</code>.</li>
+            <li><strong>Assign explicit values when the number is meaningful.</strong> If your database stores 0=pending, write <code>Pending = 0</code> explicitly. Reserve auto-increment only when relative ordering is all that matters.</li>
+            <li><strong>Switch to string enums at serialization boundaries.</strong> The moment a value appears in JSON, a log file, or a database column, numeric values become opaque. Use string enums there.</li>
+            <li><strong>Use <code>const enum</code> when you never need to iterate.</strong> If <code>Object.values()</code> is never called on it, <code>const enum</code> is more efficient (zero runtime object).</li>
+            <li><strong>Validate incoming numbers with Zod.</strong> Use <code>z.nativeEnum(MyEnum)</code> at API/external boundaries — TypeScript's types can't protect you from runtime data.</li>
+            <li><strong>Document bit-flag enums clearly.</strong> Bitwise operations are non-obvious to readers who haven't used them — a short JSDoc comment on the enum is worth it.</li>
+            <li><strong>Consider union types for small, simple sets.</strong> <code>type Dir = "up" | "down"</code> has no overhead and is equally type-safe when you don't need runtime iteration or reverse lookup.</li>
+          </ol>
+        </div>
+
+        <div class="tab-pane" data-pane="ne-iq">
+          <div class="qa-block">
+            <div class="qa-q"><span class="qa-level easy">Easy</span>What are numeric enums, and what are their default values?</div>
+            <div class="qa-a">A numeric enum maps named constants to integer values. By default the first member is 0 and each subsequent member auto-increments by 1. You can override the start: <code>enum Foo { A = 5, B, C }</code> gives A=5, B=6, C=7. TypeScript also generates a reverse mapping so <code>Foo[5]</code> returns <code>"A"</code>.</div>
+          </div>
+          <div class="qa-block">
+            <div class="qa-q"><span class="qa-level easy">Easy</span>What is the difference between numeric and string enums?</div>
+            <div class="qa-a">Numeric enums generate bidirectional mappings (name→number AND number→name) and auto-increment values. String enums generate only a one-way mapping and require every member to have an explicit string value. Numeric enums support reverse lookup and numeric comparison; string enums are safe for serialization to JSON or databases.</div>
+          </div>
+          <div class="qa-block">
+            <div class="qa-q"><span class="qa-level medium">Medium</span>What JavaScript does TypeScript generate for a numeric enum?</div>
+            <div class="qa-a">TypeScript generates an IIFE that mutates an object to create bidirectional mappings. For <code>enum Dir { Up }</code> it emits: <code>var Dir; (function(Dir){ Dir[Dir["Up"]=0]="Up"; })(Dir||(Dir={}));</code>. The trick <code>Dir[Dir["Up"]=0]="Up"</code> simultaneously sets <code>Dir.Up=0</code> and <code>Dir[0]="Up"</code>.</div>
+          </div>
+          <div class="qa-block">
+            <div class="qa-q"><span class="qa-level medium">Medium</span>When would you choose a union type over a numeric enum?</div>
+            <div class="qa-a">Use a union type when the values are strings for serialization, when tree-shaking matters (unions compile to nothing), when the set may be extended externally, or when you want purely structural compatibility. Use numeric enums when you need the runtime object for iteration or reverse lookup, for bit-flag patterns, or when numeric comparison is needed.</div>
+          </div>
+          <div class="qa-block">
+            <div class="qa-q"><span class="qa-level hard">Hard</span>TypeScript allows assigning arbitrary numbers to numeric enum variables. Why, and how do you protect against it at runtime?</div>
+            <div class="qa-a">TypeScript intentionally allows this to support bit-flag patterns — combining <code>Flags.Read | Flags.Write</code> produces 3, which isn't any single member value. To protect against truly invalid values at runtime, validate incoming data at system boundaries using <code>Object.values(MyEnum).includes(val)</code> or Zod's <code>z.nativeEnum(MyEnum)</code>.</div>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="ne-ch">
+          <div class="exercise-block">
+            <div class="goal">Build a typed traffic-light state machine using numeric enums.</div>
+            <h4>Requirements</h4>
+            <ul>
+              <li>Define <code>enum TrafficLight</code> with Red, Yellow, Green members</li>
+              <li>Write <code>nextLight(current: TrafficLight): TrafficLight</code> — cycle: Red→Green→Yellow→Red</li>
+              <li>Write <code>getWaitSeconds(light: TrafficLight): number</code> — Red=60, Yellow=5, Green=30</li>
+              <li>Use switch statements — TypeScript should warn if a case is missing</li>
+              <li>Print the name using reverse lookup: <code>TrafficLight[current]</code></li>
+            </ul>
+            <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">enum TrafficLight {
+  // TODO: define Red, Yellow, Green
+}
+
+function nextLight(current: TrafficLight): TrafficLight {
+  switch (current) {
+    // TODO: Red→Green, Green→Yellow, Yellow→Red
+  }
+}
+
+function getWaitSeconds(light: TrafficLight): number {
+  // TODO: return wait time per light
+}
+
+let current = TrafficLight.Red;
+for (let i = 0; i &lt; 6; i++) {
+  console.log(`${TrafficLight[current]}: wait ${getWaitSeconds(current)}s`);
+  current = nextLight(current);
+}</code></pre></div>
+            <p><strong>Hint:</strong> TypeScript warns "not all code paths return a value" on a switch with a return type annotation — that's your hint when a case is missing.</p>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="ne-sum">
+          <ul>
+            <li>Numeric enums assign auto-incrementing integers starting at 0; custom starting values and explicit per-member values are fully supported.</li>
+            <li>TypeScript generates a <strong>bidirectional</strong> mapping — <code>Direction.Up === 0</code> AND <code>Direction[0] === "Up"</code>.</li>
+            <li>The enum compiles to a real JavaScript object — it has runtime presence and can be iterated.</li>
+            <li>TypeScript is intentionally loose about numeric assignability (any number is accepted) to support bit-flag combination patterns.</li>
+            <li>Use numeric enums for state machines, role hierarchies, bit flags, or anywhere numeric ordering or reverse lookup is needed.</li>
+            <li>Avoid numeric enums at serialization boundaries — API consumers see <code>0</code>, not <code>"Pending"</code>.</li>
+            <li><strong>Mental model:</strong> A numeric enum is a two-way dictionary — look up by name to get a number, or by number to get a name.</li>
+          </ul>
+        </div>
+
+      </div>
+    </details>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         TOPIC 2: STRING ENUMS
+    ════════════════════════════════════════════════════════════ -->
+    <details class="topic-panel" id="topic-string">
+      <summary>
+        <span class="topic-name">String Enums</span>
+        <span class="badge intermediate">Intermediate</span>
+        <span class="summary-arrow">▶</span>
+      </summary>
+      <div class="panel-tabs">
+        <button class="tab active" data-tab="se-def">Definition</button>
+        <button class="tab" data-tab="se-why">Why It Exists</button>
+        <button class="tab" data-tab="se-use">When to Use</button>
+        <button class="tab" data-tab="se-not">When NOT to Use</button>
+        <button class="tab" data-tab="se-int">How It Works</button>
+        <button class="tab" data-tab="se-syn">Syntax</button>
+        <button class="tab" data-tab="se-ex">Example</button>
+        <button class="tab" data-tab="se-rw">Real-World</button>
+        <button class="tab" data-tab="se-uc">Use Cases</button>
+        <button class="tab" data-tab="se-mis">Mistakes</button>
+        <button class="tab" data-tab="se-bp">Best Practices</button>
+        <button class="tab" data-tab="se-iq">Interview Qs</button>
+        <button class="tab" data-tab="se-ch">Exercise</button>
+        <button class="tab" data-tab="se-sum">Summary</button>
+      </div>
+      <div class="panel-content">
+
+        <div class="tab-pane active" data-pane="se-def">
+          <h4>Simple Explanation</h4>
+          <p>A string enum is like a numeric enum but each member's value is a meaningful string you set explicitly. Instead of <code>Status.Shipped === 2</code>, you get <code>Status.Shipped === "SHIPPED"</code>. The value speaks for itself wherever it shows up — in JSON, database columns, log files, or DevTools.</p>
+          <h4>Technical Explanation</h4>
+          <p>Every string enum member requires an explicit string literal initializer — there is no auto-incrementing. TypeScript compiles a string enum to a one-way mapping object (name→value only), with no reverse mapping. String enums are also <strong>nominally typed</strong>: two different enums that happen to share identical string values are still distinct, incompatible types at the TypeScript level.</p>
+        </div>
+
+        <div class="tab-pane" data-pane="se-why">
+          <h4>The Problem It Solves</h4>
+          <p>Numeric enums become opaque the moment they leave your TypeScript process. <code>JSON.stringify({ status: OrderStatus.Shipped })</code> produces <code>{"status":2}</code>. Your API consumers see 2. Your DBA sees 2 in the database. Your logs show 2. Nobody knows what 2 means without a lookup table. String enums eliminate this "decoder ring" problem entirely.</p>
+          <div class="code-block"><div class="code-header"><span class="code-lang">javascript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">// Problem: data becomes opaque at serialization boundaries
+const order = { status: 2 };
+JSON.stringify(order);  // '{"status":2}' — what does 2 mean?
+// SELECT * FROM orders WHERE status = 2  — DBA needs a lookup table</code></pre></div>
+          <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">// Solution: string enum values are self-documenting everywhere
+enum OrderStatus {
+  Pending   = "PENDING",
+  Shipped   = "SHIPPED",
+  Delivered = "DELIVERED"
+}
+
+JSON.stringify({ status: OrderStatus.Shipped });
+// '{"status":"SHIPPED"}' — clear to any consumer, no decoder ring needed
+// Database: SELECT * FROM orders WHERE status = 'SHIPPED'  — readable</code></pre></div>
+        </div>
+
+        <div class="tab-pane" data-pane="se-use">
+          <h4>When String Enums Are the Right Choice</h4>
+          <ul>
+            <li><strong>API payloads:</strong> Any enum value that appears in a JSON request or response body — string values are readable without documentation.</li>
+            <li><strong>Database columns:</strong> Stored as plain text — readable in SQL queries, migration files, and database admin tools without a reference table.</li>
+            <li><strong>Log messages:</strong> <code>[INFO] User created</code> is far more useful in logs than <code>[1] User created</code>.</li>
+            <li><strong>Redux action types:</strong> String values appear in Redux DevTools — <code>"posts/FETCH"</code> is informative while <code>0</code> is not.</li>
+            <li><strong>Config keys that must match external systems:</strong> When enum values must exactly match string keys used by a feature-flag service, i18n system, or remote config.</li>
+          </ul>
+        </div>
+
+        <div class="tab-pane" data-pane="se-not">
+          <h4>When to Avoid String Enums</h4>
+          <ul>
+            <li><strong>Bit-flag patterns:</strong> You need numeric values for bitwise <code>|</code> and <code>&amp;</code> operations — string enums can't be combined that way.</li>
+            <li><strong>Reverse lookup needed:</strong> <code>Enum["VALUE"]</code> returns <code>undefined</code> for string enums — no reverse mapping is generated. Build a manual helper if needed.</li>
+            <li><strong>Auto-incrementing sequences:</strong> If the specific numeric value matters (database ID, HTTP status code), numeric enums with explicit values are more appropriate.</li>
+            <li><strong>Boolean pairs:</strong> <code>enum Enabled { Yes = "YES", No = "NO" }</code> is over-engineering — use a <code>boolean</code>.</li>
+          </ul>
+        </div>
+
+        <div class="tab-pane" data-pane="se-int">
+          <h4>Compiled JavaScript Output</h4>
+          <p>String enums compile to a simpler object than numeric enums — just forward assignments, no reverse-mapping lines.</p>
+          <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">enum Direction { Up = "UP", Down = "DOWN", Left = "LEFT", Right = "RIGHT" }</code></pre></div>
+          <div class="code-block"><div class="code-header"><span class="code-lang">javascript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">var Direction;
+(function (Direction) {
+  Direction["Up"]    = "UP";    // only forward mapping
+  Direction["Down"]  = "DOWN";  // no Direction["UP"] = "Up" generated
+  Direction["Left"]  = "LEFT";
+  Direction["Right"] = "RIGHT";
+})(Direction || (Direction = {}));
+
+// Resulting object: { Up:"UP", Down:"DOWN", Left:"LEFT", Right:"RIGHT" }
+// Direction["UP"] → undefined  (no reverse mapping for string enums)</code></pre></div>
+          <p><strong>Why no reverse mapping?</strong> TypeScript can't guarantee string values won't collide with member names — using the string value as an object key risks overwriting a forward-mapping entry. Numeric enums use integer keys which are safe; string enums use string keys which might conflict. TypeScript chose the safe path: no reverse mapping.</p>
+          <p><strong>Nominal typing in practice:</strong> Even if <code>enum A { X = "X" }</code> and <code>enum B { X = "X" }</code> have identical string values, TypeScript treats them as distinct types. A function accepting <code>A</code> rejects a <code>B</code> — intentional domain separation.</p>
+        </div>
+
+        <div class="tab-pane" data-pane="se-syn">
+          <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">enum Direction {
+  Up    = "UP",         // explicit string value — required for ALL members
+  Down  = "DOWN",       // no auto-increment: you must provide each value
+  Left  = "LEFT",
+  Right = "RIGHT"       // value can differ from key name (but aligning is conventional)
+}
+
+enum LogLevel {
+  Debug   = "DEBUG",
+  Info    = "INFO",
+  Warning = "WARN",     // value doesn't have to match the member name exactly
+  Error   = "ERROR"
+}
+
+// Accessing members — same syntax as numeric enums
+const level: LogLevel = LogLevel.Info;
+console.log(level);    // Output: "INFO"  (the actual string value is printed)
+
+// String value appears directly in template literals
+function log(level: LogLevel, msg: string): void {
+  console.log(`[${level}] ${msg}`);
+  // Output: [INFO] Server started  (no lookup needed — value IS the label)
+}
+
+// Nominal typing demonstration
+enum ColorA { Red = "RED" }
+enum ColorB { Red = "RED" }
+const a: ColorA = ColorA.Red;
+// const b: ColorB = a;  // ✗ Error: 'ColorA' not assignable to 'ColorB'
+// Same value, different enum types — TypeScript tracks which enum it came from</code></pre></div>
+        </div>
+
+        <div class="tab-pane" data-pane="se-ex">
+          <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">enum LogLevel {
+  Debug = "DEBUG",
+  Info  = "INFO",
+  Warn  = "WARN",
+  Error = "ERROR"
+}
+
+interface LogEntry {
+  level:     LogLevel;
+  message:   string;
+  timestamp: string;
+}
+
+function createLog(level: LogLevel, message: string): LogEntry {
+  return { level, message, timestamp: new Date().toISOString() };
+}
+
+function printLog(entry: LogEntry): void {
+  // String value appears directly — zero lookup overhead
+  console.log(`[${entry.level}] ${entry.timestamp} — ${entry.message}`);
+  // Output: [INFO] 2024-06-01T10:30:00.000Z — Server started on port 3000
+}
+
+const entry = createLog(LogLevel.Info, "Server started on port 3000");
+printLog(entry);
+
+// JSON output is self-documenting
+JSON.stringify(entry);
+// '{"level":"INFO","message":"Server started on port 3000","timestamp":"..."}'
+// Compare to numeric: '{"level":1,...}' — meaningless without context
+
+// TypeScript rejects wrong-level strings
+// createLog("verbose", "test");   // ✗ Error: not assignable to LogLevel
+// createLog(LogLevel.Debug, ""); // ✓ valid</code></pre></div>
+        </div>
+
+        <div class="tab-pane" data-pane="se-rw">
+          <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">// Zod + Express — validated user roles at API boundary
+import { z } from "zod";
+import type { Request, Response } from "express";
+
+enum UserRole {
+  Guest    = "GUEST",
+  Customer = "CUSTOMER",
+  Editor   = "EDITOR",
+  Admin    = "ADMIN"
+}
+
+enum AccountStatus {
+  Active    = "ACTIVE",
+  Suspended = "SUSPENDED",
+  Deleted   = "DELETED"
+}
+
+// z.nativeEnum() validates that the incoming string is a valid enum value
+const createUserSchema = z.object({
+  name:   z.string().min(1).max(100),
+  email:  z.string().email(),
+  role:   z.nativeEnum(UserRole).default(UserRole.Customer),
+  status: z.nativeEnum(AccountStatus).default(AccountStatus.Active)
+});
+
+type CreateUserInput = z.infer&lt;typeof createUserSchema&gt;;
+
+async function handleCreateUser(req: Request, res: Response): Promise&lt;void&gt; {
+  const result = createUserSchema.safeParse(req.body);
+  if (!result.success) {
+    res.status(400).json({ errors: result.error.flatten() });
+    return;
+  }
+  const { name, email, role, status } = result.data;
+
+  // role is now definitely UserRole — "CUSTOMER", "ADMIN", etc.
+  // Database INSERT stores "CUSTOMER" → readable in SQL without a lookup table
+  console.log(`Creating ${role} user: ${name} (${status})`);
+
+  res.status(201).json({ name, email, role, status });
+}</code></pre></div>
+        </div>
+
+        <div class="tab-pane" data-pane="se-uc">
+          <ul>
+            <li><strong>Redux action types:</strong> <code>enum PostAction { Fetch = "posts/FETCH", Create = "posts/CREATE" }</code> — action type strings show up in Redux DevTools, making state transitions readable at a glance.</li>
+            <li><strong>REST API status fields:</strong> Order status, payment method, shipping carrier — any enum in a JSON response should be string-valued so API consumers understand it without consulting docs.</li>
+            <li><strong>Database column values:</strong> Postgres stores <code>"ACTIVE"</code>, <code>"SUSPENDED"</code> — readable in <code>psql</code>, pgAdmin, and migration scripts without a reference table.</li>
+            <li><strong>Notification channels:</strong> <code>enum NotifType { Email = "email", SMS = "sms", Push = "push" }</code> — values match the keys your notification provider's API expects.</li>
+            <li><strong>i18n locale codes:</strong> <code>enum Locale { EN = "en-US", ES = "es-ES", FR = "fr-FR" }</code> — values are the IETF language tags used directly in API calls and <code>Intl</code>.</li>
+            <li><strong>Feature flag keys:</strong> When enum values must match flag names in a remote config service (LaunchDarkly, Statsig) — string enums act as typed, autocomplete-friendly aliases for those keys.</li>
+          </ul>
+        </div>
+
+        <div class="tab-pane" data-pane="se-mis">
+          <h4>1. Assigning raw string literals to enum variables</h4>
+          <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">// WRONG — nominal typing prevents direct string assignment
+enum Status { Active = "ACTIVE" }
+const s: Status = "ACTIVE";  // ✗ Error: string literal not assignable to Status
+
+// CORRECT
+const s2: Status = Status.Active;
+
+// For runtime-parsed values, validate before casting
+const raw = "ACTIVE";
+const s3 = z.nativeEnum(Status).parse(raw);  // throws if invalid — safe
+const s4 = raw as Status;                    // ⚠ unsafe — skips validation</code></pre></div>
+          <h4>2. Expecting reverse lookup to work</h4>
+          <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">// WRONG — string enums have NO reverse mapping
+enum Color { Red = "RED" }
+(Color as any)["RED"];  // undefined — doesn't exist in the compiled object
+
+// CORRECT: build a helper when value→key lookup is needed
+function findKey&lt;T extends Record&lt;string, string&gt;&gt;(
+  enumObj: T, value: string
+): keyof T | undefined {
+  return Object.entries(enumObj).find(([, v]) =&gt; v === value)?.[0] as keyof T;
+}
+findKey(Color, "RED");  // "Red"</code></pre></div>
+          <h4>3. Missing initializers</h4>
+          <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">// WRONG — every string enum member must have an explicit value
+enum Broken { A = "hello", B }  // ✗ Error: must have initializer
+
+// CORRECT
+enum Fixed { A = "hello", B = "world" }</code></pre></div>
+        </div>
+
+        <div class="tab-pane" data-pane="se-bp">
+          <ol>
+            <li><strong>Use UPPER_SNAKE_CASE for string values.</strong> <code>Active = "ACTIVE"</code> matches REST API conventions and stands out in JSON output and database queries.</li>
+            <li><strong>The value IS the API contract.</strong> If your API docs say <code>status: "SHIPPED"</code>, your enum value must be <code>"SHIPPED"</code> — keep them in sync.</li>
+            <li><strong>Always validate incoming string values.</strong> Use <code>z.nativeEnum(MyEnum)</code> at API and database-read boundaries — TypeScript can't protect you from external data at runtime.</li>
+            <li><strong>Prefer string enums over numeric for any cross-process data.</strong> Serialization, database storage, logs, external APIs — all benefit from readable string values.</li>
+            <li><strong>Keep member names and values semantically aligned.</strong> <code>Email = "EMAIL"</code> is clear; <code>Email = "xyz"</code> is confusing — both name and value should describe the same concept.</li>
+            <li><strong>Use string enums in Redux for DevTools.</strong> Action type strings appear directly in the Redux DevTools time-travel debugger — descriptive values are invaluable there.</li>
+            <li><strong>Document string enum values in OpenAPI specs.</strong> The values in your enum are the wire-format contract — include them as the <code>enum</code> constraint on the relevant schema field.</li>
+          </ol>
+        </div>
+
+        <div class="tab-pane" data-pane="se-iq">
+          <div class="qa-block">
+            <div class="qa-q"><span class="qa-level easy">Easy</span>What must you provide for every string enum member, and why?</div>
+            <div class="qa-a">Every string enum member requires an explicit string literal initializer. Unlike numeric enums, there is no auto-incrementing for strings. TypeScript errors if any member lacks a value. This ensures each member maps to a predictable, documented string rather than an auto-generated integer.</div>
+          </div>
+          <div class="qa-block">
+            <div class="qa-q"><span class="qa-level easy">Easy</span>Do string enums support reverse mapping like numeric enums?</div>
+            <div class="qa-a">No. String enums generate only a forward mapping (name→value). <code>Direction["UP"]</code> returns undefined because no reverse-mapping line is emitted. TypeScript chose not to generate reverse mappings for string enums because string values could collide with member names in the compiled object.</div>
+          </div>
+          <div class="qa-block">
+            <div class="qa-q"><span class="qa-level medium">Medium</span>How do you safely parse an unknown string into a string enum at runtime?</div>
+            <div class="qa-a">The safest approach is Zod: <code>z.nativeEnum(MyEnum).parse(rawValue)</code> — throws with a descriptive error for invalid values. Without Zod, use a type guard: <code>function isMyEnum(v: string): v is MyEnum { return Object.values(MyEnum).includes(v as MyEnum); }</code>. Never use <code>val as MyEnum</code> without validation — it bypasses type safety.</div>
+          </div>
+          <div class="qa-block">
+            <div class="qa-q"><span class="qa-level medium">Medium</span>When would you choose a string enum over a union type like <code>"ACTIVE" | "INACTIVE"</code>?</div>
+            <div class="qa-a">Choose a string enum when you need a runtime object (to iterate with <code>Object.values()</code> or use with <code>z.nativeEnum()</code>), when you want nominal typing to prevent mixing same-valued enums from different domains, or when exposing typed constants in a library. Choose a union type when you want lighter output, better tree-shaking, or structural compatibility across modules.</div>
+          </div>
+          <div class="qa-block">
+            <div class="qa-q"><span class="qa-level hard">Hard</span>Explain how string enums and union types behave differently when they have the same values.</div>
+            <div class="qa-a">String enums are nominally typed — <code>enum A { X = "X" }</code> and <code>enum B { X = "X" }</code> are distinct types even though both contain the string <code>"X"</code>. A function expecting <code>A</code> rejects a <code>B</code> value. Union types are structurally typed — <code>type A = "X"</code> and <code>type B = "X"</code> are identical and interchangeable. This matters when two domain concepts share string values: string enums enforce domain separation that union types cannot provide.</div>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="se-ch">
+          <div class="exercise-block">
+            <div class="goal">Build a filtered logger that respects a minimum log level using string enums.</div>
+            <h4>Requirements</h4>
+            <ul>
+              <li>Define <code>enum LogLevel</code> with Debug, Info, Warn, Error string values</li>
+              <li>Create a <code>Logger</code> class with a <code>minLevel: LogLevel</code> threshold</li>
+              <li>Write a <code>log(level: LogLevel, message: string): void</code> that only prints if severity meets the threshold</li>
+              <li>Severity order: Debug &lt; Info &lt; Warn &lt; Error (string enums have no built-in ordering — define a map)</li>
+              <li>Expose <code>getEntries(): LogEntry[]</code> returning all entries that passed the threshold</li>
+            </ul>
+            <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">enum LogLevel {
+  // TODO: Debug="DEBUG", Info="INFO", Warn="WARN", Error="ERROR"
+}
+
+const SEVERITY: Record&lt;LogLevel, number&gt; = {
+  // TODO: assign 0, 1, 2, 3
+};
+
+interface LogEntry { level: LogLevel; message: string; ts: string }
+
+class Logger {
+  private entries: LogEntry[] = [];
+  constructor(private minLevel: LogLevel) {}
+
+  log(level: LogLevel, message: string): void {
+    // TODO: only push/print if SEVERITY[level] >= SEVERITY[this.minLevel]
+  }
+
+  getEntries(): LogEntry[] { return this.entries; }
+}
+
+const logger = new Logger(LogLevel.Warn);
+logger.log(LogLevel.Debug, "Verbose");    // should be filtered out
+logger.log(LogLevel.Warn,  "High CPU");  // should appear
+logger.log(LogLevel.Error, "Crash!");    // should appear
+console.log(logger.getEntries());</code></pre></div>
+            <p><strong>Hint:</strong> String enums have no numeric ordering — you must define a <code>Record&lt;LogLevel, number&gt;</code> severity map and compare those numbers.</p>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="se-sum">
+          <ul>
+            <li>Every string enum member must have an explicit string literal value — no auto-incrementing exists.</li>
+            <li>String enums do <strong>not</strong> generate reverse mappings — <code>Enum["VALUE"]</code> returns undefined.</li>
+            <li>String values appear directly in JSON, logs, and databases — making data self-documenting at every serialization boundary.</li>
+            <li>String enums are <strong>nominally typed</strong> — two enums with identical string values are still incompatible types; TypeScript tracks which enum a value came from.</li>
+            <li>Always validate incoming string values with <code>z.nativeEnum()</code> at API and external data boundaries.</li>
+            <li>Prefer string enums over numeric for any data that crosses a process boundary — readable values eliminate the "decoder ring" problem.</li>
+            <li><strong>Mental model:</strong> A string enum is a named set of string constants grouped under a single type-safe umbrella — the type tells TypeScript which set a value belongs to; the value tells humans what it means.</li>
+          </ul>
+        </div>
+
+      </div>
+    </details>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         TOPIC 3: CONST ENUMS
+    ════════════════════════════════════════════════════════════ -->
+    <details class="topic-panel" id="topic-const">
+      <summary>
+        <span class="topic-name">Const Enums</span>
+        <span class="badge advanced">Advanced</span>
+        <span class="summary-arrow">▶</span>
+      </summary>
+      <div class="panel-tabs">
+        <button class="tab active" data-tab="ce-def">Definition</button>
+        <button class="tab" data-tab="ce-why">Why It Exists</button>
+        <button class="tab" data-tab="ce-use">When to Use</button>
+        <button class="tab" data-tab="ce-not">When NOT to Use</button>
+        <button class="tab" data-tab="ce-int">How It Works</button>
+        <button class="tab" data-tab="ce-syn">Syntax</button>
+        <button class="tab" data-tab="ce-ex">Example</button>
+        <button class="tab" data-tab="ce-rw">Real-World</button>
+        <button class="tab" data-tab="ce-uc">Use Cases</button>
+        <button class="tab" data-tab="ce-mis">Mistakes</button>
+        <button class="tab" data-tab="ce-bp">Best Practices</button>
+        <button class="tab" data-tab="ce-iq">Interview Qs</button>
+        <button class="tab" data-tab="ce-ch">Exercise</button>
+        <button class="tab" data-tab="ce-sum">Summary</button>
+      </div>
+      <div class="panel-content">
+
+        <div class="tab-pane active" data-pane="ce-def">
+          <h4>Simple Explanation</h4>
+          <p>A <code>const enum</code> is a "phantom" enum — it exists only while TypeScript compiles your code. By the time JavaScript runs, every reference to a const enum member has been replaced with its literal value, and the enum itself has been completely removed. Think of it as a find-and-replace operation at compile time.</p>
+          <h4>Technical Explanation</h4>
+          <p>A <code>const enum</code> triggers compile-time inlining. The TypeScript compiler replaces every reference to a const enum member with its literal value (e.g., <code>Direction.Up</code> becomes <code>0</code>) and discards the enum declaration entirely. No JavaScript object is emitted, no IIFE runs, and no memory is allocated for the enum at runtime. The result is zero overhead — equivalent to writing the literal values by hand, but with full type safety and autocomplete while coding.</p>
+        </div>
+
+        <div class="tab-pane" data-pane="ce-why">
+          <h4>The Performance Problem</h4>
+          <p>Regular enums generate JavaScript objects and every member access is a property lookup at runtime. In performance-critical code — game loops running at 60fps, Canvas rendering, signal processors — this overhead accumulates. A <code>const enum</code> inlines the literal value at the usage site: zero property lookups, zero object allocation, zero memory footprint for the enum.</p>
+          <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">// Regular enum — generates JS object, each use is a property lookup
+enum Direction { Up = 0, Down = 1 }
+const x = Direction.Up;
+// Compiled: const x = Direction.Up;  (runtime object access)
+
+// Const enum — no JS object, each use becomes a literal
+const enum Direction { Up = 0, Down = 1 }
+const x = Direction.Up;
+// Compiled: const x = 0;  (literal — no object at all)</code></pre></div>
+          <div class="code-block"><div class="code-header"><span class="code-lang">javascript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">// Regular enum compiled output:
+var Direction;
+(function (Direction) {
+  Direction[Direction["Up"] = 0] = "Up";
+  Direction[Direction["Down"] = 1] = "Down";
+})(Direction || (Direction = {}));
+const x = Direction.Up;  // runtime property lookup
+
+// Const enum compiled output:
+const x = 0 /* Direction.Up */;  // literal inlined — nothing else emitted</code></pre></div>
+          <p>Const enums are also useful for library authors who don't want to ship a runtime enum object — consumers get type safety and autocomplete with zero dependency on a runtime object.</p>
+        </div>
+
+        <div class="tab-pane" data-pane="ce-use">
+          <h4>When Const Enums Are the Right Choice</h4>
+          <ul>
+            <li><strong>Performance-critical hot paths:</strong> Game loops, Canvas/WebGL rendering, audio processing — any code called thousands of times per second where property lookups matter.</li>
+            <li><strong>Library authoring:</strong> Ship typed constants to consumers with zero bundle-size impact — no runtime object is included in the consumer's bundle.</li>
+            <li><strong>Pure compile-time constants:</strong> Key codes, GL constants, HTTP codes that you reference by name for readability but will never iterate at runtime.</li>
+            <li><strong>Declaration files (<code>.d.ts</code>):</strong> Ambient const enums let consuming TypeScript code inline values at compile time without importing any runtime module.</li>
+            <li><strong>Bundle size optimization:</strong> When every byte matters, const enums avoid emitting the IIFE boilerplate that regular enums generate.</li>
+          </ul>
+        </div>
+
+        <div class="tab-pane" data-pane="ce-not">
+          <h4>When to Avoid Const Enums</h4>
+          <ul>
+            <li><strong>When iteration is needed:</strong> <code>Object.values(Direction)</code>, <code>Object.keys(Direction)</code> — the object doesn't exist at runtime; calling these throws a ReferenceError.</li>
+            <li><strong>Reverse lookup:</strong> <code>Direction[0]</code> fails at runtime for the same reason — no object to index into.</li>
+            <li><strong>With isolatedModules builds (Vite, esbuild, Babel, swc):</strong> These tools compile each file independently and cannot inline const enum values from other files. Cross-file exported const enums will break with these bundlers.</li>
+            <li><strong>In declaration files consumed by JavaScript:</strong> JS consumers can't benefit from TypeScript's inlining and will encounter ReferenceErrors.</li>
+            <li><strong>When values might change in large monorepos:</strong> Changing a const enum value forces recompilation of every file that uses it — regular enums only require recompiling the definition file.</li>
+          </ul>
+        </div>
+
+        <div class="tab-pane" data-pane="ce-int">
+          <h4>Compile-Time Inlining</h4>
+          <p>When TypeScript sees a <code>const enum</code> declaration, it stores the member values internally during compilation. Every reference to a member is replaced with the literal, and an explanatory comment is optionally added.</p>
+          <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">const enum HttpStatus { OK=200, NotFound=404, ServerError=500 }
+
+function handleStatus(status: HttpStatus): string {
+  switch (status) {
+    case HttpStatus.OK:          return "Success";
+    case HttpStatus.NotFound:    return "Not found";
+    case HttpStatus.ServerError: return "Server error";
+    default: return "Unknown";
+  }
+}</code></pre></div>
+          <div class="code-block"><div class="code-header"><span class="code-lang">javascript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">// Compiled output — enum declaration is gone, values are inlined
+function handleStatus(status) {
+  switch (status) {
+    case 200 /* HttpStatus.OK */:          return "Success";
+    case 404 /* HttpStatus.NotFound */:    return "Not found";
+    case 500 /* HttpStatus.ServerError */: return "Server error";
+    default: return "Unknown";
+  }
+}
+// No 'var HttpStatus = ...' anywhere — the object was never emitted</code></pre></div>
+          <p>The <code>/* EnumName.Member */</code> comments are added by default for readability. They can be stripped with <code>"removeComments": true</code> in tsconfig. Setting <code>"preserveConstEnums": true</code> makes TypeScript additionally emit the enum object (for debugging) while still inlining all references.</p>
+        </div>
+
+        <div class="tab-pane" data-pane="ce-syn">
+          <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">// 'const' keyword before 'enum'
+const enum HttpStatus {
+  OK           = 200,    // literal values required — same as regular enums
+  Created      = 201,
+  BadRequest   = 400,
+  Unauthorized = 401,
+  NotFound     = 404,
+  ServerError  = 500
+}
+
+// Bit-shift expressions and references to earlier members are allowed
+const enum Permission {
+  None    = 0,
+  Read    = 1 &lt;&lt; 0,               // = 1
+  Write   = 1 &lt;&lt; 1,               // = 2
+  Execute = 1 &lt;&lt; 2,               // = 4
+  All     = Read | Write | Execute // = 7  (references to other const enum members)
+}
+
+// String const enums also work
+const enum Direction { Up="UP", Down="DOWN", Left="LEFT", Right="RIGHT" }
+
+// Usage syntax is identical to regular enums
+const s: HttpStatus = HttpStatus.OK;      // compiles to: const s = 200;
+const d = Direction.Up;                    // compiles to: const d = "UP";
+
+// CANNOT use runtime function calls as initializers
+// const enum Broken { A = Math.PI }      // ✗ Error: must be constant expression
+// const enum Broken { A = getBase() }    // ✗ Error: same reason</code></pre></div>
+          <p>Members must be constant expressions — literal values, references to other const enum members, or simple arithmetic/bitwise operations on literals. Runtime function calls are not allowed.</p>
+        </div>
+
+        <div class="tab-pane" data-pane="ce-ex">
+          <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">// Keyboard input handler — called on every keydown event (60 times/sec in a game)
+const enum KeyCode {
+  ArrowUp    = 38,
+  ArrowDown  = 40,
+  ArrowLeft  = 37,
+  ArrowRight = 39,
+  Enter      = 13,
+  Escape     = 27,
+  Space      = 32
+}
+
+interface Player { x: number; y: number; speed: number }
+
+function handleInput(e: KeyboardEvent, player: Player): Player {
+  const step = player.speed;
+  switch (e.keyCode) {
+    // Each case compiles to: case 38:, case 40:, etc.
+    // Zero object lookup — just raw integer comparisons
+    case KeyCode.ArrowUp:    return { ...player, y: player.y - step };
+    case KeyCode.ArrowDown:  return { ...player, y: player.y + step };
+    case KeyCode.ArrowLeft:  return { ...player, x: player.x - step };
+    case KeyCode.ArrowRight: return { ...player, x: player.x + step };
+    default:                 return player;
+  }
+}
+
+// What you CANNOT do with const enums:
+// Object.values(KeyCode)  → ReferenceError: KeyCode is not defined
+// KeyCode[38]             → ReferenceError: KeyCode is not defined
+// The object simply doesn't exist at runtime</code></pre></div>
+        </div>
+
+        <div class="tab-pane" data-pane="ce-rw">
+          <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">// TypeScript HTTP library — typed constants with zero runtime overhead
+// consumers get type safety without the library's enum object in their bundle
+
+export const enum RequestMethod {
+  GET    = "GET",
+  POST   = "POST",
+  PUT    = "PUT",
+  PATCH  = "PATCH",
+  DELETE = "DELETE"
+}
+
+export const enum ResponseCode {
+  OK          = 200,
+  Created     = 201,
+  NoContent   = 204,
+  BadRequest  = 400,
+  Unauthorized = 401,
+  NotFound    = 404,
+  ServerError = 500
+}
+
+interface FetchConfig {
+  method:   RequestMethod;
+  headers?: Record&lt;string, string&gt;;
+  body?:    string;
+}
+
+export async function request&lt;T&gt;(
+  url: string,
+  config: FetchConfig
+): Promise&lt;{ status: ResponseCode; data: T }&gt; {
+  const res = await fetch(url, {
+    method:  config.method,   // inlined as "GET", "POST", etc. in consumer's build
+    headers: config.headers,
+    body:    config.body
+  });
+  return { status: res.status as ResponseCode, data: await res.json() as T };
+}
+
+// Consumer code — values are inlined into the consumer's bundle:
+// const res = await request("/api/user", { method: "GET" });  ← literal inlined
+// if (res.status === 200) { ... }  ← literal inlined
+// The library's enum objects are never included in the consumer's bundle</code></pre></div>
+        </div>
+
+        <div class="tab-pane" data-pane="ce-uc">
+          <ul>
+            <li><strong>Game keyboard/gamepad input:</strong> Input handlers run every frame — inlined integer comparisons in switch statements are faster than runtime object lookups, and avoid keeping an enum object in memory.</li>
+            <li><strong>WebGL / Canvas constants:</strong> WebGL has hundreds of numeric constants (GL_TEXTURE_2D, GL_FLOAT, etc.) — const enums give type-safe names with zero overhead over raw GL values.</li>
+            <li><strong>Library public APIs:</strong> Export const enums for configuration options — consumers get type safety and autocomplete while the library's enum objects are never bundled.</li>
+            <li><strong>Declaration files (<code>.d.ts</code>):</strong> <code>declare const enum</code> in ambient declarations lets consuming TypeScript files inline values at compile time.</li>
+            <li><strong>Build-time feature flags:</strong> Constants that control code paths — when combined with tree-shaking, inlined const enum values let bundlers eliminate entire dead-code branches.</li>
+          </ul>
+        </div>
+
+        <div class="tab-pane" data-pane="ce-mis">
+          <h4>1. Using const enum across files with isolatedModules</h4>
+          <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">// shared/direction.ts
+export const enum Direction { Up, Down }  // ← exported const enum
+
+// game.ts — using Vite or esbuild (which use isolatedModules)
+import { Direction } from "./shared/direction";
+const d = Direction.Up;
+// ✗ Error with esbuild/Babel: Cannot re-export a type when isolatedModules is set
+// These tools compile files independently — can't inline cross-file const enums
+
+// CORRECT: use regular enum when exporting across module boundaries with these tools
+export enum Direction { Up = 0, Down = 1 }  // works everywhere</code></pre></div>
+          <h4>2. Trying to iterate a const enum</h4>
+          <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">const enum Color { Red, Green, Blue }
+
+// WRONG — runtime crash: Color is not defined
+Object.values(Color);   // ReferenceError
+Object.keys(Color);     // ReferenceError
+Color[0];               // ReferenceError
+
+// CORRECT: if iteration is needed, use regular enum
+enum Color { Red, Green, Blue }
+Object.values(Color).filter(v =&gt; typeof v === "string");  // ["Red","Green","Blue"]</code></pre></div>
+          <h4>3. Using runtime function calls as member values</h4>
+          <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">// WRONG
+const getBase = () =&gt; 100;
+const enum Broken { A = getBase() }  // ✗ Error: must be constant expression
+
+// CORRECT — only literals and simple arithmetic
+const enum Fixed {
+  A = 100,
+  B = 1 &lt;&lt; 2,   // ✓ bit shift on literal
+  C = A + 10    // ✓ reference to const enum member + literal
+}</code></pre></div>
+        </div>
+
+        <div class="tab-pane" data-pane="ce-bp">
+          <ol>
+            <li><strong>Keep const enums file-local when using Vite, esbuild, or Babel.</strong> Don't export const enums from modules if your build tool uses <code>isolatedModules</code> — use regular enums for cross-file sharing.</li>
+            <li><strong>Add <code>"isolatedModules": true</code> to tsconfig to catch issues early.</strong> This flag makes <code>tsc</code> itself flag const enum cross-file usage problems before your bundler does.</li>
+            <li><strong>Use <code>"preserveConstEnums": true</code> in development.</strong> Emits the enum object alongside inlined values so you can inspect it in DevTools — no production behavior change.</li>
+            <li><strong>Document inlined values in comments when the source isn't obvious.</strong> <code>case 0x0404:</code> is hard to read in compiled output without context — a comment helps.</li>
+            <li><strong>Use const enums only for constants you'll never iterate.</strong> Simple rule: if you'll never call <code>Object.values()</code> on it, <code>const enum</code> is fine.</li>
+            <li><strong>Consider <code>as const</code> objects as a portable alternative.</strong> <code>const Dir = { Up: 0, Down: 1 } as const</code> with a derived type works everywhere, is tree-shakeable, and has no const enum limitations.</li>
+            <li><strong>Prefer const enums for internal hot-path constants.</strong> Key codes, GL constants, bitmasks — high-frequency references in tight loops are the sweet spot for const enums.</li>
+          </ol>
+        </div>
+
+        <div class="tab-pane" data-pane="ce-iq">
+          <div class="qa-block">
+            <div class="qa-q"><span class="qa-level easy">Easy</span>What is the key difference between a regular enum and a const enum?</div>
+            <div class="qa-a">A regular enum generates a JavaScript object at runtime. A const enum is erased entirely at compile time — every reference is replaced with the literal value. <code>Direction.Up</code> in a regular enum is a runtime object property lookup; in a const enum it compiles directly to <code>0</code>. No object, no lookup, no memory footprint.</div>
+          </div>
+          <div class="qa-block">
+            <div class="qa-q"><span class="qa-level medium">Medium</span>What is the <code>isolatedModules</code> problem with const enums?</div>
+            <div class="qa-a">The <code>isolatedModules</code> flag (used by esbuild, Babel, Vite, swc) compiles each file independently without reading other files. Const enum values from external files can't be inlined during per-file compilation because those values aren't available. The fix is to use regular enums, or restrict const enums to within the same file where they're defined.</div>
+          </div>
+          <div class="qa-block">
+            <div class="qa-q"><span class="qa-level medium">Medium</span>Can you use reverse lookup with a const enum? Why or why not?</div>
+            <div class="qa-a">No. Since const enums don't generate a runtime object, <code>Direction[0]</code> throws a ReferenceError — <code>Direction</code> doesn't exist as a variable. Reverse lookup requires a runtime object, which const enums deliberately don't create. Use a regular enum if reverse lookup is needed.</div>
+          </div>
+          <div class="qa-block">
+            <div class="qa-q"><span class="qa-level hard">Hard</span>How does <code>preserveConstEnums</code> in tsconfig affect compilation?</div>
+            <div class="qa-a">With <code>"preserveConstEnums": true</code>, TypeScript still inlines all const enum references at usage sites (no behavior change for the compiled logic) but additionally emits the enum object declaration in the output. This lets you inspect the enum in DevTools during development without affecting production runtime behavior. It's a debugging convenience — not a semantic change.</div>
+          </div>
+          <div class="qa-block">
+            <div class="qa-q"><span class="qa-level hard">Hard</span>Describe a portable alternative to const enums that achieves similar type safety with no build-tool limitations.</div>
+            <div class="qa-a">Use an <code>as const</code> object with a derived type: <code>const Direction = { Up: 0, Down: 1 } as const; type Direction = typeof Direction[keyof typeof Direction];</code>. The type only accepts 0 or 1, the runtime object is a plain object (tree-shakeable), there are no isolatedModules issues, and iteration works normally with <code>Object.values(Direction)</code>. The tradeoff is more boilerplate — you define the object and derive the type separately.</div>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="ce-ch">
+          <div class="exercise-block">
+            <div class="goal">Build a key-binding system for a text editor using const enums.</div>
+            <h4>Requirements</h4>
+            <ul>
+              <li>Define <code>const enum EditorAction</code> with Undo, Redo, Save, Bold, Italic</li>
+              <li>Define <code>const enum ModifierKey</code> with None=0, Ctrl=1, Alt=2, Shift=4 (bit flags)</li>
+              <li>Create interface <code>KeyBinding: { modifier: ModifierKey; keyCode: number; action: EditorAction }</code></li>
+              <li>Write <code>matchBinding(bindings: KeyBinding[], mod: ModifierKey, key: number): EditorAction | null</code></li>
+              <li>Try <code>Object.values(EditorAction)</code> — observe what TypeScript and the runtime say</li>
+            </ul>
+            <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">const enum EditorAction {
+  // TODO: Undo, Redo, Save, Bold, Italic (use numeric values)
+}
+
+const enum ModifierKey {
+  None  = 0,
+  // TODO: Ctrl=1, Alt=2, Shift=4
+}
+
+interface KeyBinding {
+  modifier: ModifierKey;
+  keyCode:  number;
+  action:   EditorAction;
+}
+
+function matchBinding(
+  bindings: KeyBinding[],
+  mod: ModifierKey,
+  key: number
+): EditorAction | null {
+  // TODO: find binding where modifier and keyCode match; return action or null
+  return null;
+}
+
+const BINDINGS: KeyBinding[] = [
+  { modifier: ModifierKey.Ctrl, keyCode: 90, action: EditorAction.Undo },
+  { modifier: ModifierKey.Ctrl, keyCode: 83, action: EditorAction.Save },
+];
+
+// Try adding this line — observe the TypeScript error, then the runtime error:
+// console.log(Object.values(EditorAction));</code></pre></div>
+            <p><strong>Hint:</strong> TypeScript itself may warn about <code>Object.values(EditorAction)</code>. At runtime it throws ReferenceError — that's the key lesson of const enums.</p>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="ce-sum">
+          <ul>
+            <li>Const enum members are <strong>inlined at every usage site</strong> — the enum object is never emitted to JavaScript.</li>
+            <li>Zero runtime overhead: no IIFE, no object allocation, no property lookup.</li>
+            <li>You <strong>cannot</strong> iterate, reverse-lookup, or dynamically access const enum values at runtime — the object doesn't exist.</li>
+            <li>Cross-file const enums break with <code>isolatedModules</code> build tools (esbuild, Vite, Babel, swc) — keep them file-local or switch to regular enums.</li>
+            <li>Set <code>"preserveConstEnums": true</code> to emit the object for debugging without changing inlining behavior at usage sites.</li>
+            <li>Consider <code>as const</code> objects as a portable alternative that avoids all const enum limitations while still providing type safety.</li>
+            <li><strong>Mental model:</strong> A const enum is like a C preprocessor <code>#define</code> — search-and-replaced at compile time, leaving no trace in the output.</li>
+          </ul>
+        </div>
+
+      </div>
+    </details>
+
+  </div><!-- /topic-panels -->
+
+  <!-- ═══════════════════════════════════════════════════════════
+       MINI-PROJECT: ORDER MANAGEMENT SYSTEM
+  ════════════════════════════════════════════════════════════ -->
+  <div class="mini-project" id="mini-project">
+    <h3>Mini-Project: Order Management System</h3>
+    <h4>What You'll Build</h4>
+    <ul>
+      <li>A fully typed order module using all three enum flavors in one cohesive system</li>
+      <li>Numeric enum for order status with state-machine transition validation</li>
+      <li>String enums for payment method and shipping carrier (JSON-serialization safe)</li>
+      <li>Const enum for staff permission bit flags (zero runtime overhead)</li>
+      <li>Human-readable logging using numeric enum reverse lookup</li>
+    </ul>
+    <h4>Concepts Used</h4>
+    <ul>
+      <li><strong>Numeric enum</strong> — <code>OrderStatus</code> ordering and reverse lookup for logging</li>
+      <li><strong>String enums</strong> — <code>PaymentMethod</code>, <code>ShippingCarrier</code> for JSON-safe serialization</li>
+      <li><strong>Const enum</strong> — <code>StaffPermission</code> bit flags with no runtime object</li>
+      <li><strong>Nominal typing</strong> — string enums prevent domain value mixing</li>
+    </ul>
+    <h4>Architecture</h4>
+    <ul>
+      <li><code>enums.ts</code> — all enum definitions</li>
+      <li><code>order.ts</code> — <code>Order</code> interface + state machine transition logic</li>
+      <li><code>staff.ts</code> — staff permission checking with const enum bit flags</li>
+      <li><code>main.ts</code> — demo: create orders, walk through states, serialize to JSON</li>
+    </ul>
+    <h4>Starter Code</h4>
+    <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">// ===== enums.ts =====
+
+// Numeric: ordering matters (Pending &lt; Shipped), reverse lookup for logs
+enum OrderStatus {
+  Pending    = 0,
+  Processing = 1,
+  Shipped    = 2,
+  Delivered  = 3,
+  Cancelled  = 4,
+  Refunded   = 5
+}
+
+// String: appears in JSON responses and database — must be readable
+enum PaymentMethod {
+  CreditCard   = "CREDIT_CARD",
+  DebitCard    = "DEBIT_CARD",
+  PayPal       = "PAYPAL",
+  BankTransfer = "BANK_TRANSFER"
+}
+
+// String: carrier name appears in shipping labels and tracking APIs
+enum ShippingCarrier {
+  FedEx = "FEDEX",
+  UPS   = "UPS",
+  USPS  = "USPS",
+  DHL   = "DHL"
+}
+
+// Const: permission flags — zero overhead, never iterated at runtime
+const enum StaffPermission {
+  None          = 0,
+  ViewOrders    = 1 &lt;&lt; 0,   // 1
+  EditOrders    = 1 &lt;&lt; 1,   // 2
+  CancelOrders  = 1 &lt;&lt; 2,   // 4
+  Refund        = 1 &lt;&lt; 3,   // 8
+  Admin         = ViewOrders | EditOrders | CancelOrders | Refund  // 15
+}
+
+// ===== order.ts =====
+
+interface Order {
+  id:        string;
+  status:    OrderStatus;
+  payment:   PaymentMethod;
+  carrier?:  ShippingCarrier;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Valid transitions for the state machine
+const TRANSITIONS: Partial&lt;Record&lt;OrderStatus, OrderStatus[]&gt;&gt; = {
+  [OrderStatus.Pending]:    [OrderStatus.Processing, OrderStatus.Cancelled],
+  [OrderStatus.Processing]: [OrderStatus.Shipped,    OrderStatus.Cancelled],
+  [OrderStatus.Shipped]:    [OrderStatus.Delivered],
+  [OrderStatus.Delivered]:  [OrderStatus.Refunded],
+};
+
+// TODO: implement — throws with human-readable names on invalid transition
+function transitionOrder(order: Order, newStatus: OrderStatus): Order {
+  const allowed = TRANSITIONS[order.status] ?? [];
+  if (!allowed.includes(newStatus)) {
+    // Use reverse lookup to show names in the error, not numbers
+    throw new Error(
+      `Invalid: ${OrderStatus[order.status]} → ${OrderStatus[newStatus]}`
+    );
+  }
+  return { ...order, status: newStatus, updatedAt: new Date() };
+}
+
+// ===== staff.ts =====
+
+interface StaffMember {
+  id:          string;
+  name:        string;
+  permissions: number;   // bit field: combine StaffPermission flags with |
+}
+
+// TODO: implement — test with const enum bit flags
+function hasPermission(staff: StaffMember, required: StaffPermission): boolean {
+  return (staff.permissions &amp; required) !== 0;
+}
+
+// ===== main.ts =====
+
+// TODO: Create an order with PaymentMethod.CreditCard
+// TODO: Walk it through: Pending → Processing → Shipped → Delivered
+// TODO: Attempt an invalid transition (e.g., Shipped → Pending) — catch the error
+// TODO: JSON.stringify the order — verify payment/carrier show string values
+// TODO: Create a support staff with ViewOrders | CancelOrders permissions
+// TODO: Test hasPermission for ViewOrders (true), Refund (false)</code></pre></div>
+    <h4>Step-by-Step Instructions</h4>
+    <ol style="padding-left:20px;color:var(--text-muted)">
+      <li style="margin-bottom:6px">Copy the starter into separate files. Run <code>tsc --noEmit</code> — fix any type errors before continuing.</li>
+      <li style="margin-bottom:6px">Implement <code>transitionOrder</code>. The error message uses <code>OrderStatus[status]</code> — numeric reverse lookup produces <code>"Shipped"</code> instead of <code>2</code>.</li>
+      <li style="margin-bottom:6px">Create a test order and walk it through all valid transitions. Each step should print the new status name using <code>OrderStatus[order.status]</code>.</li>
+      <li style="margin-bottom:6px">Call <code>JSON.stringify(order)</code> and verify <code>payment</code> shows <code>"CREDIT_CARD"</code> — not a number.</li>
+      <li style="margin-bottom:6px">Try an invalid transition (e.g., Delivered → Processing) and confirm the error message shows status names.</li>
+      <li style="margin-bottom:6px">Implement <code>hasPermission</code>. Create a support staff with combined flags: <code>StaffPermission.ViewOrders | StaffPermission.CancelOrders</code>. Test each permission.</li>
+      <li style="margin-bottom:6px">Try <code>Object.values(StaffPermission)</code> — observe the ReferenceError. This demonstrates why const enums can't be iterated.</li>
+    </ol>
+    <h4>Stretch Goals</h4>
+    <ul>
+      <li>Add a <code>getStatusHistory(orders: Order[]): string[]</code> function that maps each order's status to its name via reverse lookup and returns the full history log.</li>
+      <li>Build a <code>grantPermission(current: number, perm: StaffPermission): number</code> helper and a <code>revokePermission</code> counterpart using bitwise operations.</li>
+      <li>Add Zod validation: <code>z.nativeEnum(PaymentMethod)</code> and <code>z.nativeEnum(OrderStatus)</code> to validate incoming API data before processing.</li>
+    </ul>
+  </div>
+
+</section>
+</main>
+</div>
+
+<button id="back-to-top" title="Back to top">↑</button>
+
+<script>
+// ── Syntax highlighter ─────────────────────────────────────────────────────
+function highlight(el) {
+  let code = el.textContent;
+  code = code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const ph = [];
+  const hold = (c, cls) => { const id='\x00'+ph.length+'\x00'; ph.push('<span class="'+cls+'">'+c+'</span>'); return id; };
+  code = code.replace(/\/\*[\s\S]*?\*\//g, m => hold(m,'cmt'));
+  code = code.replace(/\/\/[^\n]*/g,       m => hold(m,'cmt'));
+  code = code.replace(/`(?:[^`\\]|\\.)*`/g, m => hold(m,'str'));
+  code = code.replace(/"(?:[^"\\]|\\.)*"/g, m => hold(m,'str'));
+  code = code.replace(/'(?:[^'\\]|\\.)*'/g, m => hold(m,'str'));
+  code = code.replace(/\b\d+\b/g, m => hold(m,'num'));
+  const KW = 'const|let|var|enum|function|return|class|interface|type|import|export|from|default|extends|implements|new|this|if|else|switch|case|break|for|while|async|await|throw|try|catch|null|undefined|true|false|void|never|any|string|number|boolean|readonly|private|public|protected|static|abstract|declare|as|in|of|keyof|typeof|infer|require|namespace|module';
+  code = code.replace(new RegExp('\\b('+KW+')\\b','g'), m => hold(m,'kw'));
+  code = code.replace(/\x00(\d+)\x00/g, (_,i) => ph[+i]);
+  el.innerHTML = code;
+}
+document.querySelectorAll('code.ts-code').forEach(highlight);
+
+// ── Tab switching ──────────────────────────────────────────────────────────
+document.querySelectorAll('.panel-tabs').forEach(tabs => {
+  tabs.addEventListener('click', e => {
+    const btn = e.target.closest('.tab');
+    if (!btn) return;
+    const panel = tabs.closest('.topic-panel');
+    const pane  = btn.dataset.tab;
+    tabs.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+    panel.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.dataset.pane === pane));
+  });
+});
+
+// ── Copy buttons ───────────────────────────────────────────────────────────
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const code = btn.closest('.code-block').querySelector('code');
+    navigator.clipboard.writeText(code.textContent).then(() => {
+      btn.textContent = 'Copied!'; btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+    });
+  });
+});
+
+// ── Module checkboxes ──────────────────────────────────────────────────────
+document.querySelectorAll('.module-check').forEach(cb => {
+  const id  = cb.dataset.id;
+  const mod = cb.closest('.module');
+  if (localStorage.getItem('ts-done-'+id) === '1') { cb.checked = true; mod.classList.add('module-completed'); }
+  cb.addEventListener('change', () => {
+    mod.classList.toggle('module-completed', cb.checked);
+    localStorage.setItem('ts-done-'+id, cb.checked ? '1' : '0');
+  });
+});
+
+// ── Topic search ───────────────────────────────────────────────────────────
+document.getElementById('topicSearch').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('.topic-panel').forEach(p => {
+    p.style.display = p.querySelector('.topic-name').textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+
+// ── Progress bar ───────────────────────────────────────────────────────────
+const bar = document.getElementById('progress-bar');
+window.addEventListener('scroll', () => {
+  bar.style.width = Math.min(window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100, 100) + '%';
+}, { passive: true });
+
+// ── Back to top ────────────────────────────────────────────────────────────
+const topBtn = document.getElementById('back-to-top');
+window.addEventListener('scroll', () => topBtn.classList.toggle('visible', window.scrollY > 400), { passive: true });
+topBtn.addEventListener('click', () => window.scrollTo({ top:0, behavior:'smooth' }));
+
+// ── Scroll spy ─────────────────────────────────────────────────────────────
+const navLinks = document.querySelectorAll('#module-nav a');
+const targets  = ['topic-numeric','topic-string','topic-const','mini-project'].map(id => document.getElementById(id)).filter(Boolean);
+const spy = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#'+e.target.id)); });
+}, { rootMargin: '-15% 0px -70% 0px' });
+targets.forEach(t => spy.observe(t));
+
+// ── Smooth scroll ──────────────────────────────────────────────────────────
+navLinks.forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior:'smooth', block:'start' });
+  });
+});
+</script>
+</body>
+</html>

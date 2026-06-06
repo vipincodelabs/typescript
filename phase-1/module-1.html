@@ -1,0 +1,2192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Phase 1 — Module 1: Introduction to TypeScript</title>
+<style>
+:root{--bg:#0f1117;--bg-card:#1a1f2e;--bg-code:#1e2433;--border:#2d3748;--text:#e2e8f0;--text-muted:#94a3b8;--accent:#3b82f6;--accent-hover:#2563eb;--success:#10b981;--warning:#f59e0b;--error:#ef4444;--sidebar-width:260px;--header-height:56px;--radius:8px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:15px;line-height:1.7}
+#progress-bar{position:fixed;top:var(--header-height);left:0;height:3px;background:var(--accent);width:0%;z-index:1000;transition:width .1s}
+#site-header{position:fixed;top:0;left:0;right:0;height:var(--header-height);background:var(--bg-card);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 1.5rem;z-index:999;gap:.75rem}
+#site-header h1{font-size:1rem;font-weight:600}
+.breadcrumb{font-size:.82rem;color:var(--text-muted)}
+.breadcrumb span{color:var(--accent)}
+#layout{display:flex;margin-top:var(--header-height)}
+#sidebar{position:fixed;top:var(--header-height);left:0;width:var(--sidebar-width);height:calc(100vh - var(--header-height));background:var(--bg-card);border-right:1px solid var(--border);overflow-y:auto;padding:1rem;z-index:100}
+#topicSearch{width:100%;padding:.45rem .75rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:.85rem;margin-bottom:1rem;outline:none}
+#topicSearch:focus{border-color:var(--accent)}
+#module-nav{list-style:none}
+#module-nav .nav-heading{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);padding:.5rem .25rem .25rem}
+#module-nav li a{display:block;padding:.35rem .5rem;color:var(--text-muted);text-decoration:none;border-radius:4px;font-size:.82rem;transition:all .15s}
+#module-nav li a:hover,#module-nav li a.active{background:rgba(59,130,246,.15);color:var(--accent)}
+#module-nav li a.project-link{color:var(--accent);margin-top:.5rem}
+#content{margin-left:var(--sidebar-width);flex:1;padding:2rem;max-width:980px}
+.module-header{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem}
+.module-header label{display:flex;align-items:center;gap:.6rem;cursor:pointer}
+.module-check{width:17px;height:17px;cursor:pointer;accent-color:var(--success)}
+.module-header h2{font-size:1.55rem;font-weight:700}
+.module.completed .module-header h2{text-decoration:line-through;opacity:.6}
+.completed-badge{display:none;background:var(--success);color:#fff;font-size:.68rem;padding:.12rem .45rem;border-radius:12px}
+.module.completed .completed-badge{display:inline}
+.module-intro{color:var(--text-muted);margin-bottom:1.5rem;line-height:1.75}
+.topics-table{width:100%;border-collapse:collapse;margin-bottom:2rem;font-size:.875rem}
+.topics-table th{background:var(--bg-code);color:var(--text-muted);text-align:left;padding:.55rem 1rem;font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--border)}
+.topics-table td{padding:.55rem 1rem;border-bottom:1px solid var(--border);vertical-align:middle}
+.topics-table tr:hover td{background:rgba(255,255,255,.02)}
+.badge{display:inline-block;padding:.18rem .55rem;border-radius:12px;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.badge.beginner{background:rgba(16,185,129,.15);color:var(--success)}
+.badge.intermediate{background:rgba(245,158,11,.15);color:var(--warning)}
+.badge.advanced{background:rgba(239,68,68,.15);color:var(--error)}
+.topic-panels{margin-bottom:2rem}
+details.topic-panel{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.6rem;overflow:hidden}
+details.topic-panel[open]{border-color:var(--accent)}
+details.topic-panel summary{display:flex;align-items:center;gap:.6rem;padding:.8rem 1.1rem;cursor:pointer;list-style:none;user-select:none}
+details.topic-panel summary::-webkit-details-marker{display:none}
+.chevron{color:var(--text-muted);font-size:.72rem;transition:transform .2s;flex-shrink:0}
+details[open] .chevron{transform:rotate(90deg)}
+.topic-name{font-weight:600;font-size:.92rem;flex:1}
+.panel-tabs{display:flex;flex-wrap:wrap;gap:.3rem;padding:.6rem 1.1rem;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:rgba(0,0,0,.2)}
+.tab{padding:.25rem .6rem;font-size:.72rem;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;transition:all .15s;white-space:nowrap}
+.tab:hover{border-color:var(--accent);color:var(--accent)}
+.tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.panel-content{padding:1.25rem 1.4rem}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+.tab-pane h4{font-size:.88rem;color:var(--accent);margin:1.1rem 0 .4rem;font-weight:600}
+.tab-pane h4:first-child{margin-top:0}
+.tab-pane p{margin-bottom:.7rem;line-height:1.75}
+.tab-pane ul,.tab-pane ol{padding-left:1.4rem;margin-bottom:.7rem}
+.tab-pane li{margin-bottom:.35rem;line-height:1.65}
+.simple-def{background:rgba(59,130,246,.08);border-left:3px solid var(--accent);padding:.65rem .9rem;border-radius:0 var(--radius) var(--radius) 0;margin-bottom:.9rem}
+.technical-def{background:rgba(16,185,129,.07);border-left:3px solid var(--success);padding:.65rem .9rem;border-radius:0 var(--radius) var(--radius) 0;margin-bottom:.9rem}
+.def-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-bottom:.3rem}
+.simple-def .def-label{color:var(--accent)}
+.technical-def .def-label{color:var(--success)}
+.code-block{margin:.9rem 0;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border)}
+.code-header{display:flex;justify-content:space-between;align-items:center;padding:.35rem .9rem;background:#151a26;border-bottom:1px solid var(--border)}
+.code-lang{font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em}
+.copy-btn{padding:.18rem .55rem;font-size:.68rem;background:var(--bg-card);border:1px solid var(--border);border-radius:4px;color:var(--text-muted);cursor:pointer;transition:all .15s}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+.copy-btn.copied{color:var(--success);border-color:var(--success)}
+pre{background:var(--bg-code);padding:1.1rem;overflow-x:auto;margin:0}
+code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:.845rem;line-height:1.65;color:var(--text)}
+.kw{color:#c792ea}.str{color:#c3e88d}.num{color:#f78c6c}.cm{color:#546e7a;font-style:italic}.fn{color:#82aaff}.type{color:#ffcb6b}.op{color:#89ddff}.bool{color:#ff5370}.pun{color:#89ddff}
+.qa-item{margin-bottom:1.2rem;padding-bottom:1.2rem;border-bottom:1px solid var(--border)}
+.qa-item:last-child{border-bottom:none;margin-bottom:0}
+.question{font-weight:600;color:var(--text);margin-bottom:.4rem;font-size:.9rem}
+.difficulty{display:inline-block;padding:.1rem .4rem;border-radius:4px;font-size:.66rem;font-weight:700;margin-left:.4rem;vertical-align:middle}
+.difficulty.easy{background:rgba(16,185,129,.15);color:var(--success)}
+.difficulty.medium{background:rgba(245,158,11,.15);color:var(--warning)}
+.difficulty.hard{background:rgba(239,68,68,.15);color:var(--error)}
+.answer{color:var(--text);line-height:1.72;font-size:.9rem}
+.mistake-item{margin-bottom:1.3rem}
+.mistake-label{font-weight:700;color:var(--warning);margin-bottom:.5rem}
+.code-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.2rem;padding:.2rem .6rem;border-radius:3px;display:inline-block}
+.label-wrong{background:rgba(239,68,68,.15);color:var(--error)}
+.label-correct{background:rgba(16,185,129,.15);color:var(--success)}
+.mistake-explain{font-size:.875rem;color:var(--text-muted);margin-top:.4rem;line-height:1.65}
+.bp-item{margin-bottom:.9rem;padding-left:1rem;border-left:2px solid var(--border)}
+.bp-rule{font-weight:600;color:var(--text);margin-bottom:.2rem}
+.bp-reason{font-size:.875rem;color:var(--text-muted)}
+.exercise-box{background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.25);border-radius:var(--radius);padding:.8rem 1rem;margin-bottom:.9rem}
+.exercise-box strong{color:var(--accent)}
+.hint-box{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25);border-radius:var(--radius);padding:.7rem 1rem;margin-top:.8rem;font-size:.875rem}
+.hint-box strong{color:var(--warning)}
+.takeaways{list-style:none;padding:0}
+.takeaways li{padding:.45rem .8rem;border-left:3px solid var(--accent);margin-bottom:.5rem;background:rgba(59,130,246,.05);border-radius:0 var(--radius) var(--radius) 0;font-size:.9rem}
+.mental-model{margin-top:1.1rem;padding:.7rem 1rem;background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);border-radius:var(--radius);font-style:italic;color:var(--success);font-size:.9rem}
+.mini-project{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-top:2rem}
+.mini-project h3{font-size:1.15rem;color:var(--accent);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.mini-project h4{font-size:.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin:1.1rem 0 .45rem;font-weight:700}
+.mini-project ul,.mini-project ol{padding-left:1.4rem}
+.mini-project li{margin-bottom:.35rem;font-size:.9rem}
+.stretch-goal{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:var(--radius);padding:.7rem 1rem;margin-top:.5rem}
+.stretch-goal p{font-size:.875rem;color:var(--text-muted);margin-bottom:.3rem}
+#back-to-top{position:fixed;bottom:2rem;right:2rem;width:40px;height:40px;background:var(--accent);color:#fff;border:none;border-radius:50%;font-size:1.1rem;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.3);transition:background .15s;z-index:500}
+#back-to-top:hover{background:var(--accent-hover)}
+#back-to-top.visible{display:flex}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<header id="site-header">
+  <h1>Phase 1 — TypeScript Foundations</h1>
+  <span class="breadcrumb">/ <span>Module 1: Introduction to TypeScript</span></span>
+</header>
+
+<div id="layout">
+
+<nav id="sidebar">
+  <input type="text" id="topicSearch" placeholder="Search topics…"/>
+  <ul id="module-nav">
+    <li class="nav-heading">Module 1 Topics</li>
+    <li><a href="#topic-what-is-ts">What is TypeScript</a></li>
+    <li><a href="#topic-why-companies">Why Companies Use TypeScript</a></li>
+    <li><a href="#topic-ts-vs-js">TypeScript vs JavaScript</a></li>
+    <li><a href="#topic-static-typing">Static Typing</a></li>
+    <li><a href="#topic-compilation">Compilation Process</a></li>
+    <li><a href="#topic-tsconfig">Setting up tsconfig.json</a></li>
+    <li><a href="#mini-project" class="project-link">&#9658; Mini Project: CLI Calculator</a></li>
+  </ul>
+</nav>
+
+<main id="content">
+<section id="module-1" class="module">
+
+  <div class="module-header">
+    <label>
+      <input type="checkbox" class="module-check" data-id="module-1"/>
+      <h2>Module 1: Introduction to TypeScript</h2>
+    </label>
+    <span class="completed-badge">&#10003; Done</span>
+  </div>
+
+  <p class="module-intro">
+    This module lays the foundation for everything that follows. You will understand what TypeScript actually is,
+    why the industry adopted it so widely, and how the compilation pipeline works from <code>.ts</code> source
+    to running JavaScript. By the end, you will have a working TypeScript project configured with
+    <code>tsconfig.json</code> and a solid mental model of static typing that will carry you through every
+    advanced concept in later phases.
+  </p>
+
+  <table class="topics-table">
+    <thead>
+      <tr><th>Topic</th><th>What You'll Learn</th><th>Difficulty</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>What is TypeScript</td><td>TypeScript's identity, origins, and relationship to JavaScript</td><td><span class="badge beginner">Beginner</span></td></tr>
+      <tr><td>Why Companies Use TypeScript</td><td>Business and engineering reasons behind widespread adoption</td><td><span class="badge beginner">Beginner</span></td></tr>
+      <tr><td>TypeScript vs JavaScript</td><td>Key differences, what TS adds, when each language is right</td><td><span class="badge beginner">Beginner</span></td></tr>
+      <tr><td>Static Typing</td><td>How static typing works and why it changes how you code</td><td><span class="badge intermediate">Intermediate</span></td></tr>
+      <tr><td>Compilation Process</td><td>How <code>tsc</code> works, source maps, and output config</td><td><span class="badge intermediate">Intermediate</span></td></tr>
+      <tr><td>Setting up tsconfig.json</td><td>Essential compiler options, strict mode, project configuration</td><td><span class="badge intermediate">Intermediate</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="topic-panels">
+
+    <!-- ═══ TOPIC 1: WHAT IS TYPESCRIPT ═══ -->
+    <details class="topic-panel" id="topic-what-is-ts">
+      <summary>
+        <span class="chevron">&#9654;</span>
+        <span class="topic-name">What is TypeScript</span>
+        <span class="badge beginner">Beginner</span>
+      </summary>
+      <div class="panel-tabs">
+        <button class="tab active" data-tab="t1-definition">Definition</button>
+        <button class="tab" data-tab="t1-why-exists">Why It Exists</button>
+        <button class="tab" data-tab="t1-when-use">When to Use</button>
+        <button class="tab" data-tab="t1-when-not">When NOT to Use</button>
+        <button class="tab" data-tab="t1-internals">How It Works</button>
+        <button class="tab" data-tab="t1-syntax">Syntax</button>
+        <button class="tab" data-tab="t1-example">Example</button>
+        <button class="tab" data-tab="t1-realworld">Real-World</button>
+        <button class="tab" data-tab="t1-usecases">Use Cases</button>
+        <button class="tab" data-tab="t1-mistakes">Mistakes</button>
+        <button class="tab" data-tab="t1-bestpractices">Best Practices</button>
+        <button class="tab" data-tab="t1-interview">Interview Qs</button>
+        <button class="tab" data-tab="t1-exercise">Exercise</button>
+        <button class="tab" data-tab="t1-summary">Summary</button>
+      </div>
+      <div class="panel-content">
+
+        <div class="tab-pane active" data-pane="t1-definition">
+          <div class="simple-def">
+            <div class="def-label">Simple Explanation</div>
+            TypeScript is JavaScript with a built-in spell-checker for your logic. You label each variable with what kind of value it holds, and if anything ever breaks that contract, TypeScript warns you <em>before</em> you run the code.
+          </div>
+          <div class="technical-def">
+            <div class="def-label">Technical Explanation</div>
+            TypeScript is a statically-typed superset of JavaScript developed and maintained by Microsoft. It extends JavaScript with optional type annotations that the TypeScript compiler (<code>tsc</code>) validates at compile time. Those annotations are then stripped away, producing standard JavaScript that runs in any environment that supports JS.
+          </div>
+          <p>TypeScript was released publicly in 2012 after being built internally at Microsoft. It was designed to solve the problem of writing large-scale JavaScript applications — the kind where a single typo buried deep in a callback chain can crash production and produce a near-useless error message. Every valid JavaScript file is also a valid TypeScript file; you can migrate gradually without rewriting anything.</p>
+        </div>
+
+        <div class="tab-pane" data-pane="t1-why-exists">
+          <h4>The Problem</h4>
+          <p>JavaScript was designed in 1995 for adding small interactions to web pages. Today it powers applications with hundreds of thousands of lines, dozens of developers, and complex data flows. The language was never built for that scale. Without types, a function silently receives the wrong kind of value, produces garbage output, and the error only surfaces hours later in production — if you're lucky enough to notice it at all.</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">javascript (no types)</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cm">// This looks fine. It crashes silently at runtime.</span>
+<span class="kw">function</span> <span class="fn">getFullName</span>(user) {
+  <span class="kw">return</span> user.firstName + <span class="str">' '</span> + user.lastName;
+}
+
+<span class="fn">getFullName</span>({ name: <span class="str">'Alice'</span> });
+<span class="cm">// Returns: "undefined undefined"  ← no error thrown, just wrong output</span>
+
+<span class="fn">getFullName</span>(<span class="kw">null</span>);
+<span class="cm">// Throws: Cannot read properties of null  ← crashes at runtime</span></code></pre>
+          </div>
+          <h4>The Solution</h4>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cm">// TypeScript catches both mistakes before you run anything.</span>
+<span class="kw">interface</span> <span class="type">User</span> {
+  firstName: <span class="type">string</span>;
+  lastName: <span class="type">string</span>;
+}
+
+<span class="kw">function</span> <span class="fn">getFullName</span>(user: <span class="type">User</span>): <span class="type">string</span> {
+  <span class="kw">return</span> user.firstName + <span class="str">' '</span> + user.lastName;
+}
+
+<span class="fn">getFullName</span>({ name: <span class="str">'Alice'</span> });
+<span class="cm">// Error: Property 'firstName' is missing in type '{ name: string }'</span>
+
+<span class="fn">getFullName</span>(<span class="kw">null</span>);
+<span class="cm">// Error: Argument of type 'null' is not assignable to parameter of type 'User'</span></code></pre>
+          </div>
+          <p>Both bugs are caught instantly in your editor — no running the code, no refreshing the browser, no searching through stack traces.</p>
+        </div>
+
+        <div class="tab-pane" data-pane="t1-when-use">
+          <h4>Use TypeScript When…</h4>
+          <ul>
+            <li><strong>Building an app with more than a few hundred lines.</strong> The type system starts paying off quickly as complexity grows.</li>
+            <li><strong>Working on a team.</strong> Types are machine-verified documentation — they tell your teammates exactly what a function expects and returns, without reading the implementation.</li>
+            <li><strong>Building a public API or library.</strong> Consumers get autocomplete and error checking for free via the generated <code>.d.ts</code> declaration files.</li>
+            <li><strong>Refactoring existing code.</strong> Renaming a function or changing its parameter type in TypeScript propagates errors everywhere it's used — nothing slips through silently.</li>
+            <li><strong>Your project will live for more than a few months.</strong> TypeScript pays its setup cost back many times over as requirements change.</li>
+          </ul>
+        </div>
+
+        <div class="tab-pane" data-pane="t1-when-not">
+          <h4>Skip TypeScript When…</h4>
+          <ul>
+            <li><strong>Writing a one-off script.</strong> A 30-line Node.js script that runs once to rename files does not need a <code>tsconfig.json</code>. Use plain JS.</li>
+            <li><strong>Rapid-prototyping with an unknown shape.</strong> When you genuinely don't know the data structure yet, fighting the type system adds friction. Start in JS with <code>allowJs: true</code>, add types once the shape stabilises.</li>
+            <li><strong>Your team has zero TypeScript experience and a hard deadline.</strong> Migrating mid-project under pressure introduces more bugs than types prevent. Plan a proper migration with time to do it right.</li>
+            <li><strong>The library you're wrapping has no type definitions.</strong> If <code>@types/somelibrary</code> doesn't exist and the library's API is large and complex, you can end up writing more type boilerplate than application code.</li>
+          </ul>
+        </div>
+
+        <div class="tab-pane" data-pane="t1-internals">
+          <h4>What the Compiler Actually Does</h4>
+          <ol>
+            <li><strong>Parsing:</strong> <code>tsc</code> reads your <code>.ts</code> files and parses them into an Abstract Syntax Tree (AST) — a tree representation of your code's structure.</li>
+            <li><strong>Type-binding:</strong> The compiler walks the AST and assigns a type to every identifier — every variable, parameter, and return value.</li>
+            <li><strong>Type-checking:</strong> It validates every operation against those types. Assigning a <code>string</code> to a <code>number</code> variable? Error. Calling a method that doesn't exist on the type? Error.</li>
+            <li><strong>Emit:</strong> If type-checking passes (or if <code>noEmitOnError</code> is false), <code>tsc</code> writes <code>.js</code> output files. All type annotations, interfaces, and type aliases are completely removed — the output is plain JavaScript.</li>
+            <li><strong>Nothing survives to runtime:</strong> Types are a <em>development-time tool only</em>. A running TypeScript program is indistinguishable from JavaScript.</li>
+          </ol>
+          <p>The compiled output for a simple typed function looks exactly like what a skilled JavaScript developer would write by hand — TypeScript adds zero runtime overhead.</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">typescript input</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="kw">function</span> <span class="fn">add</span>(a: <span class="type">number</span>, b: <span class="type">number</span>): <span class="type">number</span> {
+  <span class="kw">return</span> a + b;
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">javascript output (after tsc)</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="kw">function</span> <span class="fn">add</span>(a, b) {
+  <span class="kw">return</span> a + b;
+}
+<span class="cm">// All type annotations stripped. Zero runtime difference.</span></code></pre>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t1-syntax">
+          <h4>Type Annotation Syntax</h4>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cm">// Variable annotation: name: Type</span>
+<span class="kw">let</span> username<span class="op">:</span> <span class="type">string</span> <span class="op">=</span> <span class="str">"Alice"</span>;
+<span class="cm">//  ^^^^^^^^  ^^^^^^   ^^^^^^^</span>
+<span class="cm">//  variable  type     value (must match the type)</span>
+
+<span class="cm">// Function parameter and return type annotations</span>
+<span class="kw">function</span> <span class="fn">greet</span>(name<span class="op">:</span> <span class="type">string</span>)<span class="op">:</span> <span class="type">string</span> {
+<span class="cm">//              ^^^^  ^^^^^^   ^^^^^^</span>
+<span class="cm">//              param type     return type (after the closing paren)</span>
+  <span class="kw">return</span> <span class="str">`Hello, ${name}!`</span>;
+}
+
+<span class="cm">// Type inference — you don't always need to write the type</span>
+<span class="kw">let</span> count <span class="op">=</span> <span class="num">0</span>;
+<span class="cm">// TypeScript infers: count is number — no annotation needed</span>
+
+count <span class="op">=</span> <span class="str">"hello"</span>;
+<span class="cm">// Error: Type 'string' is not assignable to type 'number'</span>
+
+<span class="cm">// Object type annotation</span>
+<span class="kw">let</span> user<span class="op">:</span> { name<span class="op">:</span> <span class="type">string</span>; age<span class="op">:</span> <span class="type">number</span> } <span class="op">=</span> { name: <span class="str">"Bob"</span>, age: <span class="num">30</span> };
+<span class="cm">//        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</span>
+<span class="cm">//        inline object type shape</span></code></pre>
+          </div>
+          <p>The colon (<code>:</code>) is the annotation operator. It appears after a name to declare its type. Return types go after the closing parenthesis of the parameter list. TypeScript can infer most types from the right-hand side — you only need to annotate where inference isn't possible or where you want to be explicit.</p>
+        </div>
+
+        <div class="tab-pane" data-pane="t1-example">
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cm">// A typed product record — TypeScript enforces the shape everywhere</span>
+<span class="kw">type</span> <span class="type">Product</span> <span class="op">=</span> {
+  id<span class="op">:</span> <span class="type">number</span>;
+  name<span class="op">:</span> <span class="type">string</span>;
+  price<span class="op">:</span> <span class="type">number</span>;
+  inStock<span class="op">:</span> <span class="type">boolean</span>;
+};
+
+<span class="kw">function</span> <span class="fn">formatPrice</span>(product<span class="op">:</span> <span class="type">Product</span>)<span class="op">:</span> <span class="type">string</span> {
+  <span class="kw">const</span> status <span class="op">=</span> product.inStock ? <span class="str">"In Stock"</span> : <span class="str">"Out of Stock"</span>;
+  <span class="kw">return</span> <span class="str">`${product.name} — $${product.price.toFixed(2)} (${status})`</span>;
+}
+
+<span class="kw">const</span> keyboard<span class="op">:</span> <span class="type">Product</span> <span class="op">=</span> {
+  id<span class="op">:</span> <span class="num">42</span>,
+  name<span class="op">:</span> <span class="str">"Mechanical Keyboard"</span>,
+  price<span class="op">:</span> <span class="num">149.99</span>,
+  inStock<span class="op">:</span> <span class="bool">true</span>,
+};
+
+console.<span class="fn">log</span>(<span class="fn">formatPrice</span>(keyboard));
+<span class="cm">// Output: "Mechanical Keyboard — $149.99 (In Stock)"</span>
+
+<span class="cm">// TypeScript would reject this immediately:</span>
+<span class="cm">// formatPrice({ id: "42", name: "Mouse" });</span>
+<span class="cm">// Error: Type 'string' is not assignable to type 'number' for 'id'</span>
+<span class="cm">// Error: Property 'price' is missing</span>
+<span class="cm">// Error: Property 'inStock' is missing</span></code></pre>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t1-realworld">
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">typescript — Express route handler</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cm">// Real Express route with fully typed request and response</span>
+<span class="kw">import</span> { Request, Response } <span class="kw">from</span> <span class="str">'express'</span>;
+
+<span class="kw">interface</span> <span class="type">CreateOrderBody</span> {
+  customerId<span class="op">:</span> <span class="type">number</span>;
+  items<span class="op">:</span> { productId<span class="op">:</span> <span class="type">number</span>; quantity<span class="op">:</span> <span class="type">number</span> }[];
+  shippingAddress<span class="op">:</span> <span class="type">string</span>;
+}
+
+<span class="kw">interface</span> <span class="type">OrderResponse</span> {
+  orderId<span class="op">:</span> <span class="type">string</span>;
+  total<span class="op">:</span> <span class="type">number</span>;
+  estimatedDelivery<span class="op">:</span> <span class="type">string</span>;
+}
+
+<span class="kw">export async function</span> <span class="fn">createOrder</span>(
+  req<span class="op">:</span> Request<span class="op">&lt;</span>{}, {}, <span class="type">CreateOrderBody</span><span class="op">&gt;</span>,
+  res<span class="op">:</span> Response<span class="op">&lt;</span><span class="type">OrderResponse</span><span class="op">&gt;</span>
+)<span class="op">:</span> <span class="type">Promise</span><span class="op">&lt;</span><span class="type">void</span><span class="op">&gt;</span> {
+  <span class="kw">const</span> { customerId, items, shippingAddress } <span class="op">=</span> req.body;
+  <span class="cm">// IDE knows: customerId is number, items is the typed array</span>
+  <span class="cm">// Trying to access req.body.typo would be a compile error</span>
+
+  <span class="kw">const</span> orderId <span class="op">=</span> <span class="str">`ORD-${Date.now()}`</span>;
+  <span class="kw">const</span> total <span class="op">=</span> items.<span class="fn">reduce</span>((sum, item) <span class="op">=&gt;</span> sum <span class="op">+</span> item.quantity <span class="op">*</span> <span class="num">10</span>, <span class="num">0</span>);
+
+  res.<span class="fn">json</span>({ orderId, total, estimatedDelivery: <span class="str">"3-5 business days"</span> });
+}</code></pre>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t1-usecases">
+          <ul>
+            <li><strong>Large React SPAs:</strong> TypeScript enforces component prop shapes so you can't pass the wrong data to a component — Airbnb, Slack, and Vercel all use TypeScript for their frontends.</li>
+            <li><strong>Node.js REST APIs:</strong> Express routes annotated with typed request/response bodies prevent you from accidentally reading the wrong field from <code>req.body</code>.</li>
+            <li><strong>npm libraries:</strong> TypeScript generates <code>.d.ts</code> declaration files so consumers get autocomplete and type-checking even if they're not using TypeScript themselves.</li>
+            <li><strong>Monorepos:</strong> Shared packages between frontend and backend can export types that both sides import — one source of truth for data shapes.</li>
+            <li><strong>Database layer:</strong> ORMs like Prisma and Drizzle generate TypeScript types from your database schema, so a query result's shape is always correct.</li>
+          </ul>
+        </div>
+
+        <div class="tab-pane" data-pane="t1-mistakes">
+          <div class="mistake-item">
+            <div class="mistake-label">Mistake 1 — Using <code>any</code> to silence TypeScript errors</div>
+            <div class="code-label label-wrong">Wrong</div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+              <pre><code><span class="kw">const</span> data<span class="op">:</span> <span class="type">any</span> <span class="op">=</span> <span class="fn">fetchUserFromAPI</span>();
+<span class="cm">// No error — but you've disabled TypeScript for this entire variable</span>
+console.<span class="fn">log</span>(data.nme); <span class="cm">// typo of "name" — TypeScript can't catch it</span></code></pre>
+            </div>
+            <div class="code-label label-correct">Correct</div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+              <pre><code><span class="kw">interface</span> <span class="type">User</span> { name<span class="op">:</span> <span class="type">string</span>; email<span class="op">:</span> <span class="type">string</span> }
+<span class="kw">const</span> data<span class="op">:</span> <span class="type">User</span> <span class="op">=</span> <span class="fn">fetchUserFromAPI</span>();
+console.<span class="fn">log</span>(data.nme); <span class="cm">// Error: Property 'nme' does not exist on type 'User'</span></code></pre>
+            </div>
+            <p class="mistake-explain">Using <code>any</code> completely opts that variable out of type checking. It's contagious — once one variable is <code>any</code>, anything derived from it is also <code>any</code>. Always define the expected shape.</p>
+          </div>
+          <div class="mistake-item">
+            <div class="mistake-label">Mistake 2 — Assuming types survive to runtime</div>
+            <div class="code-label label-wrong">Wrong</div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+              <pre><code><span class="kw">function</span> <span class="fn">process</span>(value<span class="op">:</span> <span class="type">string</span> | <span class="type">number</span>) {
+  <span class="kw">if</span> (value <span class="kw">instanceof</span> <span class="type">String</span>) { <span class="cm">// WRONG — primitive 'string' ≠ String object</span>
+    <span class="kw">return</span> value.<span class="fn">toUpperCase</span>();
+  }
+}</code></pre>
+            </div>
+            <div class="code-label label-correct">Correct</div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+              <pre><code><span class="kw">function</span> <span class="fn">process</span>(value<span class="op">:</span> <span class="type">string</span> | <span class="type">number</span>)<span class="op">:</span> <span class="type">string</span> {
+  <span class="kw">if</span> (<span class="kw">typeof</span> value <span class="op">===</span> <span class="str">"string"</span>) { <span class="cm">// typeof works at runtime</span>
+    <span class="kw">return</span> value.<span class="fn">toUpperCase</span>();
+  }
+  <span class="kw">return</span> value.<span class="fn">toFixed</span>(<span class="num">2</span>);
+}</code></pre>
+            </div>
+            <p class="mistake-explain">TypeScript types are erased before running. Use <code>typeof</code> for primitive checks at runtime, <code>instanceof</code> only for class instances.</p>
+          </div>
+          <div class="mistake-item">
+            <div class="mistake-label">Mistake 3 — Skipping <code>strict: true</code> in tsconfig</div>
+            <p class="mistake-explain">Without <code>strict: true</code>, TypeScript allows implicit <code>any</code>, doesn't check for <code>null</code>/<code>undefined</code> access, and misses a large class of real bugs. Always enable strict mode from the start — it's much harder to add later.</p>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t1-bestpractices">
+          <div class="bp-item">
+            <div class="bp-rule">1. Enable <code>strict: true</code> from day one</div>
+            <div class="bp-reason">Strict mode enables a bundle of compiler checks (<code>strictNullChecks</code>, <code>noImplicitAny</code>, etc.) that catch the most common categories of bugs. Adding it later to an existing project is painful.</div>
+          </div>
+          <div class="bp-item">
+            <div class="bp-rule">2. Let TypeScript infer where it can</div>
+            <div class="bp-reason">Writing <code>const count = 0</code> is cleaner than <code>const count: number = 0</code> — the type is obvious from the value. Save explicit annotations for function signatures and complex shapes where the type isn't self-evident.</div>
+          </div>
+          <div class="bp-item">
+            <div class="bp-rule">3. Always annotate function signatures explicitly</div>
+            <div class="bp-reason">Function parameter and return types are the API surface of your code. Explicit annotations here make intent clear, prevent accidental return type changes, and give better error messages to callers.</div>
+          </div>
+          <div class="bp-item">
+            <div class="bp-rule">4. Never use <code>any</code> as a shortcut</div>
+            <div class="bp-reason">Use <code>unknown</code> when the type is genuinely unknown (then narrow with typeof/instanceof), or take the time to define the correct type. <code>any</code> silently disables type-checking for anything it touches.</div>
+          </div>
+          <div class="bp-item">
+            <div class="bp-rule">5. Install <code>@types/*</code> for every JS library you use</div>
+            <div class="bp-reason">Without type definitions, TypeScript treats the whole library as <code>any</code>. Run <code>npm i -D @types/node @types/express</code> etc. to get typed APIs for your dependencies.</div>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t1-interview">
+          <div class="qa-item">
+            <div class="question">What is TypeScript, and how does it relate to JavaScript? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">TypeScript is a statically-typed superset of JavaScript developed by Microsoft. All valid JavaScript is also valid TypeScript. TypeScript adds optional type annotations that are checked at compile time, then stripped to produce plain JavaScript. The output runs anywhere JavaScript runs — browsers, Node.js, Deno — with zero runtime overhead from TypeScript itself.</div>
+          </div>
+          <div class="qa-item">
+            <div class="question">What happens to TypeScript types at runtime? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">Types are completely erased by the TypeScript compiler before the code runs. At runtime, a TypeScript program is indistinguishable from the JavaScript a developer would have written by hand. This means you cannot use <code>instanceof MyInterface</code> at runtime — interfaces don't exist after compilation. For runtime type validation you need a separate library like Zod.</div>
+          </div>
+          <div class="qa-item">
+            <div class="question">What is the difference between a TypeScript type error and a JavaScript runtime error? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">A TypeScript type error is a static analysis failure — the compiler finds it before you run any code. A JavaScript runtime error occurs while the program is actually executing, often far from where the real mistake was made. TypeScript's goal is to convert runtime errors into compile-time errors, catching them during development rather than in production where they affect users.</div>
+          </div>
+          <div class="qa-item">
+            <div class="question">Why do large engineering teams choose TypeScript over JavaScript? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">Three main reasons: (1) <strong>Refactoring safety</strong> — renaming a function or changing its signature immediately surfaces every broken callsite as a compile error. (2) <strong>IDE productivity</strong> — autocomplete and inline error messages from TypeScript's language server dramatically speed up development. (3) <strong>Living documentation</strong> — type signatures describe what every function expects and returns, and unlike comments, they're enforced by the compiler so they can't go stale.</div>
+          </div>
+          <div class="qa-item">
+            <div class="question">If TypeScript types are erased at runtime, how do you validate data from an external API? <span class="difficulty hard">Hard</span></div>
+            <div class="answer">TypeScript only validates code you write statically — it cannot validate data arriving at runtime from a network request, database, or file. For runtime validation you use a library like <strong>Zod</strong>, which validates the shape of incoming data and returns a typed result. Zod's <code>z.infer&lt;typeof schema&gt;</code> pattern extracts a TypeScript type from your validation schema, keeping static types and runtime checks in sync from a single source of truth.</div>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t1-exercise">
+          <div class="exercise-box">
+            <strong>Goal:</strong> Build a typed book catalogue with compile-time safety.
+          </div>
+          <h4>Requirements</h4>
+          <ul>
+            <li>Define a <code>Book</code> type with at least 5 typed properties (id, title, author, year, available)</li>
+            <li>Write a <code>findBookById</code> function returning <code>Book | undefined</code></li>
+            <li>Write a <code>formatBookListing</code> function that takes a <code>Book</code> and returns a formatted string</li>
+            <li>Demonstrate that TypeScript prevents accessing <code>result.title</code> without checking for <code>undefined</code> first</li>
+          </ul>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">typescript — starter code</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cm">// TODO 1: Define the Book type with 5+ typed properties</span>
+<span class="kw">type</span> <span class="type">Book</span> <span class="op">=</span> {
+  <span class="cm">// id: number;</span>
+  <span class="cm">// title: string;</span>
+  <span class="cm">// ... add more</span>
+};
+
+<span class="cm">// TODO 2: Implement — return undefined if no match</span>
+<span class="kw">function</span> <span class="fn">findBookById</span>(books<span class="op">:</span> <span class="type">Book</span>[], id<span class="op">:</span> <span class="type">number</span>)<span class="op">:</span> <span class="type">Book</span> | <span class="type">undefined</span> {
+  <span class="cm">// your code here</span>
+}
+
+<span class="cm">// TODO 3: Return a formatted listing string</span>
+<span class="kw">function</span> <span class="fn">formatBookListing</span>(book<span class="op">:</span> <span class="type">Book</span>)<span class="op">:</span> <span class="type">string</span> {
+  <span class="cm">// your code here</span>
+}
+
+<span class="kw">const</span> library<span class="op">:</span> <span class="type">Book</span>[] <span class="op">=</span> [
+  <span class="cm">// TODO 4: Add 3 sample books</span>
+];
+
+<span class="kw">const</span> result <span class="op">=</span> <span class="fn">findBookById</span>(library, <span class="num">1</span>);
+<span class="cm">// TODO 5: Check for undefined before calling formatBookListing</span>
+<span class="cm">// TypeScript should warn you if you skip the check</span></code></pre>
+          </div>
+          <div class="hint-box"><strong>Hint:</strong> Try writing <code>console.log(result.title)</code> without the <code>if (result)</code> guard — TypeScript's error message will tell you exactly what you need to add.</div>
+        </div>
+
+        <div class="tab-pane" data-pane="t1-summary">
+          <ul class="takeaways">
+            <li>TypeScript is JavaScript with optional type annotations — every valid JS file is valid TS</li>
+            <li>Types are a compile-time tool only — the TypeScript compiler strips them before producing JavaScript</li>
+            <li>The compiler (<code>tsc</code>) reads <code>.ts</code>, validates types, and emits plain <code>.js</code></li>
+            <li>TypeScript's core value is turning runtime surprises into compile-time errors you catch at your desk</li>
+            <li>Always enable <code>strict: true</code> — without it you're missing the most important checks</li>
+            <li>Type inference means you often don't need to write types explicitly — TypeScript figures them out</li>
+            <li>For runtime data validation (API responses, user input), TypeScript alone isn't enough — pair it with Zod</li>
+          </ul>
+          <div class="mental-model">Mental model: TypeScript is a spell-checker that understands the semantics of your code, not just its syntax — it knows that passing a string where a number is expected will break things, before you ever hit run.</div>
+        </div>
+
+      </div>
+    </details>
+    <!-- END TOPIC 1 -->
+
+    <!-- TOPIC 2 PLACEHOLDER -->
+    <details class="topic-panel" id="topic-why-companies">
+      <summary><span class="chevron">&#9654;</span><span class="topic-name">Why Companies Use TypeScript</span><span class="badge beginner">Beginner</span></summary>
+      <div class="panel-tabs"><button class="tab active" data-tab="t2-definition">Definition</button><button class="tab" data-tab="t2-why-exists">Why It Exists</button><button class="tab" data-tab="t2-when-use">When to Use</button><button class="tab" data-tab="t2-when-not">When NOT to Use</button><button class="tab" data-tab="t2-internals">How It Works</button><button class="tab" data-tab="t2-syntax">Syntax</button><button class="tab" data-tab="t2-example">Example</button><button class="tab" data-tab="t2-realworld">Real-World</button><button class="tab" data-tab="t2-usecases">Use Cases</button><button class="tab" data-tab="t2-mistakes">Mistakes</button><button class="tab" data-tab="t2-bestpractices">Best Practices</button><button class="tab" data-tab="t2-interview">Interview Qs</button><button class="tab" data-tab="t2-exercise">Exercise</button><button class="tab" data-tab="t2-summary">Summary</button></div>
+      <div class="panel-content">
+
+        <div class="tab-pane active" data-pane="t2-definition">
+          <div class="simple-def">
+            <div class="def-label">Simple Explanation</div>
+            When you code alone you remember what every variable does. When a team of 20 people spread across time zones all touch the same codebase, that memory doesn't scale. TypeScript is how companies ensure everyone's code fits together correctly — it's a shared, machine-enforced contract.
+          </div>
+          <div class="technical-def">
+            <div class="def-label">Technical Explanation</div>
+            Companies adopt TypeScript for three measurable engineering gains: <strong>developer velocity</strong> through IDE tooling (autocomplete, inline errors, go-to-definition powered by the TypeScript Language Server), <strong>refactoring safety</strong> (changing a shared interface instantly surfaces every callsite that breaks), and <strong>living documentation</strong> (type signatures describe intent in a way comments cannot, because the compiler enforces them).
+          </div>
+          <p>TypeScript was adopted by Microsoft, Google, Airbnb, Slack, Vercel, and virtually every major engineering team building at scale. The 2023 Stack Overflow Developer Survey ranked it as the fifth most-loved language. It's not a trend — it's the default for serious JavaScript projects.</p>
+        </div>
+
+        <div class="tab-pane" data-pane="t2-why-exists">
+          <h4>The Scale Problem</h4>
+          <p>JavaScript's flexibility is a feature for small projects and a liability for large ones. Without types, the only documentation for a function is its name and a hope that the author wrote a comment. In a codebase with hundreds of files and a team that turns over, this breaks down fast.</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">javascript — untyped team code</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cm">// A new developer joins. They call this function:</span>
+<span class="kw">const</span> result <span class="op">=</span> <span class="fn">processPayment</span>(user, amount, <span class="bool">true</span>);
+<span class="cm">// What is user? What shape? What does true mean?</span>
+<span class="cm">// They have to read the entire implementation to find out.</span>
+<span class="cm">// If they guess wrong, the bug only shows up in production.</span></code></pre>
+          </div>
+          <h4>TypeScript Solves It</h4>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">typescript — typed team code</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="kw">interface</span> <span class="type">User</span> { id: <span class="type">number</span>; email: <span class="type">string</span>; tier: <span class="str">'free'</span> | <span class="str">'pro'</span> }
+
+<span class="kw">function</span> <span class="fn">processPayment</span>(
+  user: <span class="type">User</span>,
+  amount: <span class="type">number</span>,
+  sendReceipt: <span class="type">boolean</span>
+): <span class="type">Promise</span><span class="op">&lt;</span>{ transactionId: <span class="type">string</span>; status: <span class="str">'ok'</span> | <span class="str">'failed'</span> }<span class="op">&gt;</span> { <span class="cm">/* … */</span> }
+
+<span class="cm">// A new developer calls it — IDE shows the exact signature.</span>
+<span class="cm">// Pass the wrong shape: instant compile error.</span>
+<span class="cm">// Forget to await the Promise: TypeScript warns you.</span>
+<span class="cm">// No production incident needed to discover the bug.</span></code></pre>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t2-when-use">
+          <h4>Adopt TypeScript When…</h4>
+          <ul>
+            <li><strong>Starting a new product.</strong> Zero migration cost; you get types from day one on every function you write.</li>
+            <li><strong>Your team is growing.</strong> Each new hire gets a self-explaining codebase — they can navigate it without a senior developer walking them through every file.</li>
+            <li><strong>You're building a shared internal library or API SDK.</strong> Consumers get typed autocomplete; breaking changes are surfaced immediately across the entire codebase.</li>
+            <li><strong>Refactoring a large JavaScript project.</strong> Enable <code>allowJs: true</code>, rename files to <code>.ts</code> gradually, and let TypeScript guide you to every callsite that breaks.</li>
+            <li><strong>Your JavaScript app has recurring production bugs.</strong> If you're spending engineering time debugging "undefined is not a function" in production, TypeScript pays for its setup cost quickly.</li>
+          </ul>
+        </div>
+
+        <div class="tab-pane" data-pane="t2-when-not">
+          <h4>Don't Force TypeScript When…</h4>
+          <ul>
+            <li><strong>You have a hard deadline and no TypeScript experience.</strong> Adopting a new type system under pressure introduces more errors than it prevents. Schedule the migration properly.</li>
+            <li><strong>The codebase is mostly glue scripts.</strong> A repo of 20 standalone build scripts that each run once doesn't benefit from a shared type system.</li>
+            <li><strong>Your team pushes back strongly.</strong> A type system only provides value when developers use it correctly. Forced adoption with no buy-in leads to <code>// @ts-ignore</code> everywhere and false safety.</li>
+            <li><strong>You're wrapping an untyped legacy API with no <code>@types</code> package.</strong> You'll spend more time writing type definitions for the external API than writing your actual application.</li>
+          </ul>
+        </div>
+
+        <div class="tab-pane" data-pane="t2-internals">
+          <h4>How TypeScript Improves Engineering Productivity</h4>
+          <p>TypeScript's impact on team productivity comes from the <strong>Language Server Protocol (LSP)</strong>. The TypeScript language server (<code>tsserver</code>) runs in the background in your editor. It reads your entire project's type graph and uses it to power:</p>
+          <ul>
+            <li><strong>Autocomplete:</strong> When you type <code>user.</code>, the editor shows every property defined on that type — no guessing, no docs lookup</li>
+            <li><strong>Go-to-definition:</strong> Click any identifier to jump to where it's defined, even across packages</li>
+            <li><strong>Find all references:</strong> Instantly see everywhere a function or type is used — essential before refactoring</li>
+            <li><strong>Rename symbol:</strong> Rename a function or type and every usage is updated atomically across the entire repo</li>
+            <li><strong>Inline errors:</strong> Mistakes are underlined red in the editor milliseconds after you type them — before you save, compile, or run anything</li>
+          </ul>
+          <p>These tools work because TypeScript knows the shape of every value at every point in the program. JavaScript editors can only guess based on usage patterns; TypeScript editors know.</p>
+        </div>
+
+        <div class="tab-pane" data-pane="t2-syntax">
+          <h4>Shared Types Across a Team</h4>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">typescript — shared types file</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cm">// types/api.ts — one file, consumed by frontend and backend</span>
+<span class="kw">export interface</span> <span class="type">ApiResponse</span><span class="op">&lt;</span>T<span class="op">&gt;</span> {
+  data<span class="op">:</span> T;
+  error<span class="op">:</span> <span class="type">string</span> | <span class="type">null</span>;
+  timestamp<span class="op">:</span> <span class="type">string</span>;
+}
+
+<span class="kw">export interface</span> <span class="type">User</span> {
+  id<span class="op">:</span> <span class="type">number</span>;
+  email<span class="op">:</span> <span class="type">string</span>;
+  role<span class="op">:</span> <span class="str">'admin'</span> | <span class="str">'user'</span> | <span class="str">'moderator'</span>;
+  createdAt<span class="op">:</span> <span class="type">string</span>;
+}
+
+<span class="cm">// backend/routes/users.ts — imports and uses the same type</span>
+<span class="kw">import</span> { ApiResponse, User } <span class="kw">from</span> <span class="str">'../types/api'</span>;
+
+<span class="kw">async function</span> <span class="fn">getUser</span>(id<span class="op">:</span> <span class="type">number</span>)<span class="op">:</span> <span class="type">Promise</span><span class="op">&lt;</span><span class="type">ApiResponse</span><span class="op">&lt;</span><span class="type">User</span><span class="op">&gt;&gt;</span> {
+  <span class="kw">const</span> user <span class="op">=</span> <span class="kw">await</span> db.<span class="fn">findById</span>(id);
+  <span class="kw">return</span> { data: user, error: <span class="kw">null</span>, timestamp: <span class="kw">new</span> <span class="fn">Date</span>().<span class="fn">toISOString</span>() };
+}
+<span class="cm">// If someone changes the User interface, BOTH frontend and</span>
+<span class="cm">// backend callsites that use it break immediately at compile time.</span></code></pre>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t2-example">
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cm">// Demonstrating team-scale safety: a shared config type</span>
+<span class="kw">interface</span> <span class="type">DatabaseConfig</span> {
+  host<span class="op">:</span> <span class="type">string</span>;
+  port<span class="op">:</span> <span class="type">number</span>;
+  name<span class="op">:</span> <span class="type">string</span>;
+  ssl<span class="op">:</span> <span class="type">boolean</span>;
+  poolSize<span class="op">:</span> <span class="type">number</span>;
+}
+
+<span class="kw">interface</span> <span class="type">AppConfig</span> {
+  database<span class="op">:</span> <span class="type">DatabaseConfig</span>;
+  port<span class="op">:</span> <span class="type">number</span>;
+  environment<span class="op">:</span> <span class="str">'development'</span> | <span class="str">'staging'</span> | <span class="str">'production'</span>;
+}
+
+<span class="kw">function</span> <span class="fn">createServer</span>(config<span class="op">:</span> <span class="type">AppConfig</span>) {
+  console.<span class="fn">log</span>(<span class="str">`Starting on port ${config.port} [${config.environment}]`</span>);
+  console.<span class="fn">log</span>(<span class="str">`DB: ${config.database.host}:${config.database.port}`</span>);
+}
+
+<span class="cm">// Any developer who misconfigures this gets an immediate error:</span>
+<span class="fn">createServer</span>({
+  database: { host: <span class="str">'localhost'</span>, port: <span class="num">5432</span>, name: <span class="str">'myapp'</span>, ssl: <span class="bool">false</span>, poolSize: <span class="num">10</span> },
+  port: <span class="num">3000</span>,
+  environment: <span class="str">'development'</span>,
+});
+
+<span class="cm">// createServer({ port: 3000 });  ← Error: 'database' and 'environment' are missing</span>
+<span class="cm">// createServer({ ..., environment: 'prod' });  ← Error: 'prod' not in the union</span></code></pre>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t2-realworld">
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">typescript — monorepo shared types (Next.js + Express)</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cm">// packages/shared/types.ts — imported by both apps</span>
+<span class="kw">export interface</span> <span class="type">BlogPost</span> {
+  id<span class="op">:</span> <span class="type">string</span>;
+  title<span class="op">:</span> <span class="type">string</span>;
+  content<span class="op">:</span> <span class="type">string</span>;
+  authorId<span class="op">:</span> <span class="type">string</span>;
+  publishedAt<span class="op">:</span> <span class="type">string</span> | <span class="type">null</span>;
+  tags<span class="op">:</span> <span class="type">string</span>[];
+}
+
+<span class="kw">export type</span> <span class="type">CreatePostInput</span> <span class="op">=</span> <span class="type">Omit</span><span class="op">&lt;</span><span class="type">BlogPost</span>, <span class="str">'id'</span> | <span class="str">'publishedAt'</span><span class="op">&gt;</span>;
+
+<span class="cm">// apps/api/src/routes/posts.ts</span>
+<span class="kw">import</span> { CreatePostInput, BlogPost } <span class="kw">from</span> <span class="str">'@myapp/shared'</span>;
+<span class="kw">import</span> { Request, Response } <span class="kw">from</span> <span class="str">'express'</span>;
+
+<span class="kw">export async function</span> <span class="fn">createPost</span>(
+  req<span class="op">:</span> Request<span class="op">&lt;</span>{}, {}, <span class="type">CreatePostInput</span><span class="op">&gt;</span>,
+  res<span class="op">:</span> Response<span class="op">&lt;</span><span class="type">BlogPost</span><span class="op">&gt;</span>
+) {
+  <span class="kw">const</span> post<span class="op">:</span> <span class="type">BlogPost</span> <span class="op">=</span> <span class="kw">await</span> db.posts.<span class="fn">create</span>({ ...req.body, id: <span class="fn">uuid</span>(), publishedAt: <span class="kw">null</span> });
+  res.<span class="fn">json</span>(post);
+}
+
+<span class="cm">// apps/web/src/lib/api.ts</span>
+<span class="kw">import</span> { BlogPost, CreatePostInput } <span class="kw">from</span> <span class="str">'@myapp/shared'</span>;
+
+<span class="kw">async function</span> <span class="fn">createPost</span>(input<span class="op">:</span> <span class="type">CreatePostInput</span>)<span class="op">:</span> <span class="type">Promise</span><span class="op">&lt;</span><span class="type">BlogPost</span><span class="op">&gt;</span> {
+  <span class="kw">const</span> res <span class="op">=</span> <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/posts'</span>, { method: <span class="str">'POST'</span>, body: <span class="type">JSON</span>.<span class="fn">stringify</span>(input) });
+  <span class="kw">return</span> res.<span class="fn">json</span>();
+}
+<span class="cm">// Rename BlogPost.title to BlogPost.headline in shared types?</span>
+<span class="cm">// Both apps break at compile time — nothing ships broken.</span></code></pre>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t2-usecases">
+          <ul>
+            <li><strong>Onboarding new developers:</strong> A typed codebase is self-explaining — new hires navigate it faster because every function signature documents exactly what it expects and returns.</li>
+            <li><strong>Safe refactoring:</strong> Renaming a function, removing a parameter, or changing a return type immediately shows every place in the codebase that needs updating — no grep, no missed usages.</li>
+            <li><strong>Shared type contracts in monorepos:</strong> Frontend and backend teams share type definitions so API shape changes are caught at compile time, not during integration testing.</li>
+            <li><strong>Code reviews:</strong> Type errors are caught before the PR is even opened — reviewers focus on logic and architecture, not "did you handle null here?"</li>
+            <li><strong>Long-lived codebases:</strong> A codebase from 3 years ago with TypeScript is still navigable. An untyped codebase from 3 years ago is archaeology.</li>
+          </ul>
+        </div>
+
+        <div class="tab-pane" data-pane="t2-mistakes">
+          <div class="mistake-item">
+            <div class="mistake-label">Mistake 1 — Treating TypeScript adoption as a one-time event</div>
+            <p class="mistake-explain">Migrating a JavaScript project to TypeScript isn't flipping a switch — it's a gradual process. Teams that try to convert everything at once end up with thousands of errors and a stalled migration. Use <code>allowJs: true</code> and convert file by file.</p>
+          </div>
+          <div class="mistake-item">
+            <div class="mistake-label">Mistake 2 — Using <code>// @ts-ignore</code> liberally</div>
+            <div class="code-label label-wrong">Wrong</div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+              <pre><code><span class="cm">// @ts-ignore — the team stopped fixing errors and started hiding them</span>
+<span class="kw">const</span> result <span class="op">=</span> <span class="fn">legacyFunction</span>(data);</code></pre>
+            </div>
+            <div class="code-label label-correct">Correct</div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+              <pre><code><span class="cm">// Fix the actual type problem, or use a typed wrapper</span>
+<span class="kw">const</span> result <span class="op">=</span> <span class="fn">legacyFunction</span>(data <span class="kw">as</span> <span class="type">ExpectedInput</span>); <span class="cm">// explicit cast with a reason</span></code></pre>
+            </div>
+            <p class="mistake-explain"><code>@ts-ignore</code> silences the error without fixing it. Use <code>@ts-expect-error</code> with a comment if you must suppress (it fails if the error goes away), and prefer proper typing.</p>
+          </div>
+          <div class="mistake-item">
+            <div class="mistake-label">Mistake 3 — Keeping <code>strict: false</code> to reduce initial error count</div>
+            <p class="mistake-explain">Non-strict TypeScript gives a false sense of safety. Teams enable strict mode only to discover hundreds of hidden nullability bugs. Start strict from day one — it's much less painful than adding it later.</p>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t2-bestpractices">
+          <div class="bp-item"><div class="bp-rule">1. Create a shared <code>types/</code> folder for domain models</div><div class="bp-reason">Centralize your core data shapes (User, Order, Product) in one place. Every team imports from there — no parallel type definitions that drift apart.</div></div>
+          <div class="bp-item"><div class="bp-rule">2. Migrate gradually with <code>allowJs: true</code></div><div class="bp-reason">Rename files to <code>.ts</code> one at a time. Each converted file immediately benefits from type checking without requiring you to convert the whole codebase at once.</div></div>
+          <div class="bp-item"><div class="bp-rule">3. Run <code>tsc --noEmit</code> in CI</div><div class="bp-reason">Adding a type-check step to your CI pipeline prevents type errors from ever reaching production. It takes seconds to run and catches the entire class of compile-time bugs.</div></div>
+          <div class="bp-item"><div class="bp-rule">4. Use <code>@ts-expect-error</code> instead of <code>@ts-ignore</code></div><div class="bp-reason"><code>@ts-expect-error</code> fails the build if the error it suppresses no longer exists — this prevents dead suppressions from accumulating. <code>@ts-ignore</code> silently stays even when the underlying issue is fixed.</div></div>
+          <div class="bp-item"><div class="bp-rule">5. Document migration progress with a <code>tsconfig.strict.json</code> ratchet</div><div class="bp-reason">Keep a strict tsconfig that includes only already-migrated files, and expand it incrementally. This lets you enforce strict checks on converted code while not blocking work on unconverted files.</div></div>
+        </div>
+
+        <div class="tab-pane" data-pane="t2-interview">
+          <div class="qa-item">
+            <div class="question">Why have so many companies adopted TypeScript? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">Three main reasons: refactoring safety (changing a shared type instantly shows every broken callsite), IDE productivity (autocomplete, inline errors, and go-to-definition make development faster), and living documentation (type signatures describe intent in a way that comments cannot, and the compiler enforces them so they never go stale).</div>
+          </div>
+          <div class="qa-item">
+            <div class="question">How does TypeScript help with team collaboration? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">TypeScript creates a shared, machine-enforced contract between developers. Every function's type signature tells teammates exactly what it expects and returns without reading the implementation. New developers navigate typed codebases faster, code reviews focus on logic rather than type correctness, and shared type definitions between frontend and backend prevent integration mismatches.</div>
+          </div>
+          <div class="qa-item">
+            <div class="question">How would you migrate a large JavaScript project to TypeScript? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">Start by enabling <code>allowJs: true</code> in tsconfig so TypeScript processes existing JS files without errors. Then rename files to <code>.ts</code> one at a time, fixing type errors as you go. Use <code>// @ts-expect-error</code> sparingly for genuinely hard-to-type legacy code. Add <code>tsc --noEmit</code> to CI immediately so no new type errors can enter the codebase. Gradually increase strictness as the codebase matures.</div>
+          </div>
+          <div class="qa-item">
+            <div class="question">What is the TypeScript Language Server and how does it power IDE features? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">The TypeScript Language Server (<code>tsserver</code>) is a process that runs in the background inside your editor. It maintains a live type graph of your entire project and responds to editor queries in real time — powering autocomplete, hover types, inline errors, go-to-definition, find-all-references, and rename-symbol. These features are what make TypeScript feel productive rather than just type-correct.</div>
+          </div>
+          <div class="qa-item">
+            <div class="question">What are the costs of adopting TypeScript, and how would you make the case to a skeptical team? <span class="difficulty hard">Hard</span></div>
+            <div class="answer">Real costs: initial setup time (~1-2 hours), learning curve for developers new to static typing, and occasional "fighting the type system" when working with complex third-party libraries. Make the business case by measuring the team's current cost — hours spent debugging production <code>undefined</code> errors, time new hires spend understanding undocumented functions, and engineering time lost to risky refactors. TypeScript's ROI is typically positive within weeks on any team larger than 2-3 people building a long-lived product.</div>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t2-exercise">
+          <div class="exercise-box"><strong>Goal:</strong> Model a small company's API types and demonstrate why shared types matter.</div>
+          <h4>Requirements</h4>
+          <ul>
+            <li>Define a <code>Product</code> interface with at least 5 properties</li>
+            <li>Define a <code>CartItem</code> type that references <code>Product</code> and adds a <code>quantity</code></li>
+            <li>Write a <code>calculateTotal</code> function that takes <code>CartItem[]</code> and returns <code>number</code></li>
+            <li>Write a <code>formatOrderSummary</code> function that prints each item and the total</li>
+            <li>Try calling <code>calculateTotal</code> with a malformed array — observe the compiler error</li>
+          </ul>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">typescript — starter</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cm">// TODO: Define Product interface</span>
+<span class="kw">interface</span> <span class="type">Product</span> {
+  <span class="cm">// id, name, price, category, inStock</span>
+}
+
+<span class="cm">// TODO: Define CartItem — uses Product plus quantity</span>
+<span class="kw">type</span> <span class="type">CartItem</span> <span class="op">=</span> {
+  <span class="cm">// product: Product; quantity: number;</span>
+};
+
+<span class="cm">// TODO: Implement</span>
+<span class="kw">function</span> <span class="fn">calculateTotal</span>(items<span class="op">:</span> <span class="type">CartItem</span>[])<span class="op">:</span> <span class="type">number</span> {
+  <span class="cm">// sum item.product.price * item.quantity</span>
+}
+
+<span class="kw">function</span> <span class="fn">formatOrderSummary</span>(items<span class="op">:</span> <span class="type">CartItem</span>[])<span class="op">:</span> <span class="type">void</span> {
+  <span class="cm">// print each line and the total</span>
+}</code></pre>
+          </div>
+          <div class="hint-box"><strong>Hint:</strong> <code>CartItem</code> can be defined as <code>{ product: Product; quantity: number }</code> — this shows how one type composes another.</div>
+        </div>
+
+        <div class="tab-pane" data-pane="t2-summary">
+          <ul class="takeaways">
+            <li>TypeScript solves the collaboration problem: typed code is self-documenting and compiler-enforced</li>
+            <li>The Language Server powers IDE features that make typed codebases significantly faster to navigate</li>
+            <li>Shared type definitions in a monorepo catch frontend/backend mismatches at compile time</li>
+            <li>Migrate gradually with <code>allowJs: true</code> — don't try to convert everything at once</li>
+            <li>Always add <code>tsc --noEmit</code> to CI — no type error should ever reach production</li>
+            <li>TypeScript's ROI is measurable: fewer production bugs, faster onboarding, safer refactoring</li>
+          </ul>
+          <div class="mental-model">Mental model: TypeScript is the difference between a codebase that's a locked room full of mysteries and one that's a well-lit workspace where everything is labelled.</div>
+        </div>
+
+      </div>
+    </details>
+
+    <!-- TOPIC 3 PLACEHOLDER -->
+    <details class="topic-panel" id="topic-ts-vs-js">
+      <summary><span class="chevron">&#9654;</span><span class="topic-name">TypeScript vs JavaScript</span><span class="badge beginner">Beginner</span></summary>
+      <div class="panel-tabs"><button class="tab active" data-tab="t3-definition">Definition</button><button class="tab" data-tab="t3-why-exists">Why It Exists</button><button class="tab" data-tab="t3-when-use">When to Use</button><button class="tab" data-tab="t3-when-not">When NOT to Use</button><button class="tab" data-tab="t3-internals">How It Works</button><button class="tab" data-tab="t3-syntax">Syntax</button><button class="tab" data-tab="t3-example">Example</button><button class="tab" data-tab="t3-realworld">Real-World</button><button class="tab" data-tab="t3-usecases">Use Cases</button><button class="tab" data-tab="t3-mistakes">Mistakes</button><button class="tab" data-tab="t3-bestpractices">Best Practices</button><button class="tab" data-tab="t3-interview">Interview Qs</button><button class="tab" data-tab="t3-exercise">Exercise</button><button class="tab" data-tab="t3-summary">Summary</button></div>
+      <div class="panel-content">
+
+        <div class="tab-pane active" data-pane="t3-definition">
+          <div class="simple-def">
+            <div class="def-label">Simple Explanation</div>
+            JavaScript is the language your browser runs. TypeScript is JavaScript with extra rules written on top. You write TypeScript, the compiler checks your rules, then strips them away and gives you normal JavaScript. At runtime, they're identical.
+          </div>
+          <div class="technical-def">
+            <div class="def-label">Technical Explanation</div>
+            TypeScript is a strict syntactic superset of JavaScript — every JS program is a valid TS program, but not vice versa. TypeScript adds: type annotations, interfaces, enums, access modifiers, generics, and a compile step. All of these are erased before runtime. The runtime behavior of TypeScript and JavaScript is identical for equivalent code.
+          </div>
+          <p>The key conceptual difference is <em>when</em> errors are caught. JavaScript is dynamically typed — the engine discovers type mismatches at runtime, often in production. TypeScript is statically typed — the compiler discovers them at build time, on your machine, before anyone runs the code.</p>
+        </div>
+
+        <div class="tab-pane" data-pane="t3-why-exists">
+          <h4>What JavaScript Lacks at Scale</h4>
+          <p>JavaScript was designed to be forgiving — it silently coerces types, allows calling undefined values, and accepts anything. That flexibility is fine for small scripts but catastrophic in large systems where a silent bug can go undetected for weeks.</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">javascript — silent failure</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cm">// JavaScript: no errors thrown, just wrong behavior</span>
+<span class="kw">function</span> <span class="fn">multiply</span>(a, b) { <span class="kw">return</span> a * b; }
+
+<span class="fn">multiply</span>(<span class="num">5</span>, <span class="str">"3"</span>);   <span class="cm">// Returns 15 — JS coerced "3" to 3</span>
+<span class="fn">multiply</span>(<span class="num">5</span>, <span class="str">"x"</span>);   <span class="cm">// Returns NaN — no error, silent garbage</span>
+<span class="fn">multiply</span>(<span class="num">5</span>, <span class="kw">null</span>); <span class="cm">// Returns 0  — no error, wrong result</span></code></pre>
+          </div>
+          <h4>TypeScript: Caught at Compile Time</h4>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="kw">function</span> <span class="fn">multiply</span>(a<span class="op">:</span> <span class="type">number</span>, b<span class="op">:</span> <span class="type">number</span>)<span class="op">:</span> <span class="type">number</span> { <span class="kw">return</span> a * b; }
+
+<span class="fn">multiply</span>(<span class="num">5</span>, <span class="str">"3"</span>);   <span class="cm">// Error: Argument of type 'string' is not assignable to type 'number'</span>
+<span class="fn">multiply</span>(<span class="num">5</span>, <span class="kw">null</span>); <span class="cm">// Error: Argument of type 'null' is not assignable to type 'number'</span>
+<span class="fn">multiply</span>(<span class="num">5</span>, <span class="num">3</span>);    <span class="cm">// Fine — returns 15</span></code></pre>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t3-when-use">
+          <h4>Comparison at a Glance</h4>
+          <table class="topics-table" style="margin-bottom:1rem">
+            <thead><tr><th>Feature</th><th>JavaScript</th><th>TypeScript</th></tr></thead>
+            <tbody>
+              <tr><td>Type checking</td><td>Runtime (dynamic)</td><td>Compile time (static)</td></tr>
+              <tr><td>Error discovery</td><td>During execution</td><td>Before execution</td></tr>
+              <tr><td>IDE autocomplete</td><td>Best-effort guess</td><td>Accurate, type-informed</td></tr>
+              <tr><td>Refactoring safety</td><td>Manual + grep</td><td>Compiler-guided</td></tr>
+              <tr><td>File extension</td><td><code>.js</code></td><td><code>.ts</code></td></tr>
+              <tr><td>Compile step needed</td><td>No</td><td>Yes (<code>tsc</code> or bundler)</td></tr>
+              <tr><td>Runtime performance</td><td>Baseline</td><td>Identical (types erased)</td></tr>
+            </tbody>
+          </table>
+          <p>Choose TypeScript for any app that will grow, live for a while, or be maintained by more than one person. Choose JavaScript for scripts, quick prototypes, or tiny tools where setup time costs more than types save.</p>
+        </div>
+
+        <div class="tab-pane" data-pane="t3-when-not">
+          <h4>Stick with JavaScript When…</h4>
+          <ul>
+            <li><strong>The file is a standalone script with no imports or callers.</strong> A script that runs once and exits doesn't need a type contract.</li>
+            <li><strong>You're building a proof-of-concept to test an idea.</strong> TypeScript is an investment — save it for ideas that survive contact with reality.</li>
+            <li><strong>You're in a browser environment with no build step.</strong> TypeScript always requires compilation. If you can't add a build step, use plain JS or ES modules directly.</li>
+            <li><strong>The team is 100% junior and has never seen types.</strong> Static typing requires a mental shift. Without training, it creates friction without the benefits.</li>
+          </ul>
+        </div>
+
+        <div class="tab-pane" data-pane="t3-internals">
+          <h4>What TypeScript Adds on Top of JavaScript</h4>
+          <ol>
+            <li><strong>Type annotations</strong> (<code>: string</code>, <code>: number[]</code>) — stripped at compile time, zero runtime cost</li>
+            <li><strong>Interfaces</strong> — describe object shapes, completely erased in output</li>
+            <li><strong>Type aliases</strong> — reusable type names, erased in output</li>
+            <li><strong>Enums</strong> — the only TypeScript feature that generates runtime code (an object)</li>
+            <li><strong>Generics</strong> (<code>&lt;T&gt;</code>) — parametric types, erased in output</li>
+            <li><strong>Access modifiers</strong> (<code>private</code>, <code>protected</code>, <code>public</code>) on classes — compile-time only, not enforced at runtime</li>
+            <li><strong>Non-null assertion operator</strong> (<code>!</code>) — tells TypeScript "trust me, this is not null"; erased in output</li>
+          </ol>
+          <p>Everything TypeScript adds beyond JavaScript is a <em>compile-time concept</em>. The emitted JavaScript is always clean, standard code — no TypeScript runtime or library is needed to run it.</p>
+        </div>
+
+        <div class="tab-pane" data-pane="t3-syntax">
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">typescript — what's TS-only vs valid JS</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cm">// ✓ Valid JavaScript (also valid TypeScript)</span>
+<span class="kw">const</span> name <span class="op">=</span> <span class="str">"Alice"</span>;
+<span class="kw">function</span> <span class="fn">greet</span>(n) { <span class="kw">return</span> <span class="str">`Hi ${n}`</span>; }
+<span class="kw">class</span> <span class="type">Person</span> { constructor(n) { <span class="kw">this</span>.name <span class="op">=</span> n; } }
+
+<span class="cm">// ✗ TypeScript-only syntax (removed by compiler)</span>
+<span class="kw">const</span> name<span class="op">:</span> <span class="type">string</span> <span class="op">=</span> <span class="str">"Alice"</span>;             <span class="cm">// type annotation</span>
+<span class="kw">function</span> <span class="fn">greet</span>(n<span class="op">:</span> <span class="type">string</span>)<span class="op">:</span> <span class="type">string</span> { ... }  <span class="cm">// param + return type</span>
+<span class="kw">interface</span> <span class="type">Shape</span> { sides<span class="op">:</span> <span class="type">number</span> }          <span class="cm">// interface (fully erased)</span>
+<span class="kw">type</span> <span class="type">ID</span> <span class="op">=</span> <span class="type">string</span> | <span class="type">number</span>;                 <span class="cm">// type alias (fully erased)</span>
+<span class="kw">class</span> <span class="type">Person</span> { <span class="kw">private</span> name<span class="op">:</span> <span class="type">string</span>; ... }  <span class="cm">// access modifier + annotation</span>
+<span class="kw">function</span> <span class="fn">id</span><span class="op">&lt;</span>T<span class="op">&gt;</span>(x<span class="op">:</span> T)<span class="op">:</span> T { <span class="kw">return</span> x; }     <span class="cm">// generic (erased, T removed)</span>
+<span class="kw">const</span> val <span class="op">=</span> maybeNull<span class="op">!</span>;                   <span class="cm">// non-null assertion (erased)</span>
+<span class="kw">const</span> n <span class="op">=</span> x <span class="kw">as</span> <span class="type">number</span>;                    <span class="cm">// type cast (erased)</span></code></pre>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t3-example">
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">typescript — same logic, side by side</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cm">// JavaScript version</span>
+<span class="kw">function</span> <span class="fn">getUserAge</span>(user) {
+  <span class="kw">if</span> (!user || !user.birthYear) <span class="kw">return null</span>;
+  <span class="kw">return new</span> <span class="fn">Date</span>().<span class="fn">getFullYear</span>() - user.birthYear;
+}
+
+<span class="cm">// TypeScript version — identical logic, enforced shapes</span>
+<span class="kw">interface</span> <span class="type">User</span> {
+  id<span class="op">:</span> <span class="type">number</span>;
+  name<span class="op">:</span> <span class="type">string</span>;
+  birthYear<span class="op">:</span> <span class="type">number</span> | <span class="type">null</span>;
+}
+
+<span class="kw">function</span> <span class="fn">getUserAge</span>(user<span class="op">:</span> <span class="type">User</span>)<span class="op">:</span> <span class="type">number</span> | <span class="type">null</span> {
+  <span class="kw">if</span> (!user.birthYear) <span class="kw">return null</span>;
+  <span class="kw">return new</span> <span class="fn">Date</span>().<span class="fn">getFullYear</span>() - user.birthYear;
+}
+
+<span class="cm">// TypeScript compiled output (identical to JS version above):</span>
+<span class="cm">// function getUserAge(user) {</span>
+<span class="cm">//   if (!user.birthYear) return null;</span>
+<span class="cm">//   return new Date().getFullYear() - user.birthYear;</span>
+<span class="cm">// }</span></code></pre>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t3-realworld">
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">typescript — migrating a JS module to TS</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cm">// BEFORE: JavaScript (cart.js)</span>
+<span class="kw">function</span> <span class="fn">addToCart</span>(cart, item) {
+  <span class="kw">if</span> (cart.items.find(i <span class="op">=&gt;</span> i.id <span class="op">===</span> item.id)) {
+    cart.items.<span class="fn">find</span>(i <span class="op">=&gt;</span> i.id <span class="op">===</span> item.id).qty++;
+  } <span class="kw">else</span> {
+    cart.items.<span class="fn">push</span>({ ...item, qty: <span class="num">1</span> });
+  }
+  <span class="kw">return</span> cart;
+}
+<span class="cm">// No idea what cart or item look like. Any bug hides here.</span>
+
+<span class="cm">// AFTER: TypeScript (cart.ts)</span>
+<span class="kw">interface</span> <span class="type">CartItem</span> { id<span class="op">:</span> <span class="type">string</span>; name<span class="op">:</span> <span class="type">string</span>; price<span class="op">:</span> <span class="type">number</span>; qty<span class="op">:</span> <span class="type">number</span> }
+<span class="kw">interface</span> <span class="type">Cart</span> { id<span class="op">:</span> <span class="type">string</span>; items<span class="op">:</span> <span class="type">CartItem</span>[] }
+<span class="kw">type</span> <span class="type">NewItem</span> <span class="op">=</span> <span class="type">Omit</span><span class="op">&lt;</span><span class="type">CartItem</span>, <span class="str">'qty'</span><span class="op">&gt;</span>;
+
+<span class="kw">function</span> <span class="fn">addToCart</span>(cart<span class="op">:</span> <span class="type">Cart</span>, item<span class="op">:</span> <span class="type">NewItem</span>)<span class="op">:</span> <span class="type">Cart</span> {
+  <span class="kw">const</span> existing <span class="op">=</span> cart.items.<span class="fn">find</span>(i <span class="op">=&gt;</span> i.id <span class="op">===</span> item.id);
+  <span class="kw">if</span> (existing) {
+    existing.qty++;
+  } <span class="kw">else</span> {
+    cart.items.<span class="fn">push</span>({ ...item, qty: <span class="num">1</span> });
+  }
+  <span class="kw">return</span> cart;
+}
+<span class="cm">// Every property is named and typed. Callers know exactly what to pass.</span></code></pre>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t3-usecases">
+          <ul>
+            <li><strong>Choosing a language for a new project:</strong> TypeScript is the default choice for any non-trivial JavaScript project starting today.</li>
+            <li><strong>Migrating an existing JS codebase:</strong> TypeScript's <code>allowJs</code> flag enables incremental migration without big-bang rewrites.</li>
+            <li><strong>Onboarding developers who know statically-typed languages (Java, C#, Go):</strong> TypeScript feels familiar to them and reduces the "JavaScript is too loose" culture shock.</li>
+            <li><strong>Publishing an npm package:</strong> TypeScript packages ship <code>.d.ts</code> files that give JS consumers typed autocomplete, widening your library's audience.</li>
+            <li><strong>Debugging legacy code:</strong> Adding types to an old module forces you to document it — and usually reveals hidden bugs in the process.</li>
+          </ul>
+        </div>
+
+        <div class="tab-pane" data-pane="t3-mistakes">
+          <div class="mistake-item">
+            <div class="mistake-label">Mistake 1 — Expecting TypeScript to validate runtime data</div>
+            <div class="code-label label-wrong">Wrong assumption</div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+              <pre><code><span class="kw">interface</span> <span class="type">User</span> { name<span class="op">:</span> <span class="type">string</span>; age<span class="op">:</span> <span class="type">number</span> }
+<span class="kw">const</span> user <span class="op">=</span> <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/user'</span>).<span class="fn">then</span>(r <span class="op">=&gt;</span> r.<span class="fn">json</span>()) <span class="kw">as</span> <span class="type">User</span>;
+<span class="cm">// TypeScript accepts this. But if the API returns { name: 42, age: "old" }</span>
+<span class="cm">// there is no error — the cast just lies to the compiler.</span></code></pre>
+            </div>
+            <div class="code-label label-correct">Correct</div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+              <pre><code><span class="kw">import</span> { z } <span class="kw">from</span> <span class="str">'zod'</span>;
+<span class="kw">const</span> UserSchema <span class="op">=</span> z.<span class="fn">object</span>({ name: z.<span class="fn">string</span>(), age: z.<span class="fn">number</span>() });
+<span class="kw">const</span> raw <span class="op">=</span> <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/user'</span>).<span class="fn">then</span>(r <span class="op">=&gt;</span> r.<span class="fn">json</span>());
+<span class="kw">const</span> user <span class="op">=</span> UserSchema.<span class="fn">parse</span>(raw); <span class="cm">// throws if shape is wrong at runtime</span></code></pre>
+            </div>
+            <p class="mistake-explain">TypeScript only checks code you write — it cannot check data arriving at runtime. Use Zod or similar for runtime validation of external data.</p>
+          </div>
+          <div class="mistake-item">
+            <div class="mistake-label">Mistake 2 — Writing TypeScript like Java</div>
+            <p class="mistake-explain">TypeScript is not Java or C#. You don't need a class for everything. TypeScript encourages simple functions with typed parameters over heavyweight class hierarchies. Prefer plain functions and type aliases unless classes genuinely model your domain better.</p>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t3-bestpractices">
+          <div class="bp-item"><div class="bp-rule">1. Prefer TypeScript for any new JavaScript project by default</div><div class="bp-reason">Setup takes minutes. The benefits compound over time. There's no good reason to start a long-lived JS project without types in 2024.</div></div>
+          <div class="bp-item"><div class="bp-rule">2. Use TypeScript's <code>allowJs</code> to migrate incrementally</div><div class="bp-reason">You don't have to rewrite everything at once. Convert one file, fix its errors, move on. This keeps the project shippable throughout the migration.</div></div>
+          <div class="bp-item"><div class="bp-rule">3. Don't use type casts (<code>as</code>) to bypass type errors</div><div class="bp-reason">A cast tells the compiler "trust me" — if you're wrong, the bug surfaces at runtime where TypeScript can't help you. Fix the actual type rather than casting your way around it.</div></div>
+          <div class="bp-item"><div class="bp-rule">4. Use Zod (or similar) to bridge TypeScript and runtime data</div><div class="bp-reason">TypeScript is a static tool; Zod is a runtime tool. Together they cover all cases: static typing for code you write, runtime validation for data you receive.</div></div>
+          <div class="bp-item"><div class="bp-rule">5. Don't write TypeScript like Java — functions first, classes only when needed</div><div class="bp-reason">TypeScript is a structural type system built on a functional language. Simple typed functions are idiomatic; class-per-concept is not.</div></div>
+        </div>
+
+        <div class="tab-pane" data-pane="t3-interview">
+          <div class="qa-item">
+            <div class="question">What is the relationship between TypeScript and JavaScript? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">TypeScript is a strict superset of JavaScript — all valid JS is valid TS. TypeScript adds optional type annotations and a compile step. The compiler checks types, then strips them to produce plain JavaScript. At runtime the two are identical; TypeScript only exists at development time.</div>
+          </div>
+          <div class="qa-item">
+            <div class="question">What are the main things TypeScript adds to JavaScript? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">TypeScript adds: type annotations, interfaces, type aliases, enums, generics, access modifiers (public/private/protected), and the non-null assertion operator. Of these, only enums generate runtime code (an object). Everything else is erased before the output JS is emitted.</div>
+          </div>
+          <div class="qa-item">
+            <div class="question">Can TypeScript catch all JavaScript bugs? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">No. TypeScript catches type-level bugs at compile time — passing the wrong shape, accessing a non-existent property, calling something that might be null. It cannot catch logic bugs (wrong algorithm), runtime data errors (bad API response), or any behavior that only manifests at execution time. TypeScript is one layer of a multi-layer quality strategy that also includes unit tests, integration tests, and runtime validation.</div>
+          </div>
+          <div class="qa-item">
+            <div class="question">Does TypeScript add any runtime overhead to JavaScript? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">No. TypeScript types are completely erased during compilation. The emitted JavaScript is identical to what a skilled developer would write by hand — no TypeScript runtime, no type-checking overhead, no extra library needed. The only overhead is the compile step itself, which happens at build time, not at runtime.</div>
+          </div>
+          <div class="qa-item">
+            <div class="question">How does TypeScript's type system differ from Java's? <span class="difficulty hard">Hard</span></div>
+            <div class="answer">TypeScript uses <strong>structural typing</strong> (also called duck typing) — if an object has all the properties a type requires, it satisfies that type, regardless of what class it was created from. Java uses <strong>nominal typing</strong> — a type is only compatible if it explicitly declares it implements a particular interface or extends a class. This means in TypeScript you can pass any object that "looks like" a User to a function expecting a User; in Java you'd need it to explicitly implement the User interface.</div>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t3-exercise">
+          <div class="exercise-box"><strong>Goal:</strong> Convert a JavaScript module to TypeScript and observe which bugs the compiler catches.</div>
+          <h4>Requirements</h4>
+          <ul>
+            <li>Take the JavaScript functions below and rewrite them in TypeScript with full type annotations</li>
+            <li>Define proper interfaces for <code>Employee</code> and <code>Department</code></li>
+            <li>Observe and fix every compile error TypeScript surfaces</li>
+            <li>Write one call that TypeScript should reject (wrong type) and confirm the error</li>
+          </ul>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">javascript — convert this to typescript</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cm">// employee.js — convert this to employee.ts</span>
+<span class="kw">function</span> <span class="fn">getEmployeeLabel</span>(emp) {
+  <span class="kw">return</span> <span class="str">`${emp.name} (${emp.department}) — Level ${emp.level}`</span>;
+}
+
+<span class="kw">function</span> <span class="fn">isManager</span>(emp) {
+  <span class="kw">return</span> emp.level <span class="op">>=</span> <span class="num">5</span>;
+}
+
+<span class="kw">function</span> <span class="fn">getDeptHeadcount</span>(employees, deptName) {
+  <span class="kw">return</span> employees.<span class="fn">filter</span>(e <span class="op">=&gt;</span> e.department <span class="op">===</span> deptName).length;
+}</code></pre>
+          </div>
+          <div class="hint-box"><strong>Hint:</strong> Define <code>interface Employee &#123; name: string; department: string; level: number &#125;</code> first, then add that type to each function parameter.</div>
+        </div>
+
+        <div class="tab-pane" data-pane="t3-summary">
+          <ul class="takeaways">
+            <li>TypeScript is a superset — all JavaScript is valid TypeScript, but TypeScript adds types, interfaces, generics, and more</li>
+            <li>The only difference at runtime is zero — TypeScript erases all type information before emitting JavaScript</li>
+            <li>JavaScript catches type errors at runtime (in production); TypeScript catches them at compile time (at your desk)</li>
+            <li>TypeScript uses structural typing — any object with the right shape satisfies a type, regardless of its class</li>
+            <li>TypeScript cannot validate runtime data from APIs — use Zod for that boundary</li>
+            <li>Incremental migration with <code>allowJs: true</code> is the practical path for existing JS projects</li>
+          </ul>
+          <div class="mental-model">Mental model: TypeScript is JavaScript with a seat belt — it doesn't change where you can drive, but it stops you from flying through the windshield when something goes wrong.</div>
+        </div>
+
+      </div>
+    </details>
+
+    <!-- TOPIC 4 PLACEHOLDER -->
+    <details class="topic-panel" id="topic-static-typing">
+      <summary><span class="chevron">&#9654;</span><span class="topic-name">Static Typing</span><span class="badge intermediate">Intermediate</span></summary>
+      <div class="panel-tabs"><button class="tab active" data-tab="t4-definition">Definition</button><button class="tab" data-tab="t4-why-exists">Why It Exists</button><button class="tab" data-tab="t4-when-use">When to Use</button><button class="tab" data-tab="t4-when-not">When NOT to Use</button><button class="tab" data-tab="t4-internals">How It Works</button><button class="tab" data-tab="t4-syntax">Syntax</button><button class="tab" data-tab="t4-example">Example</button><button class="tab" data-tab="t4-realworld">Real-World</button><button class="tab" data-tab="t4-usecases">Use Cases</button><button class="tab" data-tab="t4-mistakes">Mistakes</button><button class="tab" data-tab="t4-bestpractices">Best Practices</button><button class="tab" data-tab="t4-interview">Interview Qs</button><button class="tab" data-tab="t4-exercise">Exercise</button><button class="tab" data-tab="t4-summary">Summary</button></div>
+      <div class="panel-content">
+
+        <div class="tab-pane active" data-pane="t4-definition">
+          <div class="simple-def">
+            <div class="def-label">Simple Explanation</div>
+            Static typing means you declare what kind of value a variable holds <em>before</em> the program runs, and the system verifies every assignment and function call against that declaration. If anything doesn't match, the error is reported at compile time — not in production.
+          </div>
+          <div class="technical-def">
+            <div class="def-label">Technical Explanation</div>
+            In a statically-typed system, the type of every expression is known at compile time. The type checker performs a formal proof that the program is type-correct before execution begins. TypeScript implements optional static typing — you can omit annotations and TypeScript will infer types from context, but every value still has a type known to the compiler.
+          </div>
+          <p>The opposite of static typing is <strong>dynamic typing</strong>, which is what JavaScript uses. In a dynamic type system, types are associated with values at runtime, not with variables at write time. A variable <code>x</code> can hold a number on one line and a string on the next — the interpreter finds out what's there only when it executes.</p>
+        </div>
+
+        <div class="tab-pane" data-pane="t4-why-exists">
+          <h4>The Dynamic Typing Problem</h4>
+          <p>In a dynamically-typed language, the only way to know if a function is being called correctly is to run it. That's fine for small scripts. In a system with dozens of interconnected functions, a type mistake in one layer can surface as a completely unrelated error several layers deeper — and only in production, after real users encounter it.</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">javascript — runtime type error, far from the source</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cm">// Layer 1: fetches a user from DB, accidentally returns string ID instead of number</span>
+<span class="kw">function</span> <span class="fn">getUser</span>(id) { <span class="kw">return</span> { id: <span class="str">"42"</span>, name: <span class="str">"Alice"</span> }; } <span class="cm">// bug: id is "42" not 42</span>
+
+<span class="cm">// Layer 2: passes it along</span>
+<span class="kw">function</span> <span class="fn">getUserOrders</span>(userId) { <span class="kw">return</span> db.<span class="fn">find</span>({ userId }); }
+
+<span class="cm">// Layer 3: the error explodes here with a cryptic message</span>
+<span class="kw">function</span> <span class="fn">calculateDiscount</span>(userId) {
+  <span class="kw">const</span> count <span class="op">=</span> <span class="fn">getUserOrders</span>(userId).length;
+  <span class="kw">return</span> userId <span class="op">*</span> <span class="num">0.1</span> <span class="op">+</span> count; <span class="cm">// NaN — "42" * 0.1 is NaN in edge cases</span>
+}</code></pre>
+          </div>
+          <h4>Static Typing Catches It at Source</h4>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="kw">function</span> <span class="fn">getUser</span>(id<span class="op">:</span> <span class="type">number</span>)<span class="op">:</span> { id<span class="op">:</span> <span class="type">number</span>; name<span class="op">:</span> <span class="type">string</span> } {
+  <span class="kw">return</span> { id: <span class="str">"42"</span>, name: <span class="str">"Alice"</span> };
+  <span class="cm">// Error: Type 'string' is not assignable to type 'number' for 'id'</span>
+  <span class="cm">// The bug is caught at the source, not 3 layers away at runtime.</span>
+}</code></pre>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t4-when-use">
+          <h4>When Static Typing Pays Off Most</h4>
+          <ul>
+            <li><strong>Functions with non-obvious parameter shapes.</strong> If a function takes an object, annotate its shape — callers don't have to read the implementation to know what to pass.</li>
+            <li><strong>Return types of public functions.</strong> Annotating return types creates a contract — if the implementation accidentally returns the wrong thing, the error is on the function author's side, not the caller.</li>
+            <li><strong>Union types representing states.</strong> Use <code>status: 'loading' | 'success' | 'error'</code> instead of a plain string — TypeScript will enforce exhaustive handling of all states.</li>
+            <li><strong>Data coming from one layer to another.</strong> Annotate every function that crosses a layer boundary (DB → service → route → response) — this is where type mismatches cause the most damage.</li>
+            <li><strong>Shared utility functions.</strong> Any function called from more than one place should have explicit types so every caller benefits from the contract.</li>
+          </ul>
+        </div>
+
+        <div class="tab-pane" data-pane="t4-when-not">
+          <h4>When Static Typing Adds Friction Without Value</h4>
+          <ul>
+            <li><strong>Throwaway variables inside a function body.</strong> Let TypeScript infer — <code>const doubled = nums.map(n =&gt; n * 2)</code> doesn't need a type annotation.</li>
+            <li><strong>Highly dynamic metaprogramming.</strong> When you're building a system that creates objects or functions at runtime based on user input, static types can become unwieldy. Use <code>Record&lt;string, unknown&gt;</code> and narrow at runtime.</li>
+            <li><strong>Test data builders in unit tests.</strong> Internal test helpers that create partial objects don't need the full rigour of production types.</li>
+            <li><strong>Quick scripts you'll run once.</strong> Writing a type for a five-line CSV processor you'll run once is overhead without benefit.</li>
+          </ul>
+        </div>
+
+        <div class="tab-pane" data-pane="t4-internals">
+          <h4>How TypeScript's Type Checker Works</h4>
+          <ol>
+            <li><strong>Type inference:</strong> For every value without an explicit annotation, TypeScript infers the type from context. <code>const x = 5</code> gives <code>x</code> the type <code>number</code>. <code>const arr = [1, 2, 3]</code> gives <code>arr</code> the type <code>number[]</code>.</li>
+            <li><strong>Type widening vs narrowing:</strong> TypeScript starts with a wide inferred type and narrows it based on control flow. After <code>if (typeof x === 'string')</code>, TypeScript knows <code>x</code> is <code>string</code> inside that block.</li>
+            <li><strong>Structural compatibility:</strong> When checking if a value is assignable to a type, TypeScript checks structure, not identity. An object <code>&#123; name: string; age: number &#125;</code> is assignable to <code>Person</code> if <code>Person</code> requires <code>name</code> and <code>age</code> — regardless of whether it was created from a <code>Person</code> class.</li>
+            <li><strong>Soundness vs practicality:</strong> TypeScript deliberately sacrifices some theoretical soundness (e.g., allowing covariant arrays) for practical usability. It aims to be useful, not mathematically perfect.</li>
+          </ol>
+        </div>
+
+        <div class="tab-pane" data-pane="t4-syntax">
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">typescript — type inference vs explicit annotation</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cm">// TypeScript infers types from assignment</span>
+<span class="kw">const</span> count <span class="op">=</span> <span class="num">0</span>;            <span class="cm">// inferred: number</span>
+<span class="kw">const</span> name <span class="op">=</span> <span class="str">"Alice"</span>;        <span class="cm">// inferred: string</span>
+<span class="kw">const</span> flags <span class="op">=</span> [<span class="bool">true</span>, <span class="bool">false</span>]; <span class="cm">// inferred: boolean[]</span>
+<span class="kw">const</span> user <span class="op">=</span> { id: <span class="num">1</span>, role: <span class="str">"admin"</span> };
+<span class="cm">//    ^--- inferred: { id: number; role: string }</span>
+
+<span class="cm">// Explicit annotation overrides or confirms inference</span>
+<span class="kw">const</span> pi<span class="op">:</span> <span class="type">number</span> <span class="op">=</span> <span class="num">3.14</span>;          <span class="cm">// explicit — same as inferred</span>
+<span class="kw">const</span> ids<span class="op">:</span> <span class="type">number</span>[] <span class="op">=</span> [];           <span class="cm">// explicit needed — [] alone infers never[]</span>
+<span class="kw">const</span> map<span class="op">:</span> Map<span class="op">&lt;</span><span class="type">string</span>, <span class="type">number</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">new</span> Map();
+
+<span class="cm">// Type narrowing — TypeScript tracks types through control flow</span>
+<span class="kw">function</span> <span class="fn">describe</span>(value<span class="op">:</span> <span class="type">string</span> | <span class="type">number</span>)<span class="op">:</span> <span class="type">string</span> {
+  <span class="kw">if</span> (<span class="kw">typeof</span> value <span class="op">===</span> <span class="str">"string"</span>) {
+    <span class="cm">// Here TypeScript knows: value is string</span>
+    <span class="kw">return</span> value.<span class="fn">toUpperCase</span>(); <span class="cm">// string methods available</span>
+  }
+  <span class="cm">// Here TypeScript knows: value must be number</span>
+  <span class="kw">return</span> value.<span class="fn">toFixed</span>(<span class="num">2</span>); <span class="cm">// number methods available</span>
+}</code></pre>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t4-example">
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cm">// Static typing catching a real multi-layer bug</span>
+<span class="kw">type</span> <span class="type">UserId</span> <span class="op">=</span> <span class="type">number</span>; <span class="cm">// branded type pattern (simplified)</span>
+
+<span class="kw">interface</span> <span class="type">User</span> {
+  id<span class="op">:</span> <span class="type">UserId</span>;
+  name<span class="op">:</span> <span class="type">string</span>;
+  email<span class="op">:</span> <span class="type">string</span>;
+}
+
+<span class="kw">interface</span> <span class="type">Order</span> {
+  id<span class="op">:</span> <span class="type">number</span>;
+  userId<span class="op">:</span> <span class="type">UserId</span>;
+  total<span class="op">:</span> <span class="type">number</span>;
+}
+
+<span class="kw">function</span> <span class="fn">getOrdersForUser</span>(userId<span class="op">:</span> <span class="type">UserId</span>, orders<span class="op">:</span> <span class="type">Order</span>[])<span class="op">:</span> <span class="type">Order</span>[] {
+  <span class="kw">return</span> orders.<span class="fn">filter</span>(o <span class="op">=&gt;</span> o.userId <span class="op">===</span> userId);
+}
+
+<span class="kw">const</span> orders<span class="op">:</span> <span class="type">Order</span>[] <span class="op">=</span> [
+  { id: <span class="num">1</span>, userId: <span class="num">42</span>, total: <span class="num">99.99</span> },
+  { id: <span class="num">2</span>, userId: <span class="num">7</span>,  total: <span class="num">14.50</span> },
+];
+
+<span class="kw">const</span> aliceOrders <span class="op">=</span> <span class="fn">getOrdersForUser</span>(<span class="num">42</span>, orders);
+console.<span class="fn">log</span>(aliceOrders); <span class="cm">// Output: [{ id: 1, userId: 42, total: 99.99 }]</span>
+
+<span class="cm">// getOrdersForUser("42", orders) would be a compile error:</span>
+<span class="cm">// Argument of type 'string' is not assignable to parameter of type 'number'</span></code></pre>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t4-realworld">
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">typescript — state machine with exhaustive type checking</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cm">// Static typing enforcing exhaustive state handling</span>
+<span class="kw">type</span> <span class="type">OrderStatus</span> <span class="op">=</span> <span class="str">'pending'</span> | <span class="str">'processing'</span> | <span class="str">'shipped'</span> | <span class="str">'delivered'</span> | <span class="str">'cancelled'</span>;
+
+<span class="kw">interface</span> <span class="type">Order</span> {
+  id<span class="op">:</span> <span class="type">string</span>;
+  status<span class="op">:</span> <span class="type">OrderStatus</span>;
+  total<span class="op">:</span> <span class="type">number</span>;
+}
+
+<span class="kw">function</span> <span class="fn">getStatusLabel</span>(status<span class="op">:</span> <span class="type">OrderStatus</span>)<span class="op">:</span> <span class="type">string</span> {
+  <span class="kw">switch</span> (status) {
+    <span class="kw">case</span> <span class="str">'pending'</span>:    <span class="kw">return</span> <span class="str">'Awaiting payment'</span>;
+    <span class="kw">case</span> <span class="str">'processing'</span>: <span class="kw">return</span> <span class="str">'Being prepared'</span>;
+    <span class="kw">case</span> <span class="str">'shipped'</span>:    <span class="kw">return</span> <span class="str">'On the way'</span>;
+    <span class="kw">case</span> <span class="str">'delivered'</span>:  <span class="kw">return</span> <span class="str">'Delivered'</span>;
+    <span class="kw">case</span> <span class="str">'cancelled'</span>:  <span class="kw">return</span> <span class="str">'Cancelled'</span>;
+    <span class="kw">default</span>: {
+      <span class="cm">// The 'never' trick: if you add a new status and forget this switch,</span>
+      <span class="cm">// TypeScript reports an error here — exhaustiveness check</span>
+      <span class="kw">const</span> exhaustive<span class="op">:</span> <span class="type">never</span> <span class="op">=</span> status;
+      <span class="kw">throw new</span> <span class="fn">Error</span>(<span class="str">`Unhandled status: ${exhaustive}`</span>);
+    }
+  }
+}
+<span class="cm">// Add 'refunded' to OrderStatus without updating this switch?</span>
+<span class="cm">// TypeScript: Type 'string' is not assignable to type 'never'</span></code></pre>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t4-usecases">
+          <ul>
+            <li><strong>API response types:</strong> Annotate the expected shape of every API response — when the backend changes its schema, every frontend consumer breaks at compile time immediately.</li>
+            <li><strong>State management:</strong> Typing Zustand or Redux state forces every reducer and selector to handle the correct shape — no silent state corruption.</li>
+            <li><strong>Database query results:</strong> Prisma and Drizzle ORM use TypeScript to infer the exact shape of every query result — no guessing which fields came back.</li>
+            <li><strong>Form validation:</strong> Type form field values explicitly so validation functions and submission handlers all agree on the same shape.</li>
+            <li><strong>Event systems:</strong> Type event payloads in event emitters so publishers and subscribers stay synchronized.</li>
+          </ul>
+        </div>
+
+        <div class="tab-pane" data-pane="t4-mistakes">
+          <div class="mistake-item">
+            <div class="mistake-label">Mistake 1 — Using <code>object</code> or <code>{}</code> as a type</div>
+            <div class="code-label label-wrong">Wrong</div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+              <pre><code><span class="kw">function</span> <span class="fn">save</span>(data<span class="op">:</span> <span class="type">object</span>)<span class="op">:</span> <span class="type">void</span> { <span class="cm">/* ... */</span> }
+<span class="cm">// object type allows any object but you can't access any properties on it</span>
+<span class="fn">save</span>({ name: <span class="str">"Alice"</span> }); <span class="cm">// allowed, but data.name is a compile error inside</span></code></pre>
+            </div>
+            <div class="code-label label-correct">Correct</div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+              <pre><code><span class="kw">interface</span> <span class="type">SavePayload</span> { name<span class="op">:</span> <span class="type">string</span>; value<span class="op">:</span> <span class="type">unknown</span> }
+<span class="kw">function</span> <span class="fn">save</span>(data<span class="op">:</span> <span class="type">SavePayload</span>)<span class="op">:</span> <span class="type">void</span> { <span class="cm">/* ... */</span> }
+<span class="cm">// Now callers know exactly what to pass, and you can use data.name safely</span></code></pre>
+            </div>
+            <p class="mistake-explain"><code>object</code> is almost never the right type. It accepts any object but gives you no information about its shape, so you can't access any properties safely inside the function.</p>
+          </div>
+          <div class="mistake-item">
+            <div class="mistake-label">Mistake 2 — Over-annotating obvious inferences</div>
+            <div class="code-label label-wrong">Wrong</div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+              <pre><code><span class="kw">const</span> count<span class="op">:</span> <span class="type">number</span> <span class="op">=</span> <span class="num">0</span>;
+<span class="kw">const</span> names<span class="op">:</span> <span class="type">string</span>[] <span class="op">=</span> [<span class="str">"Alice"</span>, <span class="str">"Bob"</span>];
+<span class="kw">const</span> active<span class="op">:</span> <span class="type">boolean</span> <span class="op">=</span> <span class="bool">true</span>;</code></pre>
+            </div>
+            <div class="code-label label-correct">Correct</div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+              <pre><code><span class="kw">const</span> count <span class="op">=</span> <span class="num">0</span>;           <span class="cm">// TypeScript infers number — annotation is noise</span>
+<span class="kw">const</span> names <span class="op">=</span> [<span class="str">"Alice"</span>, <span class="str">"Bob"</span>]; <span class="cm">// TypeScript infers string[]</span>
+<span class="kw">const</span> active <span class="op">=</span> <span class="bool">true</span>;         <span class="cm">// TypeScript infers boolean</span></code></pre>
+            </div>
+            <p class="mistake-explain">Over-annotating adds visual noise without benefit. Save explicit annotations for function signatures and places where TypeScript can't infer the right type.</p>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t4-bestpractices">
+          <div class="bp-item"><div class="bp-rule">1. Annotate function signatures, let inference handle the body</div><div class="bp-reason">Function signatures are your API contract. Body variables are implementation details — let TypeScript infer them to keep the code clean.</div></div>
+          <div class="bp-item"><div class="bp-rule">2. Use union types for values with a fixed set of options</div><div class="bp-reason"><code>status: 'active' | 'inactive' | 'pending'</code> is far more precise than <code>status: string</code>. TypeScript will catch invalid values and enable exhaustive checking in switch statements.</div></div>
+          <div class="bp-item"><div class="bp-rule">3. Avoid <code>object</code> and <code>{}</code> — always define the shape</div><div class="bp-reason">These types tell TypeScript "some object" without any structure. They're almost never what you want and they prevent TypeScript from checking property access.</div></div>
+          <div class="bp-item"><div class="bp-rule">4. Initialize arrays with explicit types when empty: <code>const ids: number[] = []</code></div><div class="bp-reason">An empty array literal <code>[]</code> infers as <code>never[]</code>. TypeScript can't know the element type from nothing — you have to tell it.</div></div>
+          <div class="bp-item"><div class="bp-rule">5. Use <code>const</code> for values you don't reassign — TypeScript infers narrower types</div><div class="bp-reason"><code>const role = "admin"</code> gives type <code>"admin"</code> (literal type). <code>let role = "admin"</code> gives type <code>string</code>. The narrower type gives TypeScript more information to work with.</div></div>
+        </div>
+
+        <div class="tab-pane" data-pane="t4-interview">
+          <div class="qa-item">
+            <div class="question">What is the difference between static and dynamic typing? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">In static typing, the type of every variable is known at compile time — before the code runs. The type checker validates correctness upfront. In dynamic typing (like JavaScript), types are associated with values at runtime — the interpreter discovers type mismatches only during execution. TypeScript gives JavaScript static typing while still compiling to JavaScript.</div>
+          </div>
+          <div class="qa-item">
+            <div class="question">What is type inference in TypeScript? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">Type inference means TypeScript automatically determines the type of a value from context, without requiring an explicit annotation. If you write <code>const x = 5</code>, TypeScript infers <code>x</code> is <code>number</code>. If you write <code>const arr = ["a", "b"]</code>, TypeScript infers <code>string[]</code>. You still get full type checking without writing the type yourself.</div>
+          </div>
+          <div class="qa-item">
+            <div class="question">What is type narrowing? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">Type narrowing is when TypeScript refines a broader type to a more specific one based on control flow. After <code>if (typeof value === 'string')</code>, TypeScript knows <code>value</code> is <code>string</code> inside that block — even if its declared type was <code>string | number</code>. TypeScript tracks types through <code>typeof</code>, <code>instanceof</code>, truthiness checks, and custom type guards.</div>
+          </div>
+          <div class="qa-item">
+            <div class="question">What is structural typing and how does TypeScript use it? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">Structural typing means type compatibility is determined by shape, not by name or declaration. If two types have the same properties, they are compatible — even if they were never declared to be related. TypeScript uses structural typing: a function expecting <code>&#123; name: string &#125;</code> accepts any object with at least a <code>name: string</code> property, regardless of its class. This is different from Java/C# where types must explicitly declare relationships.</div>
+          </div>
+          <div class="qa-item">
+            <div class="question">What is the <code>never</code> type and how is it used for exhaustive checking? <span class="difficulty hard">Hard</span></div>
+            <div class="answer"><code>never</code> is TypeScript's "impossible" type — a value of type <code>never</code> can never exist. It's used for exhaustive checking: assign a union type to a <code>never</code> variable in the default branch of a switch. If you handle all union members, TypeScript is satisfied. If you add a new member later and forget the switch, TypeScript reports an error because an unhandled value can't be assigned to <code>never</code>. This turns missing case bugs into compile errors.</div>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t4-exercise">
+          <div class="exercise-box"><strong>Goal:</strong> Use static typing to model a payment system with exhaustive status handling.</div>
+          <h4>Requirements</h4>
+          <ul>
+            <li>Define a <code>PaymentStatus</code> union type with at least 4 status values</li>
+            <li>Define a <code>Payment</code> interface using that union type</li>
+            <li>Write a <code>getStatusMessage</code> function with a switch that handles all statuses</li>
+            <li>Add a <code>never</code> check in the default branch for exhaustive checking</li>
+            <li>Add a new status to the union — observe the TypeScript error until you handle it</li>
+          </ul>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">typescript — starter</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cm">// TODO: Define PaymentStatus union type</span>
+<span class="kw">type</span> <span class="type">PaymentStatus</span> <span class="op">=</span> <span class="cm">/* 'pending' | 'completed' | ... */</span>;
+
+<span class="cm">// TODO: Define Payment interface</span>
+<span class="kw">interface</span> <span class="type">Payment</span> {
+  <span class="cm">// id, amount, status, createdAt</span>
+}
+
+<span class="cm">// TODO: Handle all statuses with exhaustive check</span>
+<span class="kw">function</span> <span class="fn">getStatusMessage</span>(status<span class="op">:</span> <span class="type">PaymentStatus</span>)<span class="op">:</span> <span class="type">string</span> {
+  <span class="kw">switch</span> (status) {
+    <span class="cm">// add a case for each status</span>
+    <span class="kw">default</span>: {
+      <span class="kw">const</span> exhaustive<span class="op">:</span> <span class="type">never</span> <span class="op">=</span> status; <span class="cm">// errors if any case is unhandled</span>
+      <span class="kw">throw new</span> <span class="fn">Error</span>(<span class="str">`Unknown: ${exhaustive}`</span>);
+    }
+  }
+}</code></pre>
+          </div>
+          <div class="hint-box"><strong>Hint:</strong> After you handle all statuses in your switch and the default <code>never</code> check passes, add a new status to your union and watch the default branch error reappear.</div>
+        </div>
+
+        <div class="tab-pane" data-pane="t4-summary">
+          <ul class="takeaways">
+            <li>Static typing means types are known at compile time; dynamic typing means types are discovered at runtime</li>
+            <li>TypeScript infers most types automatically — you only annotate where inference is impossible or unclear</li>
+            <li>Type narrowing lets TypeScript track exact types through <code>typeof</code>, <code>instanceof</code>, and truthiness checks</li>
+            <li>TypeScript uses structural typing — if the shape matches, the type matches, regardless of class name</li>
+            <li>Union types + <code>never</code> exhaustive checks turn missing-case bugs into compile-time errors</li>
+            <li>Annotate function signatures explicitly; let TypeScript infer local variable types in the body</li>
+          </ul>
+          <div class="mental-model">Mental model: Static typing is like having the structural drawings of a building before construction starts — you find that the doors don't fit before you've laid the walls, not after.</div>
+        </div>
+
+      </div>
+    </details>
+
+    <!-- TOPIC 5 PLACEHOLDER -->
+    <details class="topic-panel" id="topic-compilation">
+      <summary><span class="chevron">&#9654;</span><span class="topic-name">Compilation Process</span><span class="badge intermediate">Intermediate</span></summary>
+      <div class="panel-tabs"><button class="tab active" data-tab="t5-definition">Definition</button><button class="tab" data-tab="t5-why-exists">Why It Exists</button><button class="tab" data-tab="t5-when-use">When to Use</button><button class="tab" data-tab="t5-when-not">When NOT to Use</button><button class="tab" data-tab="t5-internals">How It Works</button><button class="tab" data-tab="t5-syntax">Syntax</button><button class="tab" data-tab="t5-example">Example</button><button class="tab" data-tab="t5-realworld">Real-World</button><button class="tab" data-tab="t5-usecases">Use Cases</button><button class="tab" data-tab="t5-mistakes">Mistakes</button><button class="tab" data-tab="t5-bestpractices">Best Practices</button><button class="tab" data-tab="t5-interview">Interview Qs</button><button class="tab" data-tab="t5-exercise">Exercise</button><button class="tab" data-tab="t5-summary">Summary</button></div>
+      <div class="panel-content">
+
+        <div class="tab-pane active" data-pane="t5-definition">
+          <div class="simple-def">
+            <div class="def-label">Simple Explanation</div>
+            TypeScript can't run directly in the browser or Node.js. It must first be translated into JavaScript. That translation is called compilation, and it's done by a tool called <code>tsc</code> — the TypeScript compiler. Compilation checks your types and produces clean JavaScript files.
+          </div>
+          <div class="technical-def">
+            <div class="def-label">Technical Explanation</div>
+            The TypeScript compiler (<code>tsc</code>) performs two separate tasks: type-checking (static analysis of type correctness) and transpilation (transforming TypeScript syntax into a target JavaScript version). These are logically independent — <code>tsc --noEmit</code> type-checks without producing output, and <code>transpileOnly</code> mode (used by ts-jest, esbuild, swc) skips type-checking for faster builds.
+          </div>
+          <p>In modern toolchains, TypeScript is rarely compiled directly by <code>tsc</code> in production. Bundlers like Vite, esbuild, and SWC handle the transpilation step (much faster, strip-only), while <code>tsc --noEmit</code> runs separately for type checking in CI. Understanding both modes helps you configure your build correctly.</p>
+        </div>
+
+        <div class="tab-pane" data-pane="t5-why-exists">
+          <h4>Why a Compile Step Is Needed</h4>
+          <p>JavaScript engines (V8, SpiderMonkey) only understand JavaScript — they can't parse TypeScript syntax like <code>: string</code> or <code>interface User { ... }</code>. TypeScript needs to be stripped of all type information before it can run. The compile step also gives you control over the JavaScript version you target: write modern TypeScript, output ES5 for older browsers.</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">typescript input → javascript output</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cm">// Input: modern TypeScript with types and optional chaining</span>
+<span class="kw">interface</span> <span class="type">Config</span> { debug<span class="op">:</span> <span class="type">boolean</span>; timeout<span class="op">:</span> <span class="type">number</span> }
+
+<span class="kw">const</span> <span class="fn">startServer</span> <span class="op">=</span> (config<span class="op">:</span> <span class="type">Config</span>)<span class="op">:</span> <span class="type">void</span> <span class="op">=&gt;</span> {
+  <span class="kw">const</span> timeout <span class="op">=</span> config?.timeout ?? <span class="num">3000</span>;
+  console.<span class="fn">log</span>(<span class="str">`Starting with timeout ${timeout}`</span>);
+};
+
+<span class="cm">// Output (target: ES2020):</span>
+<span class="cm">// const startServer = (config) =&gt; {</span>
+<span class="cm">//   const timeout = config?.timeout ?? 3000;</span>
+<span class="cm">//   console.log(`Starting with timeout ${timeout}`);</span>
+<span class="cm">// };</span>
+
+<span class="cm">// Output (target: ES5):</span>
+<span class="cm">// var startServer = function(config) {</span>
+<span class="cm">//   var timeout = (config === null || config === void 0 ? void 0 :</span>
+<span class="cm">//     config.timeout) !== null ? config.timeout : 3000;</span>
+<span class="cm">//   console.log("Starting with timeout " + timeout);</span>
+<span class="cm">// };</span></code></pre>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t5-when-use">
+          <h4>Compilation Modes and When to Use Each</h4>
+          <ul>
+            <li><strong><code>tsc</code> (full compile):</strong> For libraries that ship JavaScript files. Generates <code>.js</code> + <code>.d.ts</code> declaration files. Use when publishing to npm.</li>
+            <li><strong><code>tsc --noEmit</code> (type-check only):</strong> In CI pipelines and editor integrations. Fast, pure validation — no output files. The safest way to confirm your code is type-correct before deploying.</li>
+            <li><strong><code>tsc --watch</code>:</strong> During development, recompiles on every file save. Useful for Node.js servers; most frontend devs use Vite/Webpack instead.</li>
+            <li><strong>Bundler-handled transpilation (Vite, esbuild, SWC):</strong> These tools strip TypeScript types with no type-checking, purely for speed. Run <code>tsc --noEmit</code> separately to still catch errors.</li>
+            <li><strong><code>ts-node</code> / <code>tsx</code>:</strong> Run TypeScript files directly in Node.js without a manual compile step. Useful for scripts and development servers.</li>
+          </ul>
+        </div>
+
+        <div class="tab-pane" data-pane="t5-when-not">
+          <h4>Don't Rely on <code>tsc</code> Alone When…</h4>
+          <ul>
+            <li><strong>You need fast hot-reload in a large frontend project.</strong> <code>tsc</code> recompiles everything on change. Use Vite or esbuild for transpilation and run <code>tsc --noEmit</code> separately.</li>
+            <li><strong>You're using a monorepo with many packages.</strong> <code>tsc --build</code> (project references) is necessary; plain <code>tsc</code> won't understand the dependency graph.</li>
+            <li><strong>You need source maps for debugging in production.</strong> Make sure your tsconfig has <code>sourceMap: true</code> and your bundler preserves them — it's not automatic in all setups.</li>
+          </ul>
+        </div>
+
+        <div class="tab-pane" data-pane="t5-internals">
+          <h4>TypeScript Compilation Pipeline</h4>
+          <ol>
+            <li><strong>Scanner:</strong> Reads source characters and produces a stream of tokens (<code>const</code>, <code>identifier</code>, <code>:</code>, <code>string</code>, etc.)</li>
+            <li><strong>Parser:</strong> Consumes tokens and builds an Abstract Syntax Tree (AST) — a tree representing the structure of your code</li>
+            <li><strong>Binder:</strong> Walks the AST and creates a Symbol table — maps every identifier to its declaration and scope</li>
+            <li><strong>Type checker:</strong> Traverses the AST using the symbol table, assigns types to every node, and validates operations (most of the work happens here)</li>
+            <li><strong>Emitter:</strong> Walks the type-checked AST and writes <code>.js</code> output — type annotations are dropped, syntax is downleveled if needed, source maps are generated</li>
+          </ol>
+          <p>Steps 1–4 are pure analysis (no side effects). Step 5 is optional — you can type-check without emitting with <code>--noEmit</code>. This is why "just type-check" mode is much cheaper than full compilation.</p>
+        </div>
+
+        <div class="tab-pane" data-pane="t5-syntax">
+          <h4>Running the Compiler</h4>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">bash — tsc command reference</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cm"># Install TypeScript globally or as a dev dependency</span>
+npm install -D typescript
+
+<span class="cm"># Generate a starter tsconfig.json</span>
+npx tsc --init
+
+<span class="cm"># Compile all .ts files per tsconfig.json</span>
+npx tsc
+
+<span class="cm"># Type-check only — no output files written</span>
+npx tsc --noEmit
+
+<span class="cm"># Watch mode — recompile on file save</span>
+npx tsc --watch
+
+<span class="cm"># Compile a single file (no tsconfig needed)</span>
+npx tsc src/index.ts --target ES2020 --outDir dist
+
+<span class="cm"># Project references (monorepo — builds all packages in dependency order)</span>
+npx tsc --build</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json — package.json scripts</span><button class="copy-btn">Copy</button></div>
+            <pre><code>{
+  <span class="str">"scripts"</span>: {
+    <span class="str">"build"</span>: <span class="str">"tsc"</span>,
+    <span class="str">"typecheck"</span>: <span class="str">"tsc --noEmit"</span>,
+    <span class="str">"dev"</span>: <span class="str">"tsx watch src/index.ts"</span>
+  }
+}</code></pre>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t5-example">
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">typescript — file that compiles to different JS targets</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cm">// src/utils.ts</span>
+<span class="kw">export interface</span> <span class="type">Paginated</span><span class="op">&lt;</span>T<span class="op">&gt;</span> {
+  items<span class="op">:</span> T[];
+  total<span class="op">:</span> <span class="type">number</span>;
+  page<span class="op">:</span> <span class="type">number</span>;
+  pageSize<span class="op">:</span> <span class="type">number</span>;
+}
+
+<span class="kw">export function</span> <span class="fn">paginate</span><span class="op">&lt;</span>T<span class="op">&gt;</span>(items<span class="op">:</span> T[], page<span class="op">:</span> <span class="type">number</span>, size<span class="op">:</span> <span class="type">number</span>)<span class="op">:</span> <span class="type">Paginated</span><span class="op">&lt;</span>T<span class="op">&gt;</span> {
+  <span class="kw">const</span> start <span class="op">=</span> (page - <span class="num">1</span>) * size;
+  <span class="kw">return</span> { items: items.<span class="fn">slice</span>(start, start + size), total: items.length, page, pageSize: size };
+}
+
+<span class="cm">// After tsc compiles to dist/utils.js (target: ESNext):</span>
+<span class="cm">// export function paginate(items, page, size) {</span>
+<span class="cm">//   const start = (page - 1) * size;</span>
+<span class="cm">//   return { items: items.slice(start, start + size), total: items.length, page, pageSize: size };</span>
+<span class="cm">// }</span>
+<span class="cm">// dist/utils.d.ts also generated:</span>
+<span class="cm">// export interface Paginated&lt;T&gt; { items: T[]; total: number; page: number; pageSize: number; }</span>
+<span class="cm">// export declare function paginate&lt;T&gt;(items: T[], page: number, size: number): Paginated&lt;T&gt;;</span></code></pre>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t5-realworld">
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json — production tsconfig.json for a Node.js API</span><button class="copy-btn">Copy</button></div>
+            <pre><code>{
+  <span class="str">"compilerOptions"</span>: {
+    <span class="str">"target"</span>: <span class="str">"ES2022"</span>,        <span class="cm">// output JS version</span>
+    <span class="str">"module"</span>: <span class="str">"NodeNext"</span>,       <span class="cm">// Node.js ESM module system</span>
+    <span class="str">"moduleResolution"</span>: <span class="str">"NodeNext"</span>,
+    <span class="str">"outDir"</span>: <span class="str">"./dist"</span>,          <span class="cm">// where compiled JS goes</span>
+    <span class="str">"rootDir"</span>: <span class="str">"./src"</span>,          <span class="cm">// where source TS lives</span>
+    <span class="str">"strict"</span>: <span class="bool">true</span>,              <span class="cm">// all strict checks enabled</span>
+    <span class="str">"sourceMap"</span>: <span class="bool">true</span>,           <span class="cm">// .js.map files for debugging</span>
+    <span class="str">"declaration"</span>: <span class="bool">true</span>,         <span class="cm">// generate .d.ts files</span>
+    <span class="str">"noUnusedLocals"</span>: <span class="bool">true</span>,      <span class="cm">// error on unused variables</span>
+    <span class="str">"noUnusedParameters"</span>: <span class="bool">true</span>,  <span class="cm">// error on unused params</span>
+    <span class="str">"noImplicitReturns"</span>: <span class="bool">true</span>    <span class="cm">// every code path must return</span>
+  },
+  <span class="str">"include"</span>: [<span class="str">"src/**/*"</span>],
+  <span class="str">"exclude"</span>: [<span class="str">"node_modules"</span>, <span class="str">"dist"</span>]
+}</code></pre>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t5-usecases">
+          <ul>
+            <li><strong>CI type-check gate:</strong> <code>tsc --noEmit</code> in a GitHub Actions step prevents any PR with type errors from being merged — a cheap, reliable quality gate.</li>
+            <li><strong>Library publishing:</strong> <code>tsc</code> with <code>declaration: true</code> generates <code>.d.ts</code> files so npm consumers get typed autocomplete even if they use JavaScript.</li>
+            <li><strong>Targeting older browsers:</strong> Set <code>target: "ES5"</code> and tsc polyfills modern syntax (arrow functions, template literals, optional chaining) for IE compatibility.</li>
+            <li><strong>Source maps for production debugging:</strong> <code>sourceMap: true</code> generates <code>.js.map</code> files so error stack traces in production point to TypeScript source lines, not compiled output.</li>
+            <li><strong>Path aliases:</strong> <code>paths</code> in tsconfig lets you use <code>@/components</code> instead of <code>../../components</code> — tsc resolves these during compilation.</li>
+          </ul>
+        </div>
+
+        <div class="tab-pane" data-pane="t5-mistakes">
+          <div class="mistake-item">
+            <div class="mistake-label">Mistake 1 — Shipping TypeScript source to production</div>
+            <p class="mistake-explain">Node.js can't run <code>.ts</code> files natively (without ts-node). Always compile to JavaScript for production deployments. <code>ts-node</code> and <code>tsx</code> are great for development but add startup overhead in production.</p>
+          </div>
+          <div class="mistake-item">
+            <div class="mistake-label">Mistake 2 — Assuming bundlers type-check your code</div>
+            <div class="code-label label-wrong">Wrong assumption</div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">bash</span><button class="copy-btn">Copy</button></div>
+              <pre><code><span class="cm"># Vite builds successfully — esbuild just strips types, no checking</span>
+npx vite build
+<span class="cm"># Your code has type errors but ships anyway!</span></code></pre>
+            </div>
+            <div class="code-label label-correct">Correct</div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">bash</span><button class="copy-btn">Copy</button></div>
+              <pre><code><span class="cm"># Run type check separately before or during build</span>
+npx tsc --noEmit && npx vite build</code></pre>
+            </div>
+            <p class="mistake-explain">Vite, esbuild, and SWC use strip-only transpilation — they don't check types. Always run <code>tsc --noEmit</code> as a separate step in CI.</p>
+          </div>
+          <div class="mistake-item">
+            <div class="mistake-label">Mistake 3 — Forgetting <code>sourceMap: true</code></div>
+            <p class="mistake-explain">Without source maps, production errors point to minified, compiled line numbers. With source maps, errors point to your original TypeScript lines — essential for debugging production issues.</p>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t5-bestpractices">
+          <div class="bp-item"><div class="bp-rule">1. Always run <code>tsc --noEmit</code> in CI</div><div class="bp-reason">This is the minimum type-safety gate. No PR should merge with type errors. It's fast and catches the entire class of compile-time bugs before production.</div></div>
+          <div class="bp-item"><div class="bp-rule">2. Use <code>tsx</code> or <code>ts-node</code> for development, compile for production</div><div class="bp-reason">Direct execution tools add startup overhead. In production, always run compiled JavaScript — it's faster and has no extra runtime dependency.</div></div>
+          <div class="bp-item"><div class="bp-rule">3. Enable <code>sourceMap: true</code> in all environments</div><div class="bp-reason">Source maps are free at runtime (loaded only when devtools are open) and invaluable when debugging errors in compiled output.</div></div>
+          <div class="bp-item"><div class="bp-rule">4. Set <code>outDir</code> and <code>rootDir</code> explicitly</div><div class="bp-reason">Without these, TypeScript may compile files into unexpected locations or mix source and output in the same directories. Explicit paths prevent surprises.</div></div>
+          <div class="bp-item"><div class="bp-rule">5. Use <code>declaration: true</code> when building a library</div><div class="bp-reason">Declaration files (<code>.d.ts</code>) let consumers of your library get typed autocomplete even if they don't use TypeScript. Always include them in published packages.</div></div>
+        </div>
+
+        <div class="tab-pane" data-pane="t5-interview">
+          <div class="qa-item">
+            <div class="question">What does the TypeScript compiler do? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">The TypeScript compiler (<code>tsc</code>) does two things: it type-checks your code (verifying that all type annotations are consistent), and it transpiles TypeScript to JavaScript (removing type annotations and downleveling modern syntax to the target version). These steps are independent — <code>--noEmit</code> skips the transpilation and only type-checks.</div>
+          </div>
+          <div class="qa-item">
+            <div class="question">What is <code>tsc --noEmit</code> used for? <span class="difficulty easy">Easy</span></div>
+            <div class="answer"><code>tsc --noEmit</code> runs the full type-checking pipeline but produces no output files. It's used in CI pipelines and editor integrations to verify type correctness without writing anything to disk. It's the cheapest way to ensure your codebase has no type errors — faster than a full build and safe to run in any environment.</div>
+          </div>
+          <div class="qa-item">
+            <div class="question">Why don't tools like Vite and esbuild catch TypeScript errors? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">Vite, esbuild, and SWC use "strip-only" transpilation — they remove TypeScript syntax (annotations, interfaces) purely by text transformation, with no semantic analysis. This is extremely fast but performs zero type checking. You must run <code>tsc --noEmit</code> as a separate step to catch type errors. The two jobs (fast bundling vs correct typing) are deliberately separated in modern toolchains.</div>
+          </div>
+          <div class="qa-item">
+            <div class="question">What are <code>.d.ts</code> declaration files? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">Declaration files (<code>.d.ts</code>) contain only TypeScript type information — no executable code. They describe the API of a JavaScript module in terms of types so TypeScript projects can use the module with full type safety. When you install <code>@types/express</code>, you're installing declaration files for the Express library. When you compile a TypeScript library with <code>declaration: true</code>, <code>tsc</code> generates them automatically alongside the JavaScript output.</div>
+          </div>
+          <div class="qa-item">
+            <div class="question">What is the difference between <code>target</code> and <code>module</code> in tsconfig? <span class="difficulty hard">Hard</span></div>
+            <div class="answer"><code>target</code> controls which JavaScript syntax features tsc outputs — <code>ES5</code> down-levels arrow functions, <code>const</code>, and template literals to ES5 equivalents; <code>ES2022</code> keeps modern syntax intact. <code>module</code> controls how module imports/exports are compiled — <code>CommonJS</code> outputs <code>require()</code> (Node.js default), <code>ESNext</code>/<code>NodeNext</code> outputs <code>import/export</code> statements (ES modules). You can independently target old syntax with modern modules or vice versa.</div>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t5-exercise">
+          <div class="exercise-box"><strong>Goal:</strong> Set up a minimal TypeScript project from scratch and observe the compilation pipeline.</div>
+          <h4>Requirements</h4>
+          <ul>
+            <li>Create a new folder, run <code>npm init -y</code> and <code>npm install -D typescript</code></li>
+            <li>Run <code>npx tsc --init</code> and examine the generated tsconfig.json</li>
+            <li>Create <code>src/index.ts</code> with a typed function that has an intentional type error</li>
+            <li>Run <code>npx tsc --noEmit</code> and observe the error output</li>
+            <li>Fix the error and run <code>npx tsc</code> — examine the generated <code>dist/index.js</code></li>
+          </ul>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">typescript — src/index.ts with intentional error</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="kw">interface</span> <span class="type">Config</span> {
+  host<span class="op">:</span> <span class="type">string</span>;
+  port<span class="op">:</span> <span class="type">number</span>;
+}
+
+<span class="kw">function</span> <span class="fn">connect</span>(config<span class="op">:</span> <span class="type">Config</span>)<span class="op">:</span> <span class="type">string</span> {
+  <span class="kw">return</span> <span class="str">`${config.host}:${config.port}`</span>;
+}
+
+<span class="cm">// Intentional type error — change "3000" to 3000 to fix it</span>
+<span class="fn">connect</span>({ host: <span class="str">"localhost"</span>, port: <span class="str">"3000"</span> });
+<span class="cm">// tsc --noEmit should report: Argument of type 'string' is not assignable to type 'number'</span></code></pre>
+          </div>
+          <div class="hint-box"><strong>Hint:</strong> After running <code>npx tsc</code> successfully, open the generated <code>dist/index.js</code> — the interface is gone and the function has no type annotations. That's what gets executed.</div>
+        </div>
+
+        <div class="tab-pane" data-pane="t5-summary">
+          <ul class="takeaways">
+            <li>TypeScript cannot run directly — it must be compiled to JavaScript first via <code>tsc</code></li>
+            <li>The compiler does two things: type-check and transpile (strip types + downlevel syntax)</li>
+            <li><code>tsc --noEmit</code> type-checks without writing output — the right tool for CI and pre-commit hooks</li>
+            <li>Bundlers like Vite and esbuild do NOT type-check — they only strip types for speed</li>
+            <li>Source maps (<code>sourceMap: true</code>) make production errors traceable to TypeScript source lines</li>
+            <li>Declaration files (<code>.d.ts</code>) let consumers of your library get typed autocomplete</li>
+          </ul>
+          <div class="mental-model">Mental model: tsc is like a building inspector + construction crew in one — it inspects your plans for safety (type-check), then produces the actual building (JavaScript output) once the plans pass review.</div>
+        </div>
+
+      </div>
+    </details>
+
+    <!-- TOPIC 6 PLACEHOLDER -->
+    <details class="topic-panel" id="topic-tsconfig">
+      <summary><span class="chevron">&#9654;</span><span class="topic-name">Setting up tsconfig.json</span><span class="badge intermediate">Intermediate</span></summary>
+      <div class="panel-tabs"><button class="tab active" data-tab="t6-definition">Definition</button><button class="tab" data-tab="t6-why-exists">Why It Exists</button><button class="tab" data-tab="t6-when-use">When to Use</button><button class="tab" data-tab="t6-when-not">When NOT to Use</button><button class="tab" data-tab="t6-internals">How It Works</button><button class="tab" data-tab="t6-syntax">Syntax</button><button class="tab" data-tab="t6-example">Example</button><button class="tab" data-tab="t6-realworld">Real-World</button><button class="tab" data-tab="t6-usecases">Use Cases</button><button class="tab" data-tab="t6-mistakes">Mistakes</button><button class="tab" data-tab="t6-bestpractices">Best Practices</button><button class="tab" data-tab="t6-interview">Interview Qs</button><button class="tab" data-tab="t6-exercise">Exercise</button><button class="tab" data-tab="t6-summary">Summary</button></div>
+      <div class="panel-content">
+
+        <div class="tab-pane active" data-pane="t6-definition">
+          <div class="simple-def">
+            <div class="def-label">Simple Explanation</div>
+            <code>tsconfig.json</code> is the settings file for your TypeScript project. It tells the compiler where to find your source files, what JavaScript version to output, and how strict to be when checking types. Every TypeScript project needs one.
+          </div>
+          <div class="technical-def">
+            <div class="def-label">Technical Explanation</div>
+            <code>tsconfig.json</code> configures the TypeScript compiler's behavior for a project. It specifies compiler options (type-checking strictness, output target, module system, path aliases), the set of files to include or exclude, and can extend base configurations. When <code>tsc</code> runs, it walks up the directory tree from the current working directory to find the nearest <code>tsconfig.json</code>.
+          </div>
+          <p>Running <code>npx tsc --init</code> generates a starter <code>tsconfig.json</code> with every option documented in comments. In practice, you only need 10–15 options for a typical project — the rest can be left at their defaults.</p>
+        </div>
+
+        <div class="tab-pane" data-pane="t6-why-exists">
+          <h4>Why a Config File Is Needed</h4>
+          <p>TypeScript has dozens of compiler options that affect how it checks types and what JavaScript it produces. Without a config file, you'd need to pass all of these as command-line flags every time you run <code>tsc</code>. <code>tsconfig.json</code> captures the project's settings in version control so every developer on the team compiles with identical settings.</p>
+          <p>Different projects have radically different needs: a React frontend targeting modern browsers uses different options than a Node.js API targeting an older runtime, which differs from a library that ships type declarations. The config file is how you express those requirements precisely.</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">bash</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cm"># Without tsconfig.json — you'd need all of this on every tsc call:</span>
+npx tsc src/**/*.ts --target ES2022 --strict --module NodeNext --outDir dist --sourceMap
+
+<span class="cm"># With tsconfig.json — all options captured in one file:</span>
+npx tsc</code></pre>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t6-when-use">
+          <h4>Key Options and When They Matter</h4>
+          <ul>
+            <li><strong><code>strict: true</code></strong> — Always. Enables the full safety net: <code>strictNullChecks</code>, <code>noImplicitAny</code>, <code>strictFunctionTypes</code>, and more. The single most important option.</li>
+            <li><strong><code>target</code></strong> — Set based on your runtime environment. <code>ES2022</code> for modern Node.js or browsers; <code>ES5</code> only if you're targeting ancient browsers.</li>
+            <li><strong><code>module</code> + <code>moduleResolution</code></strong> — <code>NodeNext</code> for modern Node.js ESM, <code>CommonJS</code> for older Node.js, <code>ESNext</code> + <code>Bundler</code> for bundled frontend apps.</li>
+            <li><strong><code>outDir</code> / <code>rootDir</code></strong> — Set these to separate source from compiled output cleanly.</li>
+            <li><strong><code>paths</code></strong> — Configure import aliases like <code>@/lib/utils</code> → <code>./src/lib/utils</code> so you avoid long relative paths.</li>
+            <li><strong><code>lib</code></strong> — Controls which built-in types are available. <code>DOM</code> for browser APIs, <code>ES2022</code> for modern JS globals. Don't include <code>DOM</code> in a pure Node.js project.</li>
+          </ul>
+        </div>
+
+        <div class="tab-pane" data-pane="t6-when-not">
+          <h4>Options to Avoid or Be Careful With</h4>
+          <ul>
+            <li><strong>Don't set <code>strict: false</code></strong> just to reduce initial error count. You'll have a false sense of safety and a painful migration when you eventually enable it.</li>
+            <li><strong>Don't set <code>target: "ES3"</code> or <code>"ES5"</code> unless you genuinely need IE support.</strong> It generates verbose, hard-to-read output and doesn't reflect modern JavaScript.</li>
+            <li><strong>Don't use <code>skipLibCheck: true</code> as a permanent fix.</strong> It silences errors in <code>node_modules</code> declaration files — sometimes necessary temporarily, but investigate the underlying issue.</li>
+            <li><strong>Don't rely on <code>paths</code> alone for import aliases in bundled apps.</strong> TypeScript resolves them for type-checking, but your bundler (Vite, Webpack) needs its own alias config too.</li>
+          </ul>
+        </div>
+
+        <div class="tab-pane" data-pane="t6-internals">
+          <h4>How tsconfig.json Is Resolved</h4>
+          <ol>
+            <li>When you run <code>tsc</code>, it looks in the current directory for <code>tsconfig.json</code>. If not found, it walks up the directory tree until it finds one or reaches the filesystem root.</li>
+            <li>The config can <code>extend</code> another config file — your project config adds or overrides settings from a base. This is how <code>@tsconfig/node20</code>, <code>@tsconfig/strictest</code>, etc. work.</li>
+            <li><code>include</code> and <code>exclude</code> use glob patterns. If neither is specified, TypeScript includes all <code>.ts</code> files in the project directory recursively.</li>
+            <li>The <code>strict</code> flag is a shorthand for enabling: <code>strictNullChecks</code>, <code>noImplicitAny</code>, <code>strictFunctionTypes</code>, <code>strictBindCallApply</code>, <code>strictPropertyInitialization</code>, <code>strictBuiltinIteratorReturn</code>, <code>noImplicitThis</code>, and <code>alwaysStrict</code>.</li>
+          </ol>
+        </div>
+
+        <div class="tab-pane" data-pane="t6-syntax">
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json — annotated tsconfig.json</span><button class="copy-btn">Copy</button></div>
+            <pre><code>{
+  <span class="str">"compilerOptions"</span>: {
+
+    <span class="cm">/* ── Output ───────────────────────────── */</span>
+    <span class="str">"target"</span>: <span class="str">"ES2022"</span>,       <span class="cm">// which JS version to emit</span>
+    <span class="str">"module"</span>: <span class="str">"NodeNext"</span>,      <span class="cm">// module system (import/require)</span>
+    <span class="str">"outDir"</span>: <span class="str">"./dist"</span>,        <span class="cm">// compiled JS goes here</span>
+    <span class="str">"rootDir"</span>: <span class="str">"./src"</span>,        <span class="cm">// source .ts files live here</span>
+
+    <span class="cm">/* ── Type Checking ────────────────────── */</span>
+    <span class="str">"strict"</span>: <span class="bool">true</span>,            <span class="cm">// enable ALL strict checks (do this always)</span>
+    <span class="str">"noUnusedLocals"</span>: <span class="bool">true</span>,    <span class="cm">// error on variables declared but never used</span>
+    <span class="str">"noUnusedParameters"</span>: <span class="bool">true</span>, <span class="cm">// error on function params never used</span>
+    <span class="str">"noImplicitReturns"</span>: <span class="bool">true</span>, <span class="cm">// every code path must explicitly return</span>
+
+    <span class="cm">/* ── Resolution ───────────────────────── */</span>
+    <span class="str">"moduleResolution"</span>: <span class="str">"NodeNext"</span>, <span class="cm">// how imports are resolved</span>
+    <span class="str">"esModuleInterop"</span>: <span class="bool">true</span>,        <span class="cm">// allows default import from CJS modules</span>
+    <span class="str">"resolveJsonModule"</span>: <span class="bool">true</span>,      <span class="cm">// allows import of .json files</span>
+
+    <span class="cm">/* ── Source Maps ──────────────────────── */</span>
+    <span class="str">"sourceMap"</span>: <span class="bool">true</span>,         <span class="cm">// generate .js.map files for debugging</span>
+    <span class="str">"declaration"</span>: <span class="bool">true</span>        <span class="cm">// generate .d.ts files (for libraries)</span>
+  },
+  <span class="str">"include"</span>: [<span class="str">"src/**/*"</span>],   <span class="cm">// compile all .ts files in src/</span>
+  <span class="str">"exclude"</span>: [<span class="str">"node_modules"</span>, <span class="str">"dist"</span>, <span class="str">"**/*.test.ts"</span>]
+}</code></pre>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t6-example">
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json — tsconfig.json for a Vite + React project</span><button class="copy-btn">Copy</button></div>
+            <pre><code>{
+  <span class="str">"compilerOptions"</span>: {
+    <span class="str">"target"</span>: <span class="str">"ES2020"</span>,
+    <span class="str">"lib"</span>: [<span class="str">"ES2020"</span>, <span class="str">"DOM"</span>, <span class="str">"DOM.Iterable"</span>],
+    <span class="str">"module"</span>: <span class="str">"ESNext"</span>,
+    <span class="str">"moduleResolution"</span>: <span class="str">"Bundler"</span>,
+    <span class="str">"jsx"</span>: <span class="str">"react-jsx"</span>,           <span class="cm">// React 17+ JSX transform</span>
+    <span class="str">"strict"</span>: <span class="bool">true</span>,
+    <span class="str">"noEmit"</span>: <span class="bool">true</span>,               <span class="cm">// Vite handles the emit</span>
+    <span class="str">"esModuleInterop"</span>: <span class="bool">true</span>,
+    <span class="str">"skipLibCheck"</span>: <span class="bool">true</span>,         <span class="cm">// skip type-checking node_modules</span>
+    <span class="str">"baseUrl"</span>: <span class="str">"."</span>,
+    <span class="str">"paths"</span>: {
+      <span class="str">"@/*"</span>: [<span class="str">"src/*"</span>]             <span class="cm">// import '@/components/Button'</span>
+    }
+  },
+  <span class="str">"include"</span>: [<span class="str">"src"</span>],
+  <span class="str">"references"</span>: [{ <span class="str">"path"</span>: <span class="str">"./tsconfig.node.json"</span> }]
+}</code></pre>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t6-realworld">
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json — extending a shared base tsconfig (monorepo pattern)</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cm">// packages/tsconfig.base.json — shared across all packages</span>
+{
+  <span class="str">"compilerOptions"</span>: {
+    <span class="str">"strict"</span>: <span class="bool">true</span>,
+    <span class="str">"target"</span>: <span class="str">"ES2022"</span>,
+    <span class="str">"esModuleInterop"</span>: <span class="bool">true</span>,
+    <span class="str">"skipLibCheck"</span>: <span class="bool">true</span>,
+    <span class="str">"forceConsistentCasingInFileNames"</span>: <span class="bool">true</span>,
+    <span class="str">"noUnusedLocals"</span>: <span class="bool">true</span>
+  }
+}
+
+<span class="cm">// apps/api/tsconfig.json — inherits base, adds Node-specific options</span>
+{
+  <span class="str">"extends"</span>: <span class="str">"../../packages/tsconfig.base.json"</span>,
+  <span class="str">"compilerOptions"</span>: {
+    <span class="str">"module"</span>: <span class="str">"NodeNext"</span>,
+    <span class="str">"moduleResolution"</span>: <span class="str">"NodeNext"</span>,
+    <span class="str">"outDir"</span>: <span class="str">"./dist"</span>,
+    <span class="str">"rootDir"</span>: <span class="str">"./src"</span>
+  },
+  <span class="str">"include"</span>: [<span class="str">"src/**/*"</span>]
+}
+
+<span class="cm">// apps/web/tsconfig.json — inherits base, adds browser/React options</span>
+{
+  <span class="str">"extends"</span>: <span class="str">"../../packages/tsconfig.base.json"</span>,
+  <span class="str">"compilerOptions"</span>: {
+    <span class="str">"lib"</span>: [<span class="str">"ES2022"</span>, <span class="str">"DOM"</span>],
+    <span class="str">"jsx"</span>: <span class="str">"react-jsx"</span>,
+    <span class="str">"noEmit"</span>: <span class="bool">true</span>,
+    <span class="str">"module"</span>: <span class="str">"ESNext"</span>,
+    <span class="str">"moduleResolution"</span>: <span class="str">"Bundler"</span>
+  }
+}</code></pre>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t6-usecases">
+          <ul>
+            <li><strong>Monorepos:</strong> A shared base tsconfig extended by each package ensures consistent settings without duplication, while each package can override what it needs.</li>
+            <li><strong>Import path aliases:</strong> The <code>paths</code> option eliminates <code>../../..</code> imports — write <code>@/lib/utils</code> from anywhere in the project.</li>
+            <li><strong>Targeting legacy browsers:</strong> Set <code>target: "ES5"</code> and <code>lib: ["ES5", "DOM"]</code> to emit syntax that works in Internet Explorer.</li>
+            <li><strong>Separate configs for tests:</strong> A <code>tsconfig.test.json</code> that includes test files and relaxes some strict rules (e.g., <code>noUnusedLocals: false</code>) keeps the production config tight while allowing test patterns.</li>
+            <li><strong>Library authoring:</strong> Set <code>declaration: true</code>, <code>declarationMap: true</code>, and <code>composite: true</code> to produce publishable type declarations with source map support.</li>
+          </ul>
+        </div>
+
+        <div class="tab-pane" data-pane="t6-mistakes">
+          <div class="mistake-item">
+            <div class="mistake-label">Mistake 1 — Not committing tsconfig.json to version control</div>
+            <p class="mistake-explain"><code>tsconfig.json</code> defines how the project is compiled. If it's in <code>.gitignore</code>, different developers compile with different settings — leading to bugs that appear on one machine but not another. Always commit it.</p>
+          </div>
+          <div class="mistake-item">
+            <div class="mistake-label">Mistake 2 — Setting <code>noEmit: true</code> in a Node.js project that needs compiled JS</div>
+            <div class="code-label label-wrong">Wrong</div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">json</span><button class="copy-btn">Copy</button></div>
+              <pre><code>{ <span class="str">"noEmit"</span>: <span class="bool">true</span> } <span class="cm">// tsc produces no output — Node.js can't run anything</span></code></pre>
+            </div>
+            <div class="code-label label-correct">Correct</div>
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">json</span><button class="copy-btn">Copy</button></div>
+              <pre><code><span class="cm">// For a Node.js API that deploys compiled JS:</span>
+{ <span class="str">"outDir"</span>: <span class="str">"./dist"</span> } <span class="cm">// omit noEmit; tsc will emit to dist/</span></code></pre>
+            </div>
+            <p class="mistake-explain"><code>noEmit: true</code> is for frontend projects where the bundler handles output. Node.js APIs that deploy compiled JavaScript need <code>outDir</code> set and <code>noEmit</code> absent.</p>
+          </div>
+          <div class="mistake-item">
+            <div class="mistake-label">Mistake 3 — Mismatching <code>module</code> and <code>moduleResolution</code></div>
+            <p class="mistake-explain">In modern TypeScript, <code>module</code> and <code>moduleResolution</code> should be paired: <code>NodeNext</code>/<code>NodeNext</code>, <code>ESNext</code>/<code>Bundler</code>, or <code>CommonJS</code>/<code>Node</code>. Mixing them (e.g., <code>module: ESNext</code> + <code>moduleResolution: Node</code>) causes cryptic import errors that are hard to trace.</p>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t6-bestpractices">
+          <div class="bp-item"><div class="bp-rule">1. Always set <code>strict: true</code> — it's the most important option</div><div class="bp-reason">It enables 8+ individual checks that catch the most common bugs. Start every project with it; never remove it.</div></div>
+          <div class="bp-item"><div class="bp-rule">2. Set <code>rootDir</code> and <code>outDir</code> explicitly</div><div class="bp-reason">Prevents compiled files from appearing in your source directory and makes the project structure predictable for every developer on the team.</div></div>
+          <div class="bp-item"><div class="bp-rule">3. Use <code>extends</code> in monorepos to share a base config</div><div class="bp-reason">A shared <code>tsconfig.base.json</code> ensures consistent strictness across all packages without copy-pasting the same options everywhere.</div></div>
+          <div class="bp-item"><div class="bp-rule">4. Keep <code>include</code> explicit — don't compile everything by accident</div><div class="bp-reason">Without an <code>include</code> array, TypeScript includes all <code>.ts</code> files recursively, including test utilities, scripts, and temporary files you don't want in production builds.</div></div>
+          <div class="bp-item"><div class="bp-rule">5. Add <code>noUnusedLocals</code> and <code>noImplicitReturns</code> for cleaner code</div><div class="bp-reason">These are not part of <code>strict</code> but they catch dead code and missing returns — both common sources of bugs. Add them once your codebase is clean enough to handle them.</div></div>
+        </div>
+
+        <div class="tab-pane" data-pane="t6-interview">
+          <div class="qa-item">
+            <div class="question">What is tsconfig.json and why does a TypeScript project need one? <span class="difficulty easy">Easy</span></div>
+            <div class="answer"><code>tsconfig.json</code> is the TypeScript compiler's configuration file. It specifies which files to compile, what JavaScript version to target, how strict the type-checking should be, and dozens of other options. Without it, you'd have to pass every option as a command-line flag. With it, the project's compilation settings are captured in version control and shared across the entire team.</div>
+          </div>
+          <div class="qa-item">
+            <div class="question">What does <code>strict: true</code> enable? <span class="difficulty easy">Easy</span></div>
+            <div class="answer"><code>strict: true</code> is shorthand for enabling a bundle of individual checks: <code>strictNullChecks</code> (prevents null/undefined access), <code>noImplicitAny</code> (errors on parameters without explicit types), <code>strictFunctionTypes</code>, <code>strictPropertyInitialization</code>, <code>noImplicitThis</code>, and others. It's the single most important option — without it, TypeScript misses the most common bugs.</div>
+          </div>
+          <div class="qa-item">
+            <div class="question">What is the difference between <code>include</code>, <code>exclude</code>, and <code>files</code> in tsconfig? <span class="difficulty medium">Medium</span></div>
+            <div class="answer"><code>include</code> specifies glob patterns for files to compile. <code>exclude</code> specifies patterns to skip (defaults to <code>node_modules</code>, <code>outDir</code>). <code>files</code> lists individual files explicitly. If none are specified, TypeScript includes all <code>.ts</code> files recursively. In practice, <code>include: ["src/**/*"]</code> is the most common pattern — it compiles everything in <code>src/</code> and nothing outside it.</div>
+          </div>
+          <div class="qa-item">
+            <div class="question">How does <code>extends</code> work in tsconfig.json? <span class="difficulty medium">Medium</span></div>
+            <div class="answer"><code>extends</code> lets one tsconfig inherit settings from another. The child config's options override the parent's. This is heavily used in monorepos — a <code>tsconfig.base.json</code> at the root defines shared settings (strict, target, esModuleInterop), and each package's tsconfig extends it and adds package-specific settings (outDir, module, jsx). Community packages like <code>@tsconfig/node20</code> provide opinionated base configs you can extend.</div>
+          </div>
+          <div class="qa-item">
+            <div class="question">What's the difference between <code>target</code> ES2015 and ES2022 in practical terms? <span class="difficulty hard">Hard</span></div>
+            <div class="answer"><code>target</code> controls which JavaScript features tsc down-levels in the output. With <code>ES2015</code>, TypeScript transforms arrow functions, <code>const</code>/<code>let</code>, template literals, and classes into ES5 equivalents. With <code>ES2022</code>, TypeScript assumes the runtime supports modern features natively — arrow functions, optional chaining, nullish coalescing, and class fields are emitted as-is without transformation. This produces cleaner, smaller output and runs faster. Use ES2022 or higher for modern Node.js (18+) and evergreen browsers.</div>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="t6-exercise">
+          <div class="exercise-box"><strong>Goal:</strong> Configure tsconfig.json correctly for two different project types and observe the differences.</div>
+          <h4>Requirements</h4>
+          <ul>
+            <li>Create two folders: <code>node-api/</code> and <code>web-app/</code>, each with their own <code>tsconfig.json</code></li>
+            <li>Configure the node-api tsconfig for Node.js 20 (target ES2022, module NodeNext, outDir dist)</li>
+            <li>Configure the web-app tsconfig for Vite/React (target ES2020, lib DOM, jsx react-jsx, noEmit true)</li>
+            <li>Create a <code>src/index.ts</code> in each with a simple typed function</li>
+            <li>Run <code>npx tsc --noEmit</code> in each directory — confirm both pass with no errors</li>
+          </ul>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json — node-api/tsconfig.json starter</span><button class="copy-btn">Copy</button></div>
+            <pre><code>{
+  <span class="str">"compilerOptions"</span>: {
+    <span class="str">"target"</span>: <span class="str">"ES2022"</span>,
+    <span class="str">"module"</span>: <span class="str">"NodeNext"</span>,
+    <span class="str">"moduleResolution"</span>: <span class="str">"NodeNext"</span>,
+    <span class="str">"outDir"</span>: <span class="str">"./dist"</span>,
+    <span class="str">"rootDir"</span>: <span class="str">"./src"</span>,
+    <span class="str">"strict"</span>: <span class="bool">true</span>,
+    <span class="str">"sourceMap"</span>: <span class="bool">true</span>
+  },
+  <span class="str">"include"</span>: [<span class="str">"src/**/*"</span>]
+}</code></pre>
+          </div>
+          <div class="hint-box"><strong>Hint:</strong> In the web-app tsconfig, add <code>"lib": ["ES2020", "DOM"]</code> and <code>"jsx": "react-jsx"</code> — without <code>DOM</code> in lib, TypeScript won't know about <code>window</code>, <code>document</code>, or any browser APIs.</div>
+        </div>
+
+        <div class="tab-pane" data-pane="t6-summary">
+          <ul class="takeaways">
+            <li><code>tsconfig.json</code> is the compiler's settings file — it controls what gets compiled, how strict the checks are, and what JavaScript is emitted</li>
+            <li><code>strict: true</code> is the single most important option — always enable it from the start</li>
+            <li><code>target</code> controls the JavaScript version of the output; <code>module</code> controls the module system</li>
+            <li><code>extends</code> lets configs inherit from a base — use this in monorepos to share settings without duplication</li>
+            <li><code>noEmit: true</code> is for frontend apps where bundlers handle output; Node.js APIs need <code>outDir</code> instead</li>
+            <li>Always commit <code>tsconfig.json</code> to version control — it's part of the project's build contract</li>
+          </ul>
+          <div class="mental-model">Mental model: tsconfig.json is the blueprint for your TypeScript build — it describes exactly what materials to use (source files), what code to follow (strictness), and what the finished product should look like (target, module, outDir).</div>
+        </div>
+
+      </div>
+    </details>
+
+  </div><!-- end .topic-panels -->
+
+  <div class="mini-project" id="mini-project">
+    <h3>&#9881; Mini Project: CLI Calculator</h3>
+    <p style="color:var(--text-muted);line-height:1.75;margin-bottom:1rem;">
+      Build a command-line calculator in TypeScript. This project ties together every concept from Module 1:
+      you'll set up a real <code>tsconfig.json</code>, use static types throughout, understand what the compiler
+      produces, and experience firsthand how TypeScript catches mistakes before you run the code.
+    </p>
+
+    <h4>What You'll Build</h4>
+    <ul>
+      <li>A <code>calculate(a, operator, b)</code> function with fully typed parameters and return type</li>
+      <li>Support for <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code> and <code>%</code> operators using a union type</li>
+      <li>Division-by-zero handling that returns a typed error result rather than throwing</li>
+      <li>A command-line entry point that reads arguments from <code>process.argv</code> with proper types</li>
+      <li>A history feature that stores past calculations in a typed array</li>
+    </ul>
+
+    <h4>TypeScript Concepts Used</h4>
+    <ul>
+      <li><strong>Static Typing</strong> — every parameter and return value explicitly typed</li>
+      <li><strong>Union Types</strong> — <code>Operator</code> type limits valid operators at compile time</li>
+      <li><strong>Discriminated union result</strong> — <code>&#123; ok: true; value: number &#125; | &#123; ok: false; error: string &#125;</code></li>
+      <li><strong>tsconfig.json</strong> — configure for Node.js with strict mode and sourceMap</li>
+      <li><strong>Compilation</strong> — run <code>tsc</code>, inspect the output, run with Node.js</li>
+    </ul>
+
+    <h4>Starter Code</h4>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">typescript — src/calculator.ts</span><button class="copy-btn">Copy</button></div>
+      <pre><code><span class="cm">// TODO 1: Define the Operator union type</span>
+<span class="kw">type</span> <span class="type">Operator</span> <span class="op">=</span> <span class="cm">/* '+' | '-' | ... */</span>;
+
+<span class="cm">// TODO 2: Define the result type — success or failure</span>
+<span class="kw">type</span> <span class="type">CalcResult</span> <span class="op">=</span>
+  | { ok<span class="op">:</span> <span class="bool">true</span>;  value<span class="op">:</span> <span class="type">number</span> }
+  | { ok<span class="op">:</span> <span class="bool">false</span>; error<span class="op">:</span> <span class="type">string</span> };
+
+<span class="cm">// TODO 3: Implement the calculate function</span>
+<span class="kw">export function</span> <span class="fn">calculate</span>(a<span class="op">:</span> <span class="type">number</span>, op<span class="op">:</span> <span class="type">Operator</span>, b<span class="op">:</span> <span class="type">number</span>)<span class="op">:</span> <span class="type">CalcResult</span> {
+  <span class="kw">switch</span> (op) {
+    <span class="kw">case</span> <span class="str">'+'</span>: <span class="kw">return</span> { ok: <span class="bool">true</span>, value: a + b };
+    <span class="kw">case</span> <span class="str">'-'</span>: <span class="kw">return</span> { ok: <span class="bool">true</span>, value: a - b };
+    <span class="cm">// TODO: implement *, /, %</span>
+    <span class="cm">// TODO: handle division by zero — return { ok: false, error: '...' }</span>
+    <span class="kw">default</span>: {
+      <span class="kw">const</span> exhaustive<span class="op">:</span> <span class="type">never</span> <span class="op">=</span> op;
+      <span class="kw">return</span> { ok: <span class="bool">false</span>, error: <span class="str">`Unknown operator: ${exhaustive}`</span> };
+    }
+  }
+}
+
+<span class="cm">// TODO 4: Define a HistoryEntry type and history array</span>
+<span class="kw">interface</span> <span class="type">HistoryEntry</span> {
+  a<span class="op">:</span> <span class="type">number</span>; op<span class="op">:</span> <span class="type">Operator</span>; b<span class="op">:</span> <span class="type">number</span>; result<span class="op">:</span> <span class="type">CalcResult</span>; timestamp<span class="op">:</span> <span class="type">string</span>;
+}
+
+<span class="kw">const</span> history<span class="op">:</span> <span class="type">HistoryEntry</span>[] <span class="op">=</span> [];
+
+<span class="kw">export function</span> <span class="fn">calculateAndRecord</span>(a<span class="op">:</span> <span class="type">number</span>, op<span class="op">:</span> <span class="type">Operator</span>, b<span class="op">:</span> <span class="type">number</span>)<span class="op">:</span> <span class="type">CalcResult</span> {
+  <span class="kw">const</span> result <span class="op">=</span> <span class="fn">calculate</span>(a, op, b);
+  history.<span class="fn">push</span>({ a, op, b, result, timestamp: <span class="kw">new</span> <span class="fn">Date</span>().<span class="fn">toISOString</span>() });
+  <span class="kw">return</span> result;
+}
+
+<span class="kw">export function</span> <span class="fn">getHistory</span>()<span class="op">:</span> <span class="type">HistoryEntry</span>[] { <span class="kw">return</span> history; }</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">typescript — src/index.ts (CLI entry point)</span><button class="copy-btn">Copy</button></div>
+      <pre><code><span class="kw">import</span> { calculateAndRecord, getHistory } <span class="kw">from</span> <span class="str">'./calculator.js'</span>;
+
+<span class="cm">// TODO 5: Parse process.argv and call calculateAndRecord</span>
+<span class="cm">// argv[2] = "10", argv[3] = "+", argv[4] = "5"</span>
+<span class="kw">const</span> [,, rawA, op, rawB] <span class="op">=</span> process.argv;
+
+<span class="kw">if</span> (!rawA || !op || !rawB) {
+  console.<span class="fn">error</span>(<span class="str">'Usage: calc &lt;number&gt; &lt;operator&gt; &lt;number&gt;'</span>);
+  process.<span class="fn">exit</span>(<span class="num">1</span>);
+}
+
+<span class="kw">const</span> a <span class="op">=</span> <span class="fn">parseFloat</span>(rawA);
+<span class="kw">const</span> b <span class="op">=</span> <span class="fn">parseFloat</span>(rawB);
+
+<span class="cm">// TODO 6: Validate that op is a valid Operator — type assertion needed here</span>
+<span class="cm">// const validOps = ['+', '-', '*', '/', '%'] as const;</span>
+
+<span class="kw">const</span> result <span class="op">=</span> <span class="fn">calculateAndRecord</span>(a, op <span class="kw">as</span> <span class="kw">any</span>, b); <span class="cm">// TODO: replace 'any' with proper validation</span>
+
+<span class="kw">if</span> (result.ok) {
+  console.<span class="fn">log</span>(<span class="str">`${a} ${op} ${b} = ${result.value}`</span>);
+} <span class="kw">else</span> {
+  console.<span class="fn">error</span>(<span class="str">`Error: ${result.error}`</span>);
+}</code></pre>
+    </div>
+
+    <h4>Step-by-Step Build Instructions</h4>
+    <ol>
+      <li>Create the project: <code>mkdir ts-calculator &amp;&amp; cd ts-calculator &amp;&amp; npm init -y</code></li>
+      <li>Install TypeScript: <code>npm install -D typescript @types/node</code></li>
+      <li>Generate tsconfig: <code>npx tsc --init</code> — then set <code>target: "ES2022"</code>, <code>module: "NodeNext"</code>, <code>moduleResolution: "NodeNext"</code>, <code>outDir: "./dist"</code>, <code>strict: true</code></li>
+      <li>Create <code>src/calculator.ts</code> with the <code>calculate</code> and <code>calculateAndRecord</code> functions</li>
+      <li>Create <code>src/index.ts</code> with the CLI entry point</li>
+      <li>Run <code>npx tsc --noEmit</code> to type-check — fix any errors</li>
+      <li>Run <code>npx tsc</code> to compile — inspect <code>dist/calculator.js</code> to see what TypeScript emitted</li>
+      <li>Run: <code>node dist/index.js 10 + 5</code> — should output <code>10 + 5 = 15</code></li>
+      <li>Test edge cases: <code>node dist/index.js 10 / 0</code> — should output the error message</li>
+    </ol>
+
+    <h4>Stretch Goals</h4>
+    <div class="stretch-goal">
+      <p>1. <strong>Add a REPL mode:</strong> Use Node.js <code>readline</code> to read expressions interactively — keep a running history and print it with the <code>history</code> command.</p>
+      <p>2. <strong>Validate operator at runtime:</strong> Replace the <code>as any</code> cast with a proper runtime check using a type guard function <code>isOperator(x: string): x is Operator</code>.</p>
+      <p>3. <strong>Export a typed library:</strong> Set <code>declaration: true</code> in tsconfig, run <code>tsc</code>, and inspect the generated <code>.d.ts</code> file — this is what a published npm package ships.</p>
+    </div>
+  </div>
+
+</section>
+</main>
+</div>
+
+<button id="back-to-top" title="Back to top">&#8593;</button>
+
+<script>
+// Progress bar
+const bar = document.getElementById('progress-bar');
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+  bar.style.width = pct + '%';
+});
+
+// Back to top
+const btt = document.getElementById('back-to-top');
+window.addEventListener('scroll', () => {
+  btt.classList.toggle('visible', window.scrollY > 400);
+});
+btt.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+// Copy buttons
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const code = btn.closest('.code-block').querySelector('code');
+    navigator.clipboard.writeText(code.innerText).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+    });
+  });
+});
+
+// Tab switching inside panels
+document.querySelectorAll('.topic-panel').forEach(panel => {
+  panel.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const pane = tab.dataset.tab;
+      panel.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      panel.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      panel.querySelector(`[data-pane="${pane}"]`).classList.add('active');
+    });
+  });
+});
+
+// Module checkbox persistence
+document.querySelectorAll('.module-check').forEach(cb => {
+  const id = cb.dataset.id;
+  if (localStorage.getItem('done-' + id) === '1') {
+    cb.checked = true;
+    cb.closest('.module').classList.add('completed');
+  }
+  cb.addEventListener('change', () => {
+    localStorage.setItem('done-' + id, cb.checked ? '1' : '0');
+    cb.closest('.module').classList.toggle('completed', cb.checked);
+  });
+});
+
+// Topic search
+document.getElementById('topicSearch').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('.topic-panel').forEach(panel => {
+    const name = panel.querySelector('.topic-name').textContent.toLowerCase();
+    panel.style.display = name.includes(q) ? '' : 'none';
+  });
+});
+
+// Sidebar scroll-spy
+const navLinks = document.querySelectorAll('#module-nav a[href^="#topic"]');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const link = document.querySelector(`#module-nav a[href="#${e.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { threshold: 0.3 });
+document.querySelectorAll('.topic-panel[id]').forEach(el => observer.observe(el));
+
+// Smooth sidebar nav clicks
+navLinks.forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(link.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+</body>
+</html>

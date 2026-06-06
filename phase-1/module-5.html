@@ -1,0 +1,2110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phase 1 — Module 5: Functions | TypeScript Learning Path</title>
+  <style>
+    :root {
+      --bg:            #0f1117;
+      --bg-card:       #1a1f2e;
+      --bg-code:       #1e2433;
+      --border:        #2d3748;
+      --text:          #e2e8f0;
+      --text-muted:    #94a3b8;
+      --accent:        #3b82f6;
+      --accent-hover:  #2563eb;
+      --success:       #10b981;
+      --warning:       #f59e0b;
+      --error:         #ef4444;
+      --sidebar-width: 260px;
+      --header-height: 56px;
+      --radius:        8px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 15px; line-height: 1.7; }
+
+    /* Progress bar */
+    #progress-bar {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: var(--accent); z-index: 9999; transition: width 0.1s linear;
+    }
+
+    /* Header */
+    #site-header {
+      position: fixed; top: 3px; left: 0; right: 0; height: var(--header-height);
+      background: rgba(15,17,23,0.95); backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border); z-index: 1000;
+      display: flex; align-items: center; padding: 0 24px;
+    }
+    #site-header h1 { font-size: 1.1rem; color: var(--text); font-weight: 600; }
+    #site-header .phase-badge {
+      background: var(--accent); color: #fff; font-size: 0.72rem; font-weight: 700;
+      padding: 2px 8px; border-radius: 999px; margin-right: 10px; letter-spacing: 0.04em;
+    }
+
+    /* Layout */
+    #layout {
+      display: flex;
+      padding-top: calc(var(--header-height) + 3px);
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    #sidebar {
+      width: var(--sidebar-width); flex-shrink: 0;
+      position: sticky; top: calc(var(--header-height) + 3px);
+      height: calc(100vh - var(--header-height) - 3px);
+      overflow-y: auto; overflow-x: hidden;
+      background: var(--bg-card); border-right: 1px solid var(--border);
+      padding: 16px 12px;
+    }
+    #sidebar::-webkit-scrollbar { width: 4px; }
+    #sidebar::-webkit-scrollbar-track { background: transparent; }
+    #sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    #topicSearch {
+      width: 100%; background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); padding: 7px 10px; border-radius: var(--radius);
+      font-size: 0.82rem; margin-bottom: 14px; outline: none;
+    }
+    #topicSearch:focus { border-color: var(--accent); }
+    #module-nav { list-style: none; }
+    #module-nav li { margin-bottom: 2px; }
+    #module-nav a {
+      display: block; color: var(--text-muted); text-decoration: none;
+      font-size: 0.83rem; padding: 5px 8px; border-radius: 5px;
+      transition: background 0.15s, color 0.15s;
+    }
+    #module-nav a:hover, #module-nav a.active {
+      background: rgba(59,130,246,0.12); color: var(--accent);
+    }
+    .nav-section-label {
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--text-muted); padding: 8px 8px 4px;
+    }
+
+    /* Main content */
+    #content { flex: 1; max-width: 900px; padding: 32px 40px 80px; }
+
+    /* Module */
+    .module { margin-bottom: 56px; }
+    .module-header {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+    }
+    .module-header label { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .module-check { width: 18px; height: 18px; accent-color: var(--success); cursor: pointer; flex-shrink: 0; }
+    .module-header h2 { font-size: 1.5rem; font-weight: 700; color: var(--text); }
+    .module.completed .module-header h2 { text-decoration: line-through; color: var(--text-muted); }
+    .module.completed .done-badge {
+      display: inline-block; background: rgba(16,185,129,0.15); color: var(--success);
+      font-size: 0.75rem; padding: 2px 8px; border-radius: 999px; font-weight: 600;
+    }
+    .done-badge { display: none; }
+    .module-intro { color: var(--text-muted); margin-bottom: 20px; font-size: 0.95rem; }
+
+    /* Topics table */
+    .topics-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 0.88rem; }
+    .topics-table th {
+      background: var(--bg-card); color: var(--text-muted); font-weight: 600;
+      text-align: left; padding: 8px 12px; border: 1px solid var(--border);
+      font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .topics-table td { padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; }
+    .topics-table tr:nth-child(even) td { background: rgba(26,31,46,0.5); }
+
+    /* Topic panels */
+    .topic-panels { display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; }
+    .topic-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .topic-panel > summary {
+      display: flex; align-items: center; gap: 10px; padding: 13px 16px;
+      cursor: pointer; list-style: none; user-select: none;
+      transition: background 0.15s;
+    }
+    .topic-panel > summary::-webkit-details-marker { display: none; }
+    .topic-panel > summary:hover { background: rgba(59,130,246,0.06); }
+    .topic-panel[open] > summary { border-bottom: 1px solid var(--border); }
+    .panel-arrow {
+      width: 18px; height: 18px; flex-shrink: 0; color: var(--text-muted);
+      transition: transform 0.2s;
+    }
+    .topic-panel[open] .panel-arrow { transform: rotate(90deg); }
+    .topic-name { font-weight: 600; font-size: 0.95rem; flex: 1; }
+
+    /* Badges */
+    .badge {
+      font-size: 0.7rem; font-weight: 700; padding: 2px 8px;
+      border-radius: 999px; letter-spacing: 0.04em;
+    }
+    .badge.beginner { background: rgba(16,185,129,0.15); color: var(--success); }
+    .badge.intermediate { background: rgba(245,158,11,0.15); color: var(--warning); }
+    .badge.advanced { background: rgba(239,68,68,0.15); color: var(--error); }
+
+    /* Panel tabs */
+    .panel-tabs {
+      display: flex; flex-wrap: wrap; gap: 4px; padding: 10px 16px;
+      border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.15);
+    }
+    .tab {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--text-muted); padding: 4px 10px; border-radius: 5px;
+      font-size: 0.75rem; cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    }
+    .tab:hover { border-color: var(--accent); color: var(--accent); }
+    .tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    /* Panel content */
+    .panel-content { padding: 20px 20px 16px; }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    .tab-pane h4 { font-size: 0.88rem; font-weight: 700; color: var(--accent); margin: 18px 0 6px; }
+    .tab-pane h4:first-child { margin-top: 0; }
+    .tab-pane p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 10px; }
+    .tab-pane ul, .tab-pane ol { padding-left: 20px; margin-bottom: 10px; }
+    .tab-pane li { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 4px; }
+    .tab-pane strong { color: var(--text); }
+
+    /* Code blocks */
+    .code-block { background: var(--bg-code); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin: 10px 0; }
+    .code-header { display: flex; align-items: center; justify-content: space-between; padding: 6px 12px; background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--border); }
+    .code-lang { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .copy-btn {
+      background: transparent; border: 1px solid var(--border); color: var(--text-muted);
+      padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .copy-btn.copied { border-color: var(--success); color: var(--success); }
+    .code-block pre { overflow-x: auto; padding: 14px 16px; }
+    .code-block code { font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; font-size: 0.83rem; line-height: 1.6; white-space: pre; }
+
+    /* Syntax highlighting */
+    .kw { color: #c678dd; }
+    .ty { color: #e5c07b; }
+    .fn { color: #61afef; }
+    .str { color: #98c379; }
+    .num { color: #d19a66; }
+    .cm { color: #5c6370; font-style: italic; }
+    .op { color: #56b6c2; }
+    .param { color: #e06c75; }
+
+    /* Interview Q&A */
+    .qa-block { background: rgba(59,130,246,0.05); border-left: 3px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 12px 16px; margin-bottom: 12px; }
+    .qa-q { font-weight: 700; color: var(--text); font-size: 0.88rem; margin-bottom: 6px; }
+    .qa-difficulty { font-size: 0.7rem; font-weight: 700; padding: 1px 6px; border-radius: 999px; margin-left: 6px; }
+    .qa-difficulty.easy { background: rgba(16,185,129,0.15); color: var(--success); }
+    .qa-difficulty.medium { background: rgba(245,158,11,0.15); color: var(--warning); }
+    .qa-difficulty.hard { background: rgba(239,68,68,0.15); color: var(--error); }
+    .qa-a { color: var(--text-muted); font-size: 0.87rem; }
+
+    /* Mistake blocks */
+    .mistake-block { margin-bottom: 16px; }
+    .mistake-label { font-weight: 700; color: var(--text); font-size: 0.88rem; margin-bottom: 6px; }
+
+    /* Practice challenge */
+    .challenge-box {
+      background: rgba(59,130,246,0.06); border: 1px solid rgba(59,130,246,0.3);
+      border-radius: var(--radius); padding: 16px;
+    }
+    .challenge-box .goal { font-size: 0.9rem; color: var(--text); margin-bottom: 10px; }
+    .challenge-box .hint { font-size: 0.83rem; color: var(--warning); margin-top: 8px; }
+
+    /* Key takeaways */
+    .takeaways { list-style: none; padding: 0; }
+    .takeaways li { padding: 6px 0 6px 24px; position: relative; color: var(--text-muted); font-size: 0.88rem; border-bottom: 1px solid rgba(45,55,72,0.5); }
+    .takeaways li:last-child { border-bottom: none; }
+    .takeaways li::before { content: '→'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+    .mental-model { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); border-radius: var(--radius); padding: 12px 16px; margin-top: 12px; font-size: 0.87rem; color: var(--success); }
+
+    /* Mini project */
+    .mini-project { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-top: 8px; }
+    .mini-project h3 { font-size: 1.15rem; font-weight: 700; color: var(--accent); margin-bottom: 14px; }
+    .mini-project h4 { font-size: 0.88rem; font-weight: 700; color: var(--text); margin: 14px 0 6px; }
+    .mini-project p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 8px; }
+    .mini-project ul, .mini-project ol { padding-left: 20px; }
+    .mini-project li { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 4px; }
+
+    /* Back to top */
+    #back-to-top {
+      position: fixed; bottom: 28px; right: 28px;
+      background: var(--accent); color: #fff; border: none;
+      width: 40px; height: 40px; border-radius: 50%; font-size: 1.1rem;
+      cursor: pointer; display: none; align-items: center; justify-content: center;
+      box-shadow: 0 4px 12px rgba(59,130,246,0.4); transition: background 0.15s, transform 0.15s;
+      z-index: 500;
+    }
+    #back-to-top:hover { background: var(--accent-hover); transform: translateY(-2px); }
+    #back-to-top.visible { display: flex; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      #sidebar { display: none; }
+      #content { padding: 20px 16px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<header id="site-header">
+  <span class="phase-badge">Phase 1</span>
+  <h1>Module 5 — Functions</h1>
+</header>
+
+<div id="layout">
+
+  <nav id="sidebar">
+    <input type="text" id="topicSearch" placeholder="Search topics…" />
+    <div class="nav-section-label">Topics</div>
+    <ul id="module-nav">
+      <li><a href="#topic-function-types">Function Types</a></li>
+      <li><a href="#topic-optional-params">Optional Parameters</a></li>
+      <li><a href="#topic-default-params">Default Parameters</a></li>
+      <li><a href="#topic-rest-params">Rest Parameters</a></li>
+      <li><a href="#topic-return-types">Return Types</a></li>
+      <li><a href="#mini-project">Mini-Project</a></li>
+    </ul>
+  </nav>
+
+  <main id="content">
+    <section id="module-5" class="module">
+
+      <div class="module-header">
+        <label>
+          <input type="checkbox" class="module-check" data-id="module-5" />
+          <h2>Module 5: Functions</h2>
+        </label>
+        <span class="done-badge">✓ Done</span>
+      </div>
+      <p class="module-intro">
+        Functions are the workhorses of any TypeScript application. This module covers how TypeScript brings type safety to every dimension of a function — its parameters, defaults, variadic arguments, and return values. By the end, you will write functions whose contracts are explicit, self-documenting, and enforced by the compiler, catching an entire category of bugs before they reach runtime.
+      </p>
+
+      <table class="topics-table">
+        <thead>
+          <tr>
+            <th>Topic</th>
+            <th>What You'll Learn</th>
+            <th>Difficulty</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Function Types</strong></td>
+            <td>How to type function variables, callbacks, and higher-order functions</td>
+            <td><span class="badge beginner">Beginner</span></td>
+          </tr>
+          <tr>
+            <td><strong>Optional Parameters</strong></td>
+            <td>Marking parameters as not-required and safely handling their absence</td>
+            <td><span class="badge beginner">Beginner</span></td>
+          </tr>
+          <tr>
+            <td><strong>Default Parameters</strong></td>
+            <td>Providing fallback values for parameters not supplied by the caller</td>
+            <td><span class="badge beginner">Beginner</span></td>
+          </tr>
+          <tr>
+            <td><strong>Rest Parameters</strong></td>
+            <td>Accepting a variable number of arguments as a typed array</td>
+            <td><span class="badge intermediate">Intermediate</span></td>
+          </tr>
+          <tr>
+            <td><strong>Return Types</strong></td>
+            <td>Annotating and enforcing the type a function promises to return</td>
+            <td><span class="badge intermediate">Intermediate</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <!-- TOPIC 1: Function Types                                     -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <div class="topic-panels">
+
+        <details class="topic-panel" id="topic-function-types">
+          <summary>
+            <svg class="panel-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            <span class="topic-name">Function Types</span>
+            <span class="badge beginner">Beginner</span>
+          </summary>
+
+          <div class="panel-tabs">
+            <button class="tab active" data-tab="ft-def">Definition</button>
+            <button class="tab" data-tab="ft-why">Why It Exists</button>
+            <button class="tab" data-tab="ft-when">When to Use</button>
+            <button class="tab" data-tab="ft-notwhen">When NOT to Use</button>
+            <button class="tab" data-tab="ft-internals">How It Works</button>
+            <button class="tab" data-tab="ft-syntax">Syntax</button>
+            <button class="tab" data-tab="ft-example">Example</button>
+            <button class="tab" data-tab="ft-real">Real-World</button>
+            <button class="tab" data-tab="ft-usecases">Use Cases</button>
+            <button class="tab" data-tab="ft-mistakes">Mistakes</button>
+            <button class="tab" data-tab="ft-bp">Best Practices</button>
+            <button class="tab" data-tab="ft-interview">Interview Qs</button>
+            <button class="tab" data-tab="ft-exercise">Exercise</button>
+            <button class="tab" data-tab="ft-summary">Summary</button>
+          </div>
+
+          <div class="panel-content">
+
+            <div class="tab-pane active" data-pane="ft-def">
+              <h4>Simple Explanation</h4>
+              <p>A function type tells TypeScript exactly what kinds of values a function accepts and what it gives back. Think of it like a job contract — it specifies what inputs are required and what output is promised.</p>
+              <h4>Technical Explanation</h4>
+              <p>A function type in TypeScript is a type annotation that describes the <em>signature</em> of a function — its parameter types and return type. TypeScript uses structural typing to verify that any function assigned to a typed variable matches the expected shape. This is a purely compile-time construct; all annotations are erased in the JavaScript output.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="ft-why">
+              <h4>The Problem Without Function Types</h4>
+              <p>In JavaScript, you can pass any function anywhere. If you write a utility that expects a comparator <code>(a, b) =&gt; number</code>, nothing stops you from accidentally passing <code>(name) =&gt; name.toUpperCase()</code>. The bug only surfaces at runtime — often in production.</p>
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">javascript</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="cm">// JavaScript — bug at runtime, no warning</span>
+<span class="kw">function</span> <span class="fn">sortUsers</span>(arr, compareFn) {
+  <span class="kw">return</span> arr.sort(compareFn);
+}
+<span class="fn">sortUsers</span>([<span class="num">3</span>,<span class="num">1</span>,<span class="num">2</span>], (a) =&gt; a.name); <span class="cm">// wrong! no error until runtime</span></code></pre>
+              </div>
+              <h4>The Fix With Function Types</h4>
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">type</span> <span class="ty">Comparator</span> = (a: <span class="ty">number</span>, b: <span class="ty">number</span>) =&gt; <span class="ty">number</span>;
+
+<span class="kw">function</span> <span class="fn">sortNums</span>(arr: <span class="ty">number</span>[], compareFn: <span class="ty">Comparator</span>): <span class="ty">number</span>[] {
+  <span class="kw">return</span> arr.sort(compareFn);
+}
+
+<span class="cm">// Error: Argument of type '(a: number) => string' is not assignable</span>
+<span class="cm">// to parameter of type 'Comparator'</span>
+<span class="fn">sortNums</span>([<span class="num">3</span>,<span class="num">1</span>,<span class="num">2</span>], (a) =&gt; a.toString());</code></pre>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="ft-when">
+              <h4>Use Function Types When…</h4>
+              <ul>
+                <li><strong>Passing callbacks to higher-order functions</strong> — ensures the callback has the right signature before it runs</li>
+                <li><strong>Defining event handlers in React</strong> — enforce correct event types on <code>onClick</code>, <code>onChange</code>, etc.</li>
+                <li><strong>Building strategy-pattern APIs</strong> — sorting, filtering, validation functions passed as config</li>
+                <li><strong>Typing middleware in Express</strong> — ensure every middleware matches <code>(req, res, next) =&gt; void</code></li>
+                <li><strong>Documenting function variables</strong> — make the expected signature clear to readers and the IDE</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="ft-notwhen">
+              <h4>Avoid Function Types When…</h4>
+              <ul>
+                <li><strong>TypeScript can infer the type</strong> — adding <code>const fn: (x: number) =&gt; number = (x) =&gt; x * 2</code> is redundant; inference handles it</li>
+                <li><strong>You need method overloads in an interface</strong> — use interface method syntax instead, which supports overloads</li>
+                <li><strong>For single-use inline callbacks</strong> — annotate inline rather than creating a type alias for a one-time callback</li>
+                <li><strong>Tempted to use <code>Function</code></strong> — the bare <code>Function</code> type loses all type information; always specify the signature</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="ft-internals">
+              <h4>What the Compiler Does</h4>
+              <p>TypeScript uses <strong>structural typing</strong> for functions. When you assign a function to a typed variable, the compiler checks:</p>
+              <ol>
+                <li><strong>Parameter types:</strong> each parameter in the implementation must be assignable to the corresponding parameter in the declared type</li>
+                <li><strong>Return type:</strong> the actual return type must be assignable to the declared return type</li>
+                <li><strong>Parameter count:</strong> a function with <em>fewer</em> parameters than the type declares is allowed (because JavaScript ignores extra arguments)</li>
+              </ol>
+              <p>Under <code>--strictFunctionTypes</code>, parameters are checked <em>contravariantly</em> — this prevents unsafe assignments where a handler expecting a subtype receives a supertype. Method signatures in interfaces remain bivariant for backwards compatibility.</p>
+              <p>All function types are erased at compile time. The output JavaScript has no trace of them.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="ft-syntax">
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="cm">// Type alias syntax for a function type</span>
+<span class="kw">type</span> <span class="ty">MathOperation</span> = (a: <span class="ty">number</span>, b: <span class="ty">number</span>) =&gt; <span class="ty">number</span>;
+<span class="cm">//   ^^^^^^^^^^^^^                                      type alias name</span>
+<span class="cm">//                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^       parameter list with types</span>
+<span class="cm">//                                             ^^^^^^   return type after =&gt;</span>
+
+<span class="cm">// Using the alias — TypeScript infers parameter types from MathOperation</span>
+<span class="kw">const</span> add: <span class="ty">MathOperation</span> = (a, b) =&gt; a + b;
+<span class="kw">const</span> mul: <span class="ty">MathOperation</span> = (a, b) =&gt; a * b;
+
+<span class="cm">// Inline function type (without a separate alias)</span>
+<span class="kw">const</span> greet: (name: <span class="ty">string</span>) =&gt; <span class="ty">string</span> = (name) =&gt; <span class="str">`Hello, </span><span class="op">${</span>name<span class="op">}</span><span class="str">`</span>;
+
+<span class="cm">// Generic function type — reusable across types</span>
+<span class="kw">type</span> <span class="ty">Predicate</span>&lt;T&gt; = (item: <span class="ty">T</span>) =&gt; <span class="ty">boolean</span>;
+<span class="kw">type</span> <span class="ty">Transformer</span>&lt;T, U&gt; = (item: <span class="ty">T</span>) =&gt; <span class="ty">U</span>;
+
+<span class="cm">// Function type as a parameter</span>
+<span class="kw">function</span> <span class="fn">filter</span>&lt;T&gt;(arr: <span class="ty">T</span>[], predicate: <span class="ty">Predicate</span>&lt;<span class="ty">T</span>&gt;): <span class="ty">T</span>[] {
+  <span class="kw">return</span> arr.filter(predicate);
+}</code></pre>
+              </div>
+              <p style="margin-top:10px; font-size:0.87rem; color:var(--text-muted);">The arrow (<code>=&gt;</code>) in a function <em>type</em> always means "returns" — it is different from the arrow in an arrow function expression, even though they look the same.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="ft-example">
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="cm">// Reusable typed function signatures</span>
+<span class="kw">type</span> <span class="ty">Predicate</span>&lt;T&gt;      = (item: <span class="ty">T</span>) =&gt; <span class="ty">boolean</span>;
+<span class="kw">type</span> <span class="ty">Transformer</span>&lt;T, U&gt; = (item: <span class="ty">T</span>) =&gt; <span class="ty">U</span>;
+<span class="kw">type</span> <span class="ty">Comparator</span>&lt;T&gt;    = (a: <span class="ty">T</span>, b: <span class="ty">T</span>) =&gt; <span class="ty">number</span>;
+
+<span class="kw">function</span> <span class="fn">filter</span>&lt;T&gt;(arr: <span class="ty">T</span>[], pred: <span class="ty">Predicate</span>&lt;<span class="ty">T</span>&gt;): <span class="ty">T</span>[] {
+  <span class="kw">return</span> arr.filter(pred);
+}
+
+<span class="kw">function</span> <span class="fn">map</span>&lt;T, U&gt;(arr: <span class="ty">T</span>[], xform: <span class="ty">Transformer</span>&lt;<span class="ty">T</span>, <span class="ty">U</span>&gt;): <span class="ty">U</span>[] {
+  <span class="kw">return</span> arr.map(xform);
+}
+
+<span class="kw">function</span> <span class="fn">sortBy</span>&lt;T&gt;(arr: <span class="ty">T</span>[], cmp: <span class="ty">Comparator</span>&lt;<span class="ty">T</span>&gt;): <span class="ty">T</span>[] {
+  <span class="kw">return</span> [...arr].sort(cmp);
+}
+
+<span class="kw">const</span> numbers = [<span class="num">3</span>, <span class="num">1</span>, <span class="num">4</span>, <span class="num">1</span>, <span class="num">5</span>, <span class="num">9</span>, <span class="num">2</span>, <span class="num">6</span>];
+
+<span class="kw">const</span> evens  = <span class="fn">filter</span>(numbers, (n) =&gt; n % <span class="num">2</span> === <span class="num">0</span>); <span class="cm">// [4, 2, 6]</span>
+<span class="kw">const</span> labels = <span class="fn">map</span>(numbers, (n) =&gt; <span class="str">`item-</span><span class="op">${</span>n<span class="op">}</span><span class="str">`</span>);   <span class="cm">// string[]</span>
+<span class="kw">const</span> sorted = <span class="fn">sortBy</span>(numbers, (a, b) =&gt; a - b);  <span class="cm">// [1, 1, 2, 3, ...]</span>
+
+<span class="cm">// TypeScript catches a wrong predicate signature immediately:</span>
+<span class="cm">// const bad: Predicate&lt;number&gt; = (n) =&gt; n.toString();</span>
+<span class="cm">// Error: Type 'string' is not assignable to type 'boolean'</span></code></pre>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="ft-real">
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="cm">// Express-style middleware typing</span>
+<span class="kw">import</span> <span class="kw">type</span> { Request, Response, NextFunction } <span class="kw">from</span> <span class="str">'express'</span>;
+
+<span class="kw">type</span> <span class="ty">RequestHandler</span> = (
+  req: <span class="ty">Request</span>,
+  res: <span class="ty">Response</span>,
+  next: <span class="ty">NextFunction</span>
+) =&gt; <span class="ty">void</span> | <span class="ty">Promise</span>&lt;<span class="ty">void</span>&gt;;
+
+<span class="cm">// The type enforces the correct signature for every middleware</span>
+<span class="kw">const</span> requireAuth: <span class="ty">RequestHandler</span> = <span class="kw">async</span> (req, res, next) =&gt; {
+  <span class="kw">const</span> token = req.headers.authorization?.split(<span class="str">' '</span>)[<span class="num">1</span>];
+  <span class="kw">if</span> (!token) {
+    res.status(<span class="num">401</span>).json({ error: <span class="str">'Unauthorized'</span> });
+    <span class="kw">return</span>;
+  }
+  <span class="kw">try</span> {
+    req.user = <span class="kw">await</span> <span class="fn">verifyToken</span>(token);
+    <span class="fn">next</span>();
+  } <span class="kw">catch</span> {
+    res.status(<span class="num">401</span>).json({ error: <span class="str">'Invalid token'</span> });
+  }
+};
+
+<span class="cm">// Rate-limiter factory — returns a RequestHandler</span>
+<span class="kw">type</span> <span class="ty">RateLimiter</span> = (opts: { max: <span class="ty">number</span>; windowMs: <span class="ty">number</span> }) =&gt; <span class="ty">RequestHandler</span>;
+
+<span class="kw">const</span> rateLimit: <span class="ty">RateLimiter</span> = (opts) =&gt; {
+  <span class="kw">const</span> hits = <span class="kw">new</span> Map&lt;<span class="ty">string</span>, <span class="ty">number</span>[]&gt;();
+  <span class="kw">return</span> (req, res, next) =&gt; {
+    <span class="cm">// ... rate-limiting logic</span>
+    <span class="fn">next</span>();
+  };
+};</code></pre>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="ft-usecases">
+              <ul>
+                <li><strong>React's <code>useCallback</code> hook</strong> — the memoized function must match the expected signature; TypeScript validates this at the usage site</li>
+                <li><strong>Express middleware arrays</strong> — <code>app.use(handler)</code> uses function types to enforce the <code>(req, res, next) =&gt; void</code> contract across all registered handlers</li>
+                <li><strong>Array methods</strong> — <code>Array.prototype.sort</code>, <code>filter</code>, and <code>map</code> accept typed callback functions; TypeScript infers return types from those callbacks</li>
+                <li><strong>Redux reducers</strong> — typed as <code>(state: State, action: Action) =&gt; State</code>, ensuring every reducer adheres to the same contract</li>
+                <li><strong>Jest/Vitest mock factories</strong> — use function types to ensure mocked implementations match the real function's signature</li>
+                <li><strong>Zod validators</strong> — <code>z.string().refine(fn)</code> accepts a typed predicate function, ensuring correct usage</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="ft-mistakes">
+              <div class="mistake-block">
+                <div class="mistake-label">1. Using the bare <code>Function</code> type</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// WRONG — loses all type info</span>
+<span class="kw">const</span> handler: <span class="ty">Function</span> = (x) =&gt; x * <span class="num">2</span>;
+handler(<span class="str">"not a number"</span>); <span class="cm">// no error!</span>
+
+<span class="cm">// CORRECT — specify the signature</span>
+<span class="kw">const</span> handler: (x: <span class="ty">number</span>) =&gt; <span class="ty">number</span> = (x) =&gt; x * <span class="num">2</span>;
+handler(<span class="str">"not a number"</span>); <span class="cm">// Error: string not assignable to number</span></code></pre></div>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label">2. Colon instead of arrow in type alias</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// WRONG — colon is not valid in a type alias signature</span>
+<span class="kw">type</span> <span class="ty">Op</span> = (a: <span class="ty">number</span>, b: <span class="ty">number</span>): <span class="ty">number</span>; <span class="cm">// Syntax Error</span>
+
+<span class="cm">// CORRECT — arrow =&gt; separates params from return type</span>
+<span class="kw">type</span> <span class="ty">Op</span> = (a: <span class="ty">number</span>, b: <span class="ty">number</span>) =&gt; <span class="ty">number</span>;</code></pre></div>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label">3. Not realising TypeScript allows fewer parameters</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">type</span> <span class="ty">Handler</span> = (x: <span class="ty">number</span>, y: <span class="ty">number</span>) =&gt; <span class="ty">void</span>;
+
+<span class="cm">// VALID — fewer params are OK (JavaScript ignores extra args)</span>
+<span class="kw">const</span> fn: <span class="ty">Handler</span> = (x) =&gt; console.log(x);
+
+<span class="cm">// INVALID — extra params are NOT OK</span>
+<span class="kw">const</span> fn2: <span class="ty">Handler</span> = (x, y, z) =&gt; {}; <span class="cm">// Error: too many parameters</span></code></pre></div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="ft-bp">
+              <ol>
+                <li><strong>Name aliases descriptively</strong> — <code>Predicate</code>, <code>Comparator</code>, <code>RequestHandler</code> communicate intent far better than <code>Fn</code> or <code>Callback</code></li>
+                <li><strong>Never use the bare <code>Function</code> type</strong> — it provides zero safety; always specify the full signature</li>
+                <li><strong>Use <code>void</code> for callbacks whose return value is discarded</strong> — it prevents accidental reliance on the return value</li>
+                <li><strong>Make function types generic when possible</strong> — <code>Predicate&lt;T&gt;</code> is reusable across string, number, and custom types</li>
+                <li><strong>Prefer type aliases over inline types for reuse</strong> — if the same signature appears in 3+ places, create a named alias</li>
+                <li><strong>Keep aliases close to where they're used</strong> — co-locate them in the same module unless they're shared across the whole codebase</li>
+                <li><strong>Document complex signatures with JSDoc</strong> — a one-line comment on the <code>type</code> declaration saves future maintainers from decoding the parameters</li>
+              </ol>
+            </div>
+
+            <div class="tab-pane" data-pane="ft-interview">
+              <div class="qa-block">
+                <div class="qa-q">Q: What is a function type and how do you declare one? <span class="qa-difficulty easy">Easy</span></div>
+                <div class="qa-a">A function type describes what a function accepts and returns. You declare it with <code>type Name = (param: Type) =&gt; ReturnType</code>. This lets you type variables, parameters, and return values that hold functions, and TypeScript will verify any assigned function matches the signature.</div>
+              </div>
+              <div class="qa-block">
+                <div class="qa-q">Q: What is the difference between <code>void</code> and <code>undefined</code> as return types? <span class="qa-difficulty easy">Easy</span></div>
+                <div class="qa-a"><code>void</code> means "I don't care about the return value" — useful for event handlers and callbacks where the return is ignored. <code>undefined</code> means the function must explicitly return <code>undefined</code>. Use <code>void</code> for callbacks passed to <code>addEventListener</code> or <code>setTimeout</code>; use <code>undefined</code> when the absence of a value is part of the API contract.</div>
+              </div>
+              <div class="qa-block">
+                <div class="qa-q">Q: Why does TypeScript allow a function with fewer parameters to satisfy a type that has more? <span class="qa-difficulty medium">Medium</span></div>
+                <div class="qa-a">This is "parameter count compatibility." It mirrors how JavaScript works — extra arguments are silently ignored. Array methods pass <code>(item, index, array)</code> to callbacks, but most callbacks only use <code>item</code>. If TypeScript required exact parameter count, <code>array.map(String)</code> would be an error. Fewer params ✓, more params ✗.</div>
+              </div>
+              <div class="qa-block">
+                <div class="qa-q">Q: What is the difference between a method signature and a function type property in an interface? <span class="qa-difficulty medium">Medium</span></div>
+                <div class="qa-a">Method: <code>{ greet(name: string): string }</code>. Function property: <code>{ greet: (name: string) =&gt; string }</code>. They're nearly equivalent, but method signatures support overloads and behave bivariantly under <code>--strictFunctionTypes</code>. Function type properties are checked contravariantly. Prefer function type properties for strict safety.</div>
+              </div>
+              <div class="qa-block">
+                <div class="qa-q">Q: What is "contravariance" and how does <code>--strictFunctionTypes</code> relate to it? <span class="qa-difficulty hard">Hard</span></div>
+                <div class="qa-a">Contravariance means: if <code>B extends A</code>, then <code>(b: B) =&gt; void</code> is NOT assignable to <code>(a: A) =&gt; void</code>. A handler for a specific subtype can't safely receive a more general supertype. <code>--strictFunctionTypes</code> enables this correct check for function type aliases. Method signatures bypass it (remain bivariant) for practical compatibility with common patterns like <code>Array.push</code>.</div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="ft-exercise">
+              <div class="challenge-box">
+                <div class="goal"><strong>Goal:</strong> Build a type-safe <code>pipe2</code> function that composes two transformations.</div>
+                <h4>Requirements</h4>
+                <ul>
+                  <li>Define a <code>Transform&lt;T, U&gt;</code> function type</li>
+                  <li>Create <code>pipe2</code> that accepts two transforms and returns a composed transform</li>
+                  <li>The output type of the first must match the input type of the second</li>
+                  <li>The final composed function's type must be inferred — no manual annotation at the call site</li>
+                </ul>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">type</span> <span class="ty">Transform</span>&lt;T, U&gt; = (input: <span class="ty">T</span>) =&gt; <span class="ty">U</span>;
+
+<span class="kw">function</span> <span class="fn">pipe2</span>&lt;A, B, C&gt;(
+  <span class="cm">// TODO: define parameters using Transform&lt;&gt;</span>
+): <span class="ty">Transform</span>&lt;<span class="ty">A</span>, <span class="ty">C</span>&gt; {
+  <span class="cm">// TODO: implement — apply first, then second</span>
+}
+
+<span class="cm">// Usage (should work without any type annotations here):</span>
+<span class="kw">const</span> parseAndDouble = <span class="fn">pipe2</span>(parseInt, (n: <span class="ty">number</span>) =&gt; n * <span class="num">2</span>);
+<span class="kw">const</span> result = <span class="fn">parseAndDouble</span>(<span class="str">"21"</span>); <span class="cm">// Type: number, Value: 42</span></code></pre></div>
+                <p><strong>Expected result:</strong> <code>result</code> has type <code>number</code> and value <code>42</code>.</p>
+                <div class="hint">💡 Hint: The middle type <code>B</code> is inferred from the return type of the first function and the input type of the second.</div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="ft-summary">
+              <ul class="takeaways">
+                <li>Function types describe a function's shape: parameter types and return type, using <code>(param: Type) =&gt; ReturnType</code> syntax</li>
+                <li>The bare <code>Function</code> type is useless for safety — always specify the full signature</li>
+                <li>TypeScript allows functions with fewer parameters than declared (parameter count compatibility)</li>
+                <li>Generic function types (<code>Predicate&lt;T&gt;</code>, <code>Transformer&lt;T, U&gt;</code>) make your type aliases reusable across different data types</li>
+                <li>Function types are purely compile-time — they produce zero runtime JavaScript</li>
+                <li>Use <code>void</code> return type for callbacks whose return value will be ignored by the caller</li>
+                <li>Under <code>--strictFunctionTypes</code>, function parameters are checked contravariantly for correctness</li>
+              </ul>
+              <div class="mental-model">🧠 Mental model: A function type is a job contract — it tells candidates (functions) exactly what skills they need (parameter types) and what deliverable is expected (return type). TypeScript won't let you hire someone who can't do the job.</div>
+            </div>
+
+          </div>
+        </details>
+
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- TOPIC 2: Optional Parameters                               -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <details class="topic-panel" id="topic-optional-params">
+          <summary>
+            <svg class="panel-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            <span class="topic-name">Optional Parameters</span>
+            <span class="badge beginner">Beginner</span>
+          </summary>
+
+          <div class="panel-tabs">
+            <button class="tab active" data-tab="op-def">Definition</button>
+            <button class="tab" data-tab="op-why">Why It Exists</button>
+            <button class="tab" data-tab="op-when">When to Use</button>
+            <button class="tab" data-tab="op-notwhen">When NOT to Use</button>
+            <button class="tab" data-tab="op-internals">How It Works</button>
+            <button class="tab" data-tab="op-syntax">Syntax</button>
+            <button class="tab" data-tab="op-example">Example</button>
+            <button class="tab" data-tab="op-real">Real-World</button>
+            <button class="tab" data-tab="op-usecases">Use Cases</button>
+            <button class="tab" data-tab="op-mistakes">Mistakes</button>
+            <button class="tab" data-tab="op-bp">Best Practices</button>
+            <button class="tab" data-tab="op-interview">Interview Qs</button>
+            <button class="tab" data-tab="op-exercise">Exercise</button>
+            <button class="tab" data-tab="op-summary">Summary</button>
+          </div>
+
+          <div class="panel-content">
+
+            <div class="tab-pane active" data-pane="op-def">
+              <h4>Simple Explanation</h4>
+              <p>An optional parameter is one that a caller doesn't have to provide. It's like a restaurant order with optional add-ons — the burger arrives without toppings unless you specifically ask for them.</p>
+              <h4>Technical Explanation</h4>
+              <p>You mark a parameter optional by appending <code>?</code> after its name. Internally, TypeScript treats its type as <code>T | undefined</code> — it receives the value if provided, or <code>undefined</code> if not. Optional parameters must come after all required parameters in the signature.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="op-why">
+              <h4>The JavaScript Problem</h4>
+              <p>In JavaScript you can call any function with fewer arguments than declared. The missing ones silently become <code>undefined</code>. There is no way to tell from the signature whether an argument is intentionally optional or was just forgotten — and accessing properties on <code>undefined</code> crashes at runtime.</p>
+              <div class="code-block"><div class="code-header"><span class="code-lang">javascript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// JavaScript — intent unclear, no safety</span>
+<span class="kw">function</span> <span class="fn">greet</span>(name, title) {
+  <span class="kw">return</span> <span class="str">`Hello </span><span class="op">${</span>title<span class="op">}</span><span class="str"> </span><span class="op">${</span>name.toUpperCase()<span class="op">}</span><span class="str">`</span>;
+}
+<span class="fn">greet</span>(<span class="str">"Smith"</span>);  <span class="cm">// "Hello undefined SMITH" — silent bug</span>
+<span class="fn">greet</span>();        <span class="cm">// TypeError: Cannot read properties of undefined</span></code></pre></div>
+              <h4>The TypeScript Fix</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">function</span> <span class="fn">greet</span>(name: <span class="ty">string</span>, title?: <span class="ty">string</span>): <span class="ty">string</span> {
+  <span class="kw">return</span> title ? <span class="str">`Hello </span><span class="op">${</span>title<span class="op">}</span><span class="str"> </span><span class="op">${</span>name<span class="op">}</span><span class="str">`</span> : <span class="str">`Hello </span><span class="op">${</span>name<span class="op">}</span><span class="str">`</span>;
+  <span class="cm">//     ^^^^^ TypeScript forces you to handle the undefined case</span>
+}
+<span class="fn">greet</span>(<span class="str">"Smith"</span>);           <span class="cm">// "Hello Smith" — safe</span>
+<span class="fn">greet</span>(<span class="str">"Smith"</span>, <span class="str">"Dr."</span>);    <span class="cm">// "Hello Dr. Smith"</span>
+<span class="fn">greet</span>();                  <span class="cm">// Error: Expected 1-2 arguments, but got 0</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="op-when">
+              <ul>
+                <li><strong>Parameters with natural absence</strong> — a <code>title</code> prefix, a <code>middleName</code>, or a <code>reason</code> for an action that sometimes exists and sometimes doesn't</li>
+                <li><strong>Configuration toggles</strong> — <code>verbose?: boolean</code> on a logging utility that adds extra output only when requested</li>
+                <li><strong>Callback parameters on components</strong> — <code>onClick?: () =&gt; void</code> in React — the component works with or without a click handler</li>
+                <li><strong>Legacy JS migration</strong> — mark arguments that were already optional in JS so callers don't need to change</li>
+                <li><strong>Pagination options</strong> — <code>cursor?: string</code> is absent on the first call and present for subsequent pages</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="op-notwhen">
+              <ul>
+                <li><strong>When a sensible default exists</strong> — use a default parameter (<code>limit = 10</code>) instead; it's cleaner and removes the <code>undefined</code> check inside the function body</li>
+                <li><strong>First parameter optional, later ones required</strong> — TypeScript forbids this. Restructure to an options object instead</li>
+                <li><strong>Functions with 4+ optional params</strong> — more than a couple optional params is a sign you need an options object: <code>fn(options?: Options)</code></li>
+                <li><strong>Signalling "not yet implemented"</strong> — optional params are not a design pattern for conditional features; use explicit union types or function overloads</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="op-internals">
+              <p>TypeScript desugars <code>param?: Type</code> into <code>param: Type | undefined</code> internally. The <code>?</code> is syntactic sugar — there is no runtime difference. In JavaScript, calling a function with fewer arguments simply leaves those parameters as <code>undefined</code>.</p>
+              <p>What TypeScript adds is <strong>forced acknowledgement</strong>: inside the function body, the type is <code>T | undefined</code>, so you <em>must</em> narrow it before accessing properties. The compiler refuses to let you call <code>param.toUpperCase()</code> without first checking that <code>param</code> is defined.</p>
+              <h4>Compiled Output</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// TypeScript source</span>
+<span class="kw">function</span> <span class="fn">greet</span>(name: <span class="ty">string</span>, title?: <span class="ty">string</span>): <span class="ty">string</span> {
+  <span class="kw">return</span> title ? <span class="str">`Hello </span><span class="op">${</span>title<span class="op">}</span><span class="str"> </span><span class="op">${</span>name<span class="op">}</span><span class="str">`</span> : <span class="str">`Hello </span><span class="op">${</span>name<span class="op">}</span><span class="str">`</span>;
+}
+
+<span class="cm">// Compiled JavaScript — annotation erased, no runtime change</span>
+<span class="kw">function</span> <span class="fn">greet</span>(name, title) {
+  <span class="kw">return</span> title ? <span class="str">`Hello </span><span class="op">${</span>title<span class="op">}</span><span class="str"> </span><span class="op">${</span>name<span class="op">}</span><span class="str">`</span> : <span class="str">`Hello </span><span class="op">${</span>name<span class="op">}</span><span class="str">`</span>;
+}</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="op-syntax">
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">function</span> <span class="fn">createUser</span>(
+  name: <span class="ty">string</span>,       <span class="cm">// required — always provide this</span>
+  age: <span class="ty">number</span>,        <span class="cm">// required — always provide this</span>
+  role?: <span class="ty">string</span>,      <span class="cm">// optional — ? marks it as T | undefined</span>
+<span class="cm">//     ^ question mark is the only syntax needed</span>
+  admin?: <span class="ty">boolean</span>     <span class="cm">// optional params must come AFTER required ones</span>
+): <span class="ty">void</span> {
+  <span class="kw">const</span> userRole = role ?? <span class="str">'viewer'</span>; <span class="cm">// ?? handles undefined</span>
+  <span class="kw">const</span> isAdmin  = admin ?? <span class="kw">false</span>;   <span class="cm">// same pattern</span>
+  console.log(name, age, userRole, isAdmin);
+}
+
+<span class="cm">// All of these are valid:</span>
+<span class="fn">createUser</span>(<span class="str">"Alice"</span>, <span class="num">30</span>);
+<span class="fn">createUser</span>(<span class="str">"Alice"</span>, <span class="num">30</span>, <span class="str">"editor"</span>);
+<span class="fn">createUser</span>(<span class="str">"Alice"</span>, <span class="num">30</span>, <span class="str">"editor"</span>, <span class="kw">true</span>);</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="op-example">
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">type</span> <span class="ty">SortOrder</span> = <span class="str">'asc'</span> | <span class="str">'desc'</span>;
+
+<span class="kw">function</span> <span class="fn">fetchUsers</span>(
+  query: <span class="ty">string</span>,
+  page?: <span class="ty">number</span>,
+  limit?: <span class="ty">number</span>,
+  order?: <span class="ty">SortOrder</span>
+): <span class="ty">string</span> {
+  <span class="kw">const</span> p = page  ?? <span class="num">1</span>;
+  <span class="kw">const</span> l = limit ?? <span class="num">10</span>;
+  <span class="kw">const</span> o = order ?? <span class="str">'asc'</span>;
+
+  <span class="kw">return</span> [
+    <span class="str">`WHERE name LIKE '%</span><span class="op">${</span>query<span class="op">}</span><span class="str">%'`</span>,
+    <span class="str">`ORDER BY name </span><span class="op">${</span>o.toUpperCase()<span class="op">}</span><span class="str">`</span>,
+    <span class="str">`LIMIT </span><span class="op">${</span>l<span class="op">}</span><span class="str"> OFFSET </span><span class="op">${</span>(p - <span class="num">1</span>) * l<span class="op">}</span><span class="str">`</span>,
+  ].join(<span class="str">' '</span>);
+}
+
+console.log(<span class="fn">fetchUsers</span>(<span class="str">"alice"</span>));
+<span class="cm">// WHERE name LIKE '%alice%' ORDER BY name ASC LIMIT 10 OFFSET 0</span>
+
+console.log(<span class="fn">fetchUsers</span>(<span class="str">"alice"</span>, <span class="num">2</span>, <span class="num">5</span>));
+<span class="cm">// WHERE name LIKE '%alice%' ORDER BY name ASC LIMIT 5 OFFSET 5</span>
+
+console.log(<span class="fn">fetchUsers</span>(<span class="str">"alice"</span>, <span class="kw">undefined</span>, <span class="kw">undefined</span>, <span class="str">'desc'</span>));
+<span class="cm">// WHERE name LIKE '%alice%' ORDER BY name DESC LIMIT 10 OFFSET 0</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="op-real">
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// Drizzle ORM style — optional query configuration</span>
+<span class="kw">interface</span> <span class="ty">QueryOptions</span> {
+  where?: { field: <span class="ty">string</span>; value: <span class="ty">unknown</span> }[];
+  orderBy?: { field: <span class="ty">string</span>; direction: <span class="str">'asc'</span> | <span class="str">'desc'</span> };
+  limit?: <span class="ty">number</span>;
+  offset?: <span class="ty">number</span>;
+  include?: <span class="ty">string</span>[];
+}
+
+<span class="kw">async function</span> <span class="fn">queryProducts</span>(options?: <span class="ty">QueryOptions</span>) {
+  <span class="kw">const</span> {
+    where   = [],
+    orderBy = { field: <span class="str">'createdAt'</span>, direction: <span class="str">'desc'</span> },
+    limit   = <span class="num">20</span>,
+    offset  = <span class="num">0</span>,
+    include = [],
+  } = options ?? {};  <span class="cm">// ?? {} handles options being undefined</span>
+
+  <span class="cm">// build query from resolved values…</span>
+  <span class="kw">return</span> { where, orderBy, limit, offset, include };
+}
+
+<span class="cm">// All valid call sites:</span>
+<span class="kw">await</span> <span class="fn">queryProducts</span>();                            <span class="cm">// all defaults</span>
+<span class="kw">await</span> <span class="fn">queryProducts</span>({ limit: <span class="num">5</span> });                 <span class="cm">// just limit</span>
+<span class="kw">await</span> <span class="fn">queryProducts</span>({ limit: <span class="num">5</span>, include: [<span class="str">'category'</span>] });</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="op-usecases">
+              <ul>
+                <li><strong>React component props</strong> — <code>onClick?: () =&gt; void</code> lets a <code>Button</code> render without a handler, making it composable</li>
+                <li><strong>Fetch wrappers</strong> — <code>signal?: AbortSignal</code> lets callers optionally cancel the request without requiring every caller to provide a controller</li>
+                <li><strong>Express error handlers</strong> — <code>next?: NextFunction</code> in custom error middleware that may or may not forward the error</li>
+                <li><strong>Database query builders</strong> — optional <code>where</code>, <code>limit</code>, <code>offset</code> allow flexible queries without requiring every option every time</li>
+                <li><strong>Logging utilities</strong> — optional <code>context?: Record&lt;string, unknown&gt;</code> for structured log metadata that not every log call provides</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="op-mistakes">
+              <div class="mistake-block">
+                <div class="mistake-label">1. Accessing an optional parameter without checking</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// WRONG — TypeScript error: name is possibly undefined</span>
+<span class="kw">function</span> <span class="fn">process</span>(name?: <span class="ty">string</span>): <span class="ty">string</span> {
+  <span class="kw">return</span> name.toUpperCase(); <span class="cm">// Error!</span>
+}
+
+<span class="cm">// CORRECT — handle undefined first</span>
+<span class="kw">function</span> <span class="fn">process</span>(name?: <span class="ty">string</span>): <span class="ty">string</span> {
+  <span class="kw">return</span> name?.toUpperCase() ?? <span class="str">'UNKNOWN'</span>;
+}</code></pre></div>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label">2. Required parameter after optional one</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// WRONG — required param cannot follow optional</span>
+<span class="kw">function</span> <span class="fn">create</span>(title?: <span class="ty">string</span>, name: <span class="ty">string</span>): <span class="ty">void</span> {} <span class="cm">// Error!</span>
+
+<span class="cm">// CORRECT — required params first</span>
+<span class="kw">function</span> <span class="fn">create</span>(name: <span class="ty">string</span>, title?: <span class="ty">string</span>): <span class="ty">void</span> {}</code></pre></div>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label">3. Using <code>?</code> when a default value is more appropriate</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// WRONG — forces every caller to handle undefined</span>
+<span class="kw">function</span> <span class="fn">delay</span>(ms?: <span class="ty">number</span>): <span class="ty">void</span> {
+  <span class="kw">const</span> wait = ms ?? <span class="num">1000</span>; <span class="cm">// repeated in every caller</span>
+}
+
+<span class="cm">// CORRECT — default parameter: ms is always a number inside</span>
+<span class="kw">function</span> <span class="fn">delay</span>(ms: <span class="ty">number</span> = <span class="num">1000</span>): <span class="ty">void</span> {
+  <span class="cm">// ms is number here, no undefined check needed</span>
+}</code></pre></div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="op-bp">
+              <ol>
+                <li><strong>Prefer default parameters over <code>?</code></strong> when there is a sensible fallback — keeps the function body cleaner</li>
+                <li><strong>Always narrow optional params</strong> before using them — use <code>??</code>, <code>?.</code>, or an explicit <code>if</code> check</li>
+                <li><strong>Group many optional params into an options object</strong> — <code>fn(name: string, opts?: Options)</code> is cleaner than 5 optional params</li>
+                <li><strong>Put optional params at the end</strong> of the parameter list, always</li>
+                <li><strong>Document why a param is optional</strong> — a JSDoc comment explaining the absence semantics prevents confusion</li>
+                <li><strong>Use destructuring with defaults on options objects</strong> — <code>function fn({ limit = 10, offset = 0 } = {})</code></li>
+                <li><strong>Avoid deeply nested optional chains</strong> — <code>a?.b?.c?.d</code> is a sign your data structure needs rethinking</li>
+              </ol>
+            </div>
+
+            <div class="tab-pane" data-pane="op-interview">
+              <div class="qa-block">
+                <div class="qa-q">Q: What does <code>?</code> after a parameter name mean in TypeScript? <span class="qa-difficulty easy">Easy</span></div>
+                <div class="qa-a">It marks the parameter as optional — callers may omit it. The parameter's type becomes <code>T | undefined</code> inside the function. TypeScript forces you to handle the <code>undefined</code> case before accessing properties on the parameter.</div>
+              </div>
+              <div class="qa-block">
+                <div class="qa-q">Q: Can optional parameters come before required parameters? <span class="qa-difficulty easy">Easy</span></div>
+                <div class="qa-a">No. Required parameters must come before optional ones. Placing an optional before a required parameter causes a compile error: "A required parameter cannot follow an optional parameter." Restructure to put all optional params at the end, or use an options object.</div>
+              </div>
+              <div class="qa-block">
+                <div class="qa-q">Q: What is the difference between <code>param?: string</code> and <code>param: string | undefined</code>? <span class="qa-difficulty medium">Medium</span></div>
+                <div class="qa-a">Both produce the same internal type (<code>string | undefined</code>), but they differ in call semantics. With <code>?</code>, callers can simply omit the argument. With <code>string | undefined</code>, callers must explicitly pass <code>undefined</code> — they cannot skip the argument. Prefer <code>?</code> for truly optional arguments.</div>
+              </div>
+              <div class="qa-block">
+                <div class="qa-q">Q: How do you safely access the value of an optional string parameter? <span class="qa-difficulty medium">Medium</span></div>
+                <div class="qa-a">Three safe patterns: optional chaining <code>param?.toUpperCase()</code>, nullish coalescing <code>param ?? 'default'</code>, or an explicit guard <code>if (param !== undefined) { ... }</code>. Avoid the non-null assertion <code>param!</code> unless you have proven the value cannot be <code>undefined</code>.</div>
+              </div>
+              <div class="qa-block">
+                <div class="qa-q">Q: How do optional parameters interact with function overloads? <span class="qa-difficulty hard">Hard</span></div>
+                <div class="qa-a">If a function behaves <em>fundamentally differently</em> based on whether a param is present, overloads are clearer: <code>function fn(x: string): string; function fn(): number;</code>. For simple "here's a default" cases, <code>?</code> is sufficient. The implementation signature must be compatible with all declared overloads, so it often needs <code>param?: string</code> to cover both cases.</div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="op-exercise">
+              <div class="challenge-box">
+                <div class="goal"><strong>Goal:</strong> Build a flexible <code>formatDate</code> function with optional formatting options.</div>
+                <h4>Requirements</h4>
+                <ul>
+                  <li>Accept a required <code>Date</code> parameter</li>
+                  <li>Accept optional <code>locale?: string</code> and <code>format?: 'short' | 'long' | 'numeric'</code></li>
+                  <li>Return a formatted string using <code>Intl.DateTimeFormat</code></li>
+                  <li>Handle all combinations of optional params safely — no <code>!</code> assertions</li>
+                </ul>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">type</span> <span class="ty">DateFormat</span> = <span class="str">'short'</span> | <span class="str">'long'</span> | <span class="str">'numeric'</span>;
+
+<span class="kw">function</span> <span class="fn">formatDate</span>(
+  date: <span class="ty">Date</span>,
+  <span class="cm">// TODO: add optional locale and format parameters</span>
+): <span class="ty">string</span> {
+  <span class="cm">// TODO: use Intl.DateTimeFormat</span>
+  <span class="cm">// Hint: new Intl.DateTimeFormat(locale, { dateStyle: format }).format(date)</span>
+}
+
+<span class="cm">// All should work without errors:</span>
+<span class="fn">formatDate</span>(<span class="kw">new</span> Date());
+<span class="fn">formatDate</span>(<span class="kw">new</span> Date(), <span class="str">'en-US'</span>);
+<span class="fn">formatDate</span>(<span class="kw">new</span> Date(), <span class="str">'en-US'</span>, <span class="str">'long'</span>);
+<span class="fn">formatDate</span>(<span class="kw">new</span> Date(), <span class="kw">undefined</span>, <span class="str">'short'</span>);</code></pre></div>
+                <div class="hint">💡 Hint: Use <code>locale ?? 'en-US'</code> and map the <code>format</code> param to a <code>dateStyle</code> option for <code>Intl.DateTimeFormatOptions</code>.</div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="op-summary">
+              <ul class="takeaways">
+                <li><code>param?: Type</code> makes a parameter optional — its value is <code>T | undefined</code> when omitted by the caller</li>
+                <li>Optional parameters must always come after all required parameters</li>
+                <li>Always narrow optional params before use — TypeScript will not let you access <code>.property</code> on <code>T | undefined</code></li>
+                <li>Prefer default parameters over <code>?</code> when a sensible fallback value exists</li>
+                <li>Group many optional parameters into a single options object to keep call sites readable</li>
+                <li>Compiled output is identical to JavaScript — the <code>?</code> exists only at compile time</li>
+              </ul>
+              <div class="mental-model">🧠 Mental model: <code>?</code> is a promise to the caller — "you can skip this, but I'll handle the gap gracefully." TypeScript makes you prove you actually handle it.</div>
+            </div>
+
+          </div>
+        </details>
+
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- TOPIC 3: Default Parameters                                -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <details class="topic-panel" id="topic-default-params">
+          <summary>
+            <svg class="panel-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            <span class="topic-name">Default Parameters</span>
+            <span class="badge beginner">Beginner</span>
+          </summary>
+
+          <div class="panel-tabs">
+            <button class="tab active" data-tab="dp-def">Definition</button>
+            <button class="tab" data-tab="dp-why">Why It Exists</button>
+            <button class="tab" data-tab="dp-when">When to Use</button>
+            <button class="tab" data-tab="dp-notwhen">When NOT to Use</button>
+            <button class="tab" data-tab="dp-internals">How It Works</button>
+            <button class="tab" data-tab="dp-syntax">Syntax</button>
+            <button class="tab" data-tab="dp-example">Example</button>
+            <button class="tab" data-tab="dp-real">Real-World</button>
+            <button class="tab" data-tab="dp-usecases">Use Cases</button>
+            <button class="tab" data-tab="dp-mistakes">Mistakes</button>
+            <button class="tab" data-tab="dp-bp">Best Practices</button>
+            <button class="tab" data-tab="dp-interview">Interview Qs</button>
+            <button class="tab" data-tab="dp-exercise">Exercise</button>
+            <button class="tab" data-tab="dp-summary">Summary</button>
+          </div>
+
+          <div class="panel-content">
+
+            <div class="tab-pane active" data-pane="dp-def">
+              <h4>Simple Explanation</h4>
+              <p>A default parameter is a backup value that the function uses when the caller doesn't provide one. It's like a form with pre-filled fields — you can change them, but if you leave them blank, something sensible is used.</p>
+              <h4>Technical Explanation</h4>
+              <p>TypeScript uses the same ES6 default parameter syntax (<code>param: Type = defaultValue</code>) as JavaScript, but adds compile-time verification that the default value's type matches the declared type. Inside the function body, the parameter's type is <code>T</code>, never <code>T | undefined</code>, because TypeScript knows the default covers the absence case.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="dp-why">
+              <h4>The Pre-ES6 Problem</h4>
+              <p>Before default parameters, JavaScript developers wrote <code>var x = arg || 'default'</code>. This pattern is broken — it replaces any <em>falsy</em> value (including <code>0</code>, <code>false</code>, <code>""</code>) with the default, even when those are legitimate inputs.</p>
+              <div class="code-block"><div class="code-header"><span class="code-lang">javascript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// BUG: || replaces 0 and false with default</span>
+<span class="kw">function</span> <span class="fn">setPage</span>(page) {
+  page = page || <span class="num">1</span>; <span class="cm">// page=0 becomes 1 — wrong!</span>
+}
+<span class="fn">setPage</span>(<span class="num">0</span>); <span class="cm">// silently goes to page 1 instead of 0</span></code></pre></div>
+              <h4>The TypeScript Fix</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// Default params only trigger for undefined, never for 0/false/""</span>
+<span class="kw">function</span> <span class="fn">setPage</span>(page: <span class="ty">number</span> = <span class="num">1</span>): <span class="ty">void</span> {
+  console.log(page);
+}
+<span class="fn">setPage</span>(<span class="num">0</span>);         <span class="cm">// 0  — correct, default NOT triggered</span>
+<span class="fn">setPage</span>();          <span class="cm">// 1  — default triggered (undefined)</span>
+<span class="fn">setPage</span>(<span class="kw">undefined</span>); <span class="cm">// 1  — default triggered</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="dp-when">
+              <ul>
+                <li><strong>Pagination params</strong> — <code>page = 1</code>, <code>limit = 10</code> are universally sensible defaults</li>
+                <li><strong>Timeout values</strong> — <code>timeoutMs = 3000</code> prevents every caller from having to specify a timeout</li>
+                <li><strong>Sort order</strong> — <code>order: 'asc' | 'desc' = 'asc'</code> when ascending is the natural default</li>
+                <li><strong>Eliminating null checks in function bodies</strong> — instead of <code>const l = limit ?? 10</code>, make <code>limit = 10</code> a default</li>
+                <li><strong>Refactoring old <code>|| 'default'</code> patterns</strong> to correctly handle falsy legitimate values</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="dp-notwhen">
+              <ul>
+                <li><strong>Mutable objects or arrays as defaults</strong> — the same reference is shared across calls; use a factory function inside the body instead</li>
+                <li><strong>When absence should trigger different behaviour</strong> — use optional params or overloads when <code>undefined</code> means "do something different," not just "use a fallback"</li>
+                <li><strong>Truly required parameters</strong> — if missing the argument should be an error, don't add a default just to silence TypeScript</li>
+                <li><strong>Complex expressions as defaults</strong> — defaults are eagerly evaluated once at call time in JavaScript; if you need lazy evaluation, compute the default inside the body</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="dp-internals">
+              <p>At runtime, JavaScript replaces an argument with the default value if and only if the argument is <code>undefined</code>. TypeScript's job is to:</p>
+              <ol>
+                <li>Verify the default value's type is assignable to the declared parameter type</li>
+                <li>Make the parameter implicitly optional from the caller's perspective (callers can omit it)</li>
+                <li>Keep the parameter's type as <code>T</code> (not <code>T | undefined</code>) inside the function body — TypeScript knows the default covers the <code>undefined</code> case</li>
+              </ol>
+              <h4>Compiled Output</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// TypeScript source</span>
+<span class="kw">function</span> <span class="fn">greet</span>(name: <span class="ty">string</span> = <span class="str">'World'</span>): <span class="ty">string</span> {
+  <span class="kw">return</span> <span class="str">`Hello, </span><span class="op">${</span>name<span class="op">}</span><span class="str">!`</span>;
+}
+
+<span class="cm">// Compiled JavaScript (ES6 target)</span>
+<span class="kw">function</span> <span class="fn">greet</span>(name = <span class="str">'World'</span>) {
+  <span class="kw">return</span> <span class="str">`Hello, </span><span class="op">${</span>name<span class="op">}</span><span class="str">!`</span>;
+}
+<span class="cm">// Type annotation stripped; default value preserved</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="dp-syntax">
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">function</span> <span class="fn">paginate</span>(
+  page: <span class="ty">number</span>  = <span class="num">1</span>,          <span class="cm">// default value 1; type is number (not number|undefined)</span>
+<span class="cm">//               ^ ^^^         = sign, then the literal default</span>
+  limit: <span class="ty">number</span> = <span class="num">10</span>,
+  sort: <span class="str">'asc'</span> | <span class="str">'desc'</span> = <span class="str">'asc'</span>  <span class="cm">// literal union type with a default</span>
+): { page: <span class="ty">number</span>; limit: <span class="ty">number</span>; sort: <span class="ty">string</span> } {
+  <span class="kw">return</span> { page, limit, sort };  <span class="cm">// always defined — no ?? needed</span>
+}
+
+<span class="cm">// All valid — callers can omit any/all params:</span>
+<span class="fn">paginate</span>();               <span class="cm">// { page: 1, limit: 10, sort: 'asc' }</span>
+<span class="fn">paginate</span>(<span class="num">2</span>);              <span class="cm">// { page: 2, limit: 10, sort: 'asc' }</span>
+<span class="fn">paginate</span>(<span class="num">2</span>, <span class="num">20</span>);          <span class="cm">// { page: 2, limit: 20, sort: 'asc' }</span>
+<span class="fn">paginate</span>(<span class="num">2</span>, <span class="num">20</span>, <span class="str">'desc'</span>);  <span class="cm">// { page: 2, limit: 20, sort: 'desc' }</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="dp-example">
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">type</span> <span class="ty">LogLevel</span> = <span class="str">'info'</span> | <span class="str">'warn'</span> | <span class="str">'error'</span>;
+
+<span class="kw">function</span> <span class="fn">log</span>(
+  message: <span class="ty">string</span>,
+  level: <span class="ty">LogLevel</span>  = <span class="str">'info'</span>,
+  timestamp: <span class="ty">boolean</span> = <span class="kw">true</span>,
+  prefix: <span class="ty">string</span>    = <span class="str">'[App]'</span>
+): <span class="ty">void</span> {
+  <span class="kw">const</span> time = timestamp ? <span class="str">`[</span><span class="op">${</span><span class="kw">new</span> Date().toISOString()<span class="op">}</span><span class="str">] `</span> : <span class="str">''</span>;
+  <span class="kw">const</span> lvl  = level.toUpperCase().padEnd(<span class="num">5</span>);
+  console.log(<span class="str">`</span><span class="op">${</span>time<span class="op">}</span><span class="str"></span><span class="op">${</span>prefix<span class="op">}</span><span class="str"> </span><span class="op">${</span>lvl<span class="op">}</span><span class="str">: </span><span class="op">${</span>message<span class="op">}</span><span class="str">`</span>);
+}
+
+<span class="fn">log</span>(<span class="str">'Server started'</span>);
+<span class="cm">// [2024-01-15T10:30:00.000Z] [App] INFO : Server started</span>
+
+<span class="fn">log</span>(<span class="str">'Cache miss'</span>, <span class="str">'warn'</span>);
+<span class="cm">// [2024-01-15T10:30:00.000Z] [App] WARN : Cache miss</span>
+
+<span class="fn">log</span>(<span class="str">'DB connection failed'</span>, <span class="str">'error'</span>, <span class="kw">false</span>, <span class="str">'[Database]'</span>);
+<span class="cm">// [Database] ERROR: DB connection failed</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="dp-real">
+              <div class="code-block"><div class="code-header"><span class="code-header-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// Express route query parser with defaults</span>
+<span class="kw">interface</span> <span class="ty">ProductQuery</span> {
+  search:  <span class="ty">string</span>;
+  page:    <span class="ty">number</span>;
+  limit:   <span class="ty">number</span>;
+  sortBy:  <span class="str">'price'</span> | <span class="str">'name'</span> | <span class="str">'createdAt'</span>;
+  order:   <span class="str">'asc'</span> | <span class="str">'desc'</span>;
+}
+
+<span class="kw">function</span> <span class="fn">parseProductQuery</span>(
+  raw: Partial&lt;<span class="ty">ProductQuery</span>&gt;,
+  search: <span class="ty">string</span>                         = <span class="str">''</span>,
+  page: <span class="ty">number</span>                            = <span class="num">1</span>,
+  limit: <span class="ty">number</span>                           = <span class="num">20</span>,
+  sortBy: <span class="ty">ProductQuery</span>[<span class="str">'sortBy'</span>]         = <span class="str">'createdAt'</span>,
+  order: <span class="ty">ProductQuery</span>[<span class="str">'order'</span>]           = <span class="str">'desc'</span>
+): Required&lt;<span class="ty">ProductQuery</span>&gt; {
+  <span class="kw">return</span> {
+    search: raw.search ?? search,
+    page:   Number(raw.page   ?? page),
+    limit:  Math.min(Number(raw.limit ?? limit), <span class="num">100</span>),
+    sortBy: (raw.sortBy ?? sortBy) <span class="kw">as</span> <span class="ty">ProductQuery</span>[<span class="str">'sortBy'</span>],
+    order:  (raw.order  ?? order)  <span class="kw">as</span> <span class="ty">ProductQuery</span>[<span class="str">'order'</span>],
+  };
+}</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="dp-usecases">
+              <ul>
+                <li><strong>React component defaults</strong> — function components use default params for fallback prop values: <code>function Button({ size = 'md', variant = 'primary' })</code></li>
+                <li><strong>API query builders</strong> — <code>limit = 20</code>, <code>offset = 0</code>, <code>sortBy = 'createdAt'</code> give every endpoint safe query defaults</li>
+                <li><strong>Retry utilities</strong> — <code>maxRetries = 3</code>, <code>delayMs = 1000</code> provide safe defaults without requiring every caller to configure them</li>
+                <li><strong>Cache utilities</strong> — <code>ttl = 3600</code> as default time-to-live for cache entries</li>
+                <li><strong>Configuration builders</strong> — configuration factory functions default every property so callers can override only what they care about</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="dp-mistakes">
+              <div class="mistake-block">
+                <div class="mistake-label">1. Mutable object/array as default — shared reference</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// WRONG — same array instance shared across all calls</span>
+<span class="kw">function</span> <span class="fn">addItem</span>(list: <span class="ty">string</span>[] = []): <span class="ty">string</span>[] {
+  list.push(<span class="str">'item'</span>); <span class="cm">// mutates the shared default!</span>
+  <span class="kw">return</span> list;
+}
+<span class="fn">addItem</span>(); <span class="cm">// ['item']</span>
+<span class="fn">addItem</span>(); <span class="cm">// ['item', 'item'] — accumulating!</span>
+
+<span class="cm">// CORRECT — never mutate; create a new value</span>
+<span class="kw">function</span> <span class="fn">addItem</span>(list: <span class="ty">string</span>[] = []): <span class="ty">string</span>[] {
+  <span class="kw">return</span> [...list, <span class="str">'item'</span>]; <span class="cm">// new array every time</span>
+}</code></pre></div>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label">2. Default value type mismatch</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// WRONG — string default for a number parameter</span>
+<span class="kw">function</span> <span class="fn">count</span>(n: <span class="ty">number</span> = <span class="str">'zero'</span>): <span class="ty">void</span> {} <span class="cm">// Error</span>
+
+<span class="cm">// CORRECT</span>
+<span class="kw">function</span> <span class="fn">count</span>(n: <span class="ty">number</span> = <span class="num">0</span>): <span class="ty">void</span> {}</code></pre></div>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label">3. Passing <code>null</code> expecting the default to kick in</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">function</span> <span class="fn">greet</span>(name: <span class="ty">string</span> = <span class="str">'World'</span>): <span class="ty">string</span> {
+  <span class="kw">return</span> <span class="str">`Hello </span><span class="op">${</span>name<span class="op">}</span><span class="str">`</span>;
+}
+
+<span class="fn">greet</span>(<span class="kw">null</span>);      <span class="cm">// "Hello null" — default does NOT apply for null</span>
+<span class="fn">greet</span>(<span class="kw">undefined</span>); <span class="cm">// "Hello World" — only undefined triggers defaults</span></code></pre></div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="dp-bp">
+              <ol>
+                <li><strong>Prefer default params over <code>?? defaultValue</code> inside the body</strong> — it's cleaner and documents intent at the signature level</li>
+                <li><strong>Use named constants for defaults</strong> — <code>const DEFAULT_PAGE_SIZE = 20</code> is more readable than a magic literal</li>
+                <li><strong>Never use mutable objects/arrays as defaults</strong> — always create a fresh value inside the body if you need an object default</li>
+                <li><strong>Combine with destructuring for options objects</strong> — <code>function fn({ limit = 10, offset = 0 }: Options = {})</code></li>
+                <li><strong>Remember: only <code>undefined</code> triggers defaults</strong> — passing <code>null</code> or <code>false</code> or <code>0</code> does NOT use the default</li>
+                <li><strong>Keep defaults simple</strong> — literals and constants. Avoid calling functions or accessing global state in defaults</li>
+                <li><strong>Document defaults that come from config or environment</strong> — not all defaults are obvious from their literal value</li>
+              </ol>
+            </div>
+
+            <div class="tab-pane" data-pane="dp-interview">
+              <div class="qa-block">
+                <div class="qa-q">Q: What is the key difference between optional (<code>?</code>) and default (<code>= value</code>) parameters? <span class="qa-difficulty easy">Easy</span></div>
+                <div class="qa-a">An optional parameter's type is <code>T | undefined</code> inside the function — you must check for <code>undefined</code>. A default parameter's type is just <code>T</code> — inside the function it is always defined because the default covers the absence case. Use defaults when you have a sensible fallback; use optional when absence should trigger different logic.</div>
+              </div>
+              <div class="qa-block">
+                <div class="qa-q">Q: Does a default parameter make calling with no argument valid? <span class="qa-difficulty easy">Easy</span></div>
+                <div class="qa-a">Yes. A parameter with a default becomes optional from the caller's perspective — the argument may be omitted. TypeScript automatically infers it as optional. This is different from a parameter typed as <code>T | undefined</code> without a default, where the caller must explicitly pass <code>undefined</code>.</div>
+              </div>
+              <div class="qa-block">
+                <div class="qa-q">Q: What is the danger of using an object or array literal as a default parameter value? <span class="qa-difficulty medium">Medium</span></div>
+                <div class="qa-a">In TypeScript (and JavaScript), default parameter values are evaluated once per call, but if you <em>mutate</em> the array or object received from the default, subsequent calls share the same mutated reference in some implementations. The safe pattern is to never mutate parameters — always create new values. Use <code>return [...list, newItem]</code> instead of <code>list.push(newItem); return list</code>.</div>
+              </div>
+              <div class="qa-block">
+                <div class="qa-q">Q: What happens when you pass <code>null</code> to a parameter that has a default value? <span class="qa-difficulty medium">Medium</span></div>
+                <div class="qa-a">The default does NOT apply. Default parameters only trigger for <code>undefined</code> (or an omitted argument). Passing <code>null</code> is an explicit value — the function receives <code>null</code>, not the default. If you need to treat <code>null</code> as "use the default," handle it explicitly: <code>const val = param ?? defaultValue</code> inside the body.</div>
+              </div>
+              <div class="qa-block">
+                <div class="qa-q">Q: How do default parameters work with destructuring? Show an example. <span class="qa-difficulty hard">Hard</span></div>
+                <div class="qa-a">You can default-destructure an entire options object: <code>function fn({ url, timeout = 5000 }: Options = {})</code>. The outer <code>= {}</code> makes the whole argument optional; the inner <code>= 5000</code> defaults individual properties. This is the idiomatic TypeScript pattern for configuration functions. <code>Options</code> should use <code>?</code> on each property to allow partial objects.</div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="dp-exercise">
+              <div class="challenge-box">
+                <div class="goal"><strong>Goal:</strong> Build a type-safe <code>formatCurrency</code> function with meaningful defaults.</div>
+                <h4>Requirements</h4>
+                <ul>
+                  <li>Required: <code>amount: number</code></li>
+                  <li>Default: <code>currency = 'USD'</code></li>
+                  <li>Default: <code>locale = 'en-US'</code></li>
+                  <li>Default: <code>minimumFractionDigits = 2</code></li>
+                  <li>Use <code>Intl.NumberFormat</code> for formatting</li>
+                </ul>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">function</span> <span class="fn">formatCurrency</span>(
+  amount: <span class="ty">number</span>,
+  <span class="cm">// TODO: add default parameters for currency, locale, minimumFractionDigits</span>
+): <span class="ty">string</span> {
+  <span class="cm">// TODO: return new Intl.NumberFormat(locale, {</span>
+  <span class="cm">//   style: 'currency', currency, minimumFractionDigits</span>
+  <span class="cm">// }).format(amount)</span>
+}
+
+<span class="fn">formatCurrency</span>(<span class="num">1234.5</span>);                      <span class="cm">// "$1,234.50"</span>
+<span class="fn">formatCurrency</span>(<span class="num">1234.5</span>, <span class="str">'EUR'</span>, <span class="str">'de-DE'</span>);      <span class="cm">// "1.234,50 €"</span>
+<span class="fn">formatCurrency</span>(<span class="num">1234</span>, <span class="str">'JPY'</span>, <span class="str">'ja-JP'</span>, <span class="num">0</span>);    <span class="cm">// "¥1,234"</span></code></pre></div>
+                <div class="hint">💡 Hint: The <code>Intl.NumberFormat</code> constructor accepts <code>(locale, options)</code> where options includes <code>style</code>, <code>currency</code>, and <code>minimumFractionDigits</code>.</div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="dp-summary">
+              <ul class="takeaways">
+                <li>Default parameters use <code>param: Type = value</code> — the default applies when the caller omits the argument or passes <code>undefined</code></li>
+                <li>Inside the function body, a default parameter's type is <code>T</code>, never <code>T | undefined</code></li>
+                <li>Defaults replace the broken <code>|| 'fallback'</code> pattern and correctly handle falsy values like <code>0</code> and <code>false</code></li>
+                <li>Only <code>undefined</code> triggers the default — passing <code>null</code> gives you <code>null</code>, not the default</li>
+                <li>Never mutate a default object or array — always return a new value</li>
+                <li>Combine defaults with destructuring for clean options-object patterns: <code>function fn({ limit = 10 } = {})</code></li>
+              </ul>
+              <div class="mental-model">🧠 Mental model: Default parameters are a promise from the function — "if you don't tell me, I'll assume X." And unlike <code>||</code>, TypeScript keeps that promise precisely, never accidentally replacing your intentional <code>0</code> or <code>false</code>.</div>
+            </div>
+
+          </div>
+        </details>
+
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- TOPIC 4: Rest Parameters                                   -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <details class="topic-panel" id="topic-rest-params">
+          <summary>
+            <svg class="panel-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            <span class="topic-name">Rest Parameters</span>
+            <span class="badge intermediate">Intermediate</span>
+          </summary>
+
+          <div class="panel-tabs">
+            <button class="tab active" data-tab="rp-def">Definition</button>
+            <button class="tab" data-tab="rp-why">Why It Exists</button>
+            <button class="tab" data-tab="rp-when">When to Use</button>
+            <button class="tab" data-tab="rp-notwhen">When NOT to Use</button>
+            <button class="tab" data-tab="rp-internals">How It Works</button>
+            <button class="tab" data-tab="rp-syntax">Syntax</button>
+            <button class="tab" data-tab="rp-example">Example</button>
+            <button class="tab" data-tab="rp-real">Real-World</button>
+            <button class="tab" data-tab="rp-usecases">Use Cases</button>
+            <button class="tab" data-tab="rp-mistakes">Mistakes</button>
+            <button class="tab" data-tab="rp-bp">Best Practices</button>
+            <button class="tab" data-tab="rp-interview">Interview Qs</button>
+            <button class="tab" data-tab="rp-exercise">Exercise</button>
+            <button class="tab" data-tab="rp-summary">Summary</button>
+          </div>
+
+          <div class="panel-content">
+
+            <div class="tab-pane active" data-pane="rp-def">
+              <h4>Simple Explanation</h4>
+              <p>Rest parameters let a function accept any number of arguments and bundle them into an array. Think of it like a "collect everything else" bucket at the end of the parameter list — whatever extra values come in get scooped up there.</p>
+              <h4>Technical Explanation</h4>
+              <p>A rest parameter is declared with <code>...</code> before the parameter name and a typed array annotation (<code>...args: T[]</code>). It collects all remaining arguments passed to the function into a real, typed array. TypeScript enforces the element type, so every item in the collected array is known to be of type <code>T</code>. The rest parameter must be last and there can only be one per function.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="rp-why">
+              <h4>The Problem: <code>arguments</code></h4>
+              <p>Before rest params, JavaScript used the <code>arguments</code> object — a weird array-like object that isn't a real array, has no type info, doesn't work in arrow functions, and requires <code>Array.from(arguments)</code> to use any array method.</p>
+              <div class="code-block"><div class="code-header"><span class="code-lang">javascript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// Old JavaScript — arguments is an array-like, not a real array</span>
+<span class="kw">function</span> <span class="fn">sum</span>() {
+  <span class="kw">return</span> Array.from(arguments).reduce((a, b) =&gt; a + b, <span class="num">0</span>);
+}
+
+<span class="cm">// Arrow functions don't have 'arguments' — this captures outer scope</span>
+<span class="kw">const</span> sumArrow = () =&gt; Array.from(arguments); <span class="cm">// WRONG</span></code></pre></div>
+              <h4>The Fix: Rest Parameters</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// TypeScript rest params — real typed array, works in arrows</span>
+<span class="kw">function</span> <span class="fn">sum</span>(...nums: <span class="ty">number</span>[]): <span class="ty">number</span> {
+  <span class="kw">return</span> nums.reduce((a, b) =&gt; a + b, <span class="num">0</span>); <span class="cm">// nums is number[], has all array methods</span>
+}
+
+<span class="kw">const</span> sumArrow = (...nums: <span class="ty">number</span>[]): <span class="ty">number</span> =&gt;
+  nums.reduce((a, b) =&gt; a + b, <span class="num">0</span>); <span class="cm">// works perfectly in arrow functions</span>
+
+<span class="fn">sum</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>); <span class="cm">// 10</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="rp-when">
+              <ul>
+                <li><strong>Variadic utility functions</strong> — <code>sum</code>, <code>max</code>, <code>merge</code>, <code>concat</code> where the count of inputs isn't fixed</li>
+                <li><strong>Forwarding arguments to another function</strong> — wrapper functions that collect args and spread them forward</li>
+                <li><strong>Logging functions</strong> — <code>log(level, ...messages)</code> where messages is a flexible list</li>
+                <li><strong>Event emission</strong> — <code>emit(eventName, ...args)</code> where arguments depend on the event type</li>
+                <li><strong>Tagged template literals</strong> — the standard signature uses rest params: <code>(strings: TemplateStringsArray, ...values: unknown[])</code></li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="rp-notwhen">
+              <ul>
+                <li><strong>When you know the exact argument count</strong> — use explicit named parameters; they're clearer and give better IntelliSense</li>
+                <li><strong>When arguments have different types</strong> — rest params give you <code>T[]</code>, so all elements must be the same type. Use overloads for heterogeneous args</li>
+                <li><strong>As a lazy substitute for an explicit array param</strong> — <code>fn([1, 2, 3])</code> is often clearer than <code>fn(1, 2, 3)</code> when you already have an array</li>
+                <li><strong>Mixing with <code>arguments</code></strong> — don't use both in the same function; they don't mix well and rest params fully replace <code>arguments</code></li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="rp-internals">
+              <p>At runtime, JavaScript rest parameters are implemented as <code>Array.from(arguments).slice(n)</code> where <code>n</code> is the number of named parameters before the rest param. TypeScript statically types the resulting array's element type.</p>
+              <p><strong>TypeScript enforcements:</strong></p>
+              <ol>
+                <li>Only one rest parameter per function</li>
+                <li>Must be the last parameter in the list</li>
+                <li>Type must be an array type (<code>T[]</code> or <code>Array&lt;T&gt;</code>) or a tuple type</li>
+              </ol>
+              <p><strong>Tuple rest types</strong> (<code>[T, ...T[]]</code>) are a TypeScript-specific extension that lets you require at least one argument while still accepting more — the first element has type <code>T</code> and the remaining elements are <code>T[]</code>.</p>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// TypeScript source</span>
+<span class="kw">function</span> <span class="fn">join</span>(...parts: <span class="ty">string</span>[]): <span class="ty">string</span> { <span class="kw">return</span> parts.join(<span class="str">','</span>); }
+
+<span class="cm">// Compiled JavaScript (ES6)</span>
+<span class="kw">function</span> <span class="fn">join</span>(...parts) { <span class="kw">return</span> parts.join(<span class="str">','</span>); }
+<span class="cm">// TypeScript annotation stripped; rest syntax preserved as-is</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="rp-syntax">
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">function</span> <span class="fn">log</span>(
+  level: <span class="ty">string</span>,           <span class="cm">// named param — comes first</span>
+  ...messages: <span class="ty">string</span>[]   <span class="cm">// rest param — must be last</span>
+<span class="cm">//^^^                       spread/rest operator</span>
+<span class="cm">//              ^^^^^^^^    array type — each element is string</span>
+): <span class="ty">void</span> {
+  console.log(<span class="str">`[</span><span class="op">${</span>level<span class="op">}</span><span class="str">]`</span>, ...messages); <span class="cm">// spread back out</span>
+}
+
+<span class="fn">log</span>(<span class="str">'INFO'</span>, <span class="str">'Starting'</span>);
+<span class="fn">log</span>(<span class="str">'WARN'</span>, <span class="str">'Cache'</span>, <span class="str">'miss'</span>, <span class="str">'on key'</span>, <span class="str">'user:42'</span>);
+
+<span class="cm">// Tuple rest type — requires at least one argument</span>
+<span class="kw">function</span> <span class="fn">first</span>&lt;T&gt;(...args: [<span class="ty">T</span>, ...<span class="ty">T</span>[]]): <span class="ty">T</span> {
+<span class="cm">//                  ^^^^^^^^^^^^^^^^^^^  first is T, rest are T[]</span>
+  <span class="kw">return</span> args[<span class="num">0</span>];
+}
+
+<span class="fn">first</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>);   <span class="cm">// 1</span>
+<span class="fn">first</span>();          <span class="cm">// Error: Expected at least 1 argument</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="rp-example">
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// Variadic merge function</span>
+<span class="kw">function</span> <span class="fn">mergeObjects</span>&lt;T <span class="kw">extends</span> <span class="ty">object</span>&gt;(...objects: <span class="ty">T</span>[]): <span class="ty">T</span> {
+  <span class="kw">return</span> Object.assign({}, ...objects);
+}
+
+<span class="kw">const</span> merged = <span class="fn">mergeObjects</span>(
+  { name: <span class="str">'Alice'</span> },
+  { age: <span class="num">30</span> },
+  { role: <span class="str">'admin'</span> }
+);
+<span class="cm">// Type: { name: string } & { age: number } & { role: string }</span>
+<span class="cm">// Value: { name: 'Alice', age: 30, role: 'admin' }</span>
+
+<span class="cm">// Type-safe variadic validation</span>
+<span class="kw">type</span> <span class="ty">Validator</span>&lt;T&gt; = (value: <span class="ty">T</span>) =&gt; <span class="ty">string</span> | <span class="kw">null</span>;
+
+<span class="kw">function</span> <span class="fn">validate</span>&lt;T&gt;(value: <span class="ty">T</span>, ...validators: <span class="ty">Validator</span>&lt;<span class="ty">T</span>&gt;[]): <span class="ty">string</span>[] {
+  <span class="kw">return</span> validators
+    .map(v =&gt; <span class="fn">v</span>(value))
+    .filter((err): err <span class="kw">is</span> <span class="ty">string</span> =&gt; err !== <span class="kw">null</span>);
+}
+
+<span class="kw">const</span> minLen = (n: <span class="ty">number</span>): <span class="ty">Validator</span>&lt;<span class="ty">string</span>&gt; =&gt;
+  (s) =&gt; s.length &gt;= n ? <span class="kw">null</span> : <span class="str">`Min </span><span class="op">${</span>n<span class="op">}</span><span class="str"> chars`</span>;
+<span class="kw">const</span> noSpaces: <span class="ty">Validator</span>&lt;<span class="ty">string</span>&gt; =
+  (s) =&gt; /\s/.test(s) ? <span class="str">'No spaces'</span> : <span class="kw">null</span>;
+
+<span class="kw">const</span> errors = <span class="fn">validate</span>(<span class="str">'hi world'</span>, <span class="fn">minLen</span>(<span class="num">5</span>), noSpaces);
+<span class="cm">// ['No spaces']</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="rp-real">
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// Tagged template literal for SQL query building</span>
+<span class="kw">interface</span> <span class="ty">SqlQuery</span> {
+  text: <span class="ty">string</span>;
+  values: <span class="ty">unknown</span>[];
+}
+
+<span class="kw">function</span> <span class="fn">sql</span>(
+  strings: TemplateStringsArray,
+  ...values: <span class="ty">unknown</span>[]           <span class="cm">// rest params collect interpolated values</span>
+): <span class="ty">SqlQuery</span> {
+  <span class="kw">const</span> text = strings.reduce((acc, str, i) =&gt;
+    acc + str + (i &lt; values.length ? <span class="str">`$</span><span class="op">${</span>i + <span class="num">1</span><span class="op">}</span><span class="str">`</span> : <span class="str">''</span>), <span class="str">''</span>
+  );
+  <span class="kw">return</span> { text, values };
+}
+
+<span class="kw">const</span> userId = <span class="num">42</span>;
+<span class="kw">const</span> role   = <span class="str">'admin'</span>;
+
+<span class="kw">const</span> query = sql<span class="str">`
+  SELECT * FROM users
+  WHERE id = </span><span class="op">${</span>userId<span class="op">}</span><span class="str">
+    AND role = </span><span class="op">${</span>role<span class="op">}</span><span class="str">
+`</span>;
+
+<span class="cm">// query.text   = "SELECT * FROM users WHERE id = $1 AND role = $2"</span>
+<span class="cm">// query.values = [42, 'admin']</span>
+<span class="cm">// Safe from SQL injection — values never concatenated into text</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="rp-usecases">
+              <ul>
+                <li><strong><code>console.log</code></strong> itself is typed with rest params: <code>log(message?: any, ...optionalParams: any[])</code> — accepts any number of values to display</li>
+                <li><strong><code>clsx</code>/<code>classnames</code></strong> utility for React: <code>clsx(...inputs: ClassValue[])</code> merges conditional class name arguments</li>
+                <li><strong>Node.js EventEmitter</strong>: <code>emit(event, ...args)</code> forwards arguments to all registered listeners for that event</li>
+                <li><strong>Tagged template literals</strong>: SQL builders (like <code>sql</code> above), i18n helpers, and styled-components all use <code>...values: unknown[]</code> rest params</li>
+                <li><strong>Test assertion helpers</strong>: <code>expect.all(...assertions)</code> runs multiple assertions in one call</li>
+                <li><strong>Function composition utilities</strong>: <code>pipe(...fns)</code> chains an arbitrary number of transformations</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="rp-mistakes">
+              <div class="mistake-block">
+                <div class="mistake-label">1. Rest param is not last</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// WRONG — rest must be the last parameter</span>
+<span class="kw">function</span> <span class="fn">log</span>(...messages: <span class="ty">string</span>[], level: <span class="ty">string</span>): <span class="ty">void</span> {} <span class="cm">// Error!</span>
+
+<span class="cm">// CORRECT — named params first, rest last</span>
+<span class="kw">function</span> <span class="fn">log</span>(level: <span class="ty">string</span>, ...messages: <span class="ty">string</span>[]): <span class="ty">void</span> {}</code></pre></div>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label">2. Rest type must be an array type</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// WRONG — rest type must be array</span>
+<span class="kw">function</span> <span class="fn">sum</span>(...nums: <span class="ty">number</span>): <span class="ty">number</span> { <span class="kw">return</span> <span class="num">0</span>; } <span class="cm">// Error!</span>
+
+<span class="cm">// CORRECT</span>
+<span class="kw">function</span> <span class="fn">sum</span>(...nums: <span class="ty">number</span>[]): <span class="ty">number</span> {
+  <span class="kw">return</span> nums.reduce((a, b) =&gt; a + b, <span class="num">0</span>);
+}</code></pre></div>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label">3. Spreading a variable-length array into a fixed-param function</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">function</span> <span class="fn">add</span>(a: <span class="ty">number</span>, b: <span class="ty">number</span>): <span class="ty">number</span> { <span class="kw">return</span> a + b; }
+
+<span class="kw">const</span> nums = [<span class="num">1</span>, <span class="num">2</span>]; <span class="cm">// type: number[] — length unknown at compile time</span>
+<span class="fn">add</span>(...nums);          <span class="cm">// Error: spread of uncertain length</span>
+
+<span class="cm">// CORRECT — use a tuple type to lock in the length</span>
+<span class="kw">const</span> pair: [<span class="ty">number</span>, <span class="ty">number</span>] = [<span class="num">1</span>, <span class="num">2</span>];
+<span class="fn">add</span>(...pair);          <span class="cm">// OK — tuple length is known</span></code></pre></div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="rp-bp">
+              <ol>
+                <li><strong>Always annotate the element type</strong> — never use <code>...args: any[]</code>; specify the actual element type</li>
+                <li><strong>Prefer rest params over <code>arguments</code></strong> — rest params are real arrays, work in arrow functions, and are typed</li>
+                <li><strong>Use tuple rest types to require at least one arg</strong> — <code>(...args: [T, ...T[]])</code> prevents empty calls</li>
+                <li><strong>Consider explicit array params for call sites that already have arrays</strong> — <code>fn([1, 2, 3])</code> can be clearer than <code>fn(1, 2, 3)</code></li>
+                <li><strong>Combine with spread to forward args</strong> — <code>function wrapper(...args: P) { return inner(...args); }</code></li>
+                <li><strong>Use <code>Parameters&lt;typeof fn&gt;</code></strong> to extract a function's parameter types as a tuple when building typed wrappers</li>
+                <li><strong>Document "at least N arguments"</strong> via JSDoc if a tuple rest type is not used</li>
+              </ol>
+            </div>
+
+            <div class="tab-pane" data-pane="rp-interview">
+              <div class="qa-block">
+                <div class="qa-q">Q: What is a rest parameter and how does it differ from the <code>arguments</code> object? <span class="qa-difficulty easy">Easy</span></div>
+                <div class="qa-a">A rest parameter (<code>...args: T[]</code>) collects remaining function arguments into a <em>real, typed array</em>. Unlike <code>arguments</code>, it supports all Array methods, is properly typed, and works inside arrow functions. <code>arguments</code> is a legacy feature that should be avoided in TypeScript.</div>
+              </div>
+              <div class="qa-block">
+                <div class="qa-q">Q: Can you have multiple rest parameters in one function? <span class="qa-difficulty easy">Easy</span></div>
+                <div class="qa-a">No. Only one rest parameter is allowed per function, and it must be the last parameter. TypeScript and JavaScript both enforce this at parse time.</div>
+              </div>
+              <div class="qa-block">
+                <div class="qa-q">Q: How do you require at least one argument with rest params? <span class="qa-difficulty medium">Medium</span></div>
+                <div class="qa-a">Use a tuple rest type: <code>(...args: [T, ...T[]])</code>. The first element is required and typed <code>T</code>; the rest are optional <code>T</code>s. TypeScript will error if the function is called with no arguments.</div>
+              </div>
+              <div class="qa-block">
+                <div class="qa-q">Q: How do you forward rest parameters to another function in a type-safe way? <span class="qa-difficulty medium">Medium</span></div>
+                <div class="qa-a">Use <code>Parameters&lt;typeof originalFn&gt;</code> to capture the parameter types as a tuple, then spread: <code>function wrapper(...args: Parameters&lt;typeof original&gt;) { return original(...args); }</code>. This is fully typed and forward-compatible — if <code>original</code>'s signature changes, <code>wrapper</code> stays in sync.</div>
+              </div>
+              <div class="qa-block">
+                <div class="qa-q">Q: Explain the difference between <code>...args: string[]</code> and <code>...args: [string, ...number[]]</code>. <span class="qa-difficulty hard">Hard</span></div>
+                <div class="qa-a"><code>string[]</code> means all arguments must be strings. <code>[string, ...number[]]</code> is a heterogeneous tuple rest type: the first argument must be a string, the rest must be numbers. This enables calls like <code>fn('label', 1, 2, 3)</code>. TypeScript uses a similar pattern for <code>console.log</code>: <code>(message?: any, ...params: any[])</code>.</div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="rp-exercise">
+              <div class="challenge-box">
+                <div class="goal"><strong>Goal:</strong> Build a type-safe <code>formatMessage</code> function using rest params.</div>
+                <h4>Requirements</h4>
+                <ul>
+                  <li>First param: <code>level: 'debug' | 'info' | 'warn' | 'error'</code></li>
+                  <li>Second param: <code>template: string</code> with <code>%s</code> placeholders</li>
+                  <li>Rest params: <code>...values: (string | number)[]</code></li>
+                  <li>Replace each <code>%s</code> in the template with the corresponding value in order</li>
+                  <li>Return the formatted string with a <code>[LEVEL]</code> prefix</li>
+                </ul>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">function</span> <span class="fn">formatMessage</span>(
+  level: <span class="str">'debug'</span> | <span class="str">'info'</span> | <span class="str">'warn'</span> | <span class="str">'error'</span>,
+  template: <span class="ty">string</span>,
+  <span class="cm">// TODO: add rest parameter for values</span>
+): <span class="ty">string</span> {
+  <span class="cm">// TODO: replace each %s placeholder with next value</span>
+  <span class="cm">// Hint: split on '%s' and rejoin with values</span>
+}
+
+<span class="fn">formatMessage</span>(<span class="str">'info'</span>, <span class="str">'User %s logged in from %s'</span>, <span class="str">'Alice'</span>, <span class="str">'192.168.1.1'</span>);
+<span class="cm">// "[INFO] User Alice logged in from 192.168.1.1"</span>
+
+<span class="fn">formatMessage</span>(<span class="str">'error'</span>, <span class="str">'Request %s failed with status %s'</span>, <span class="str">'/api/users'</span>, <span class="num">404</span>);
+<span class="cm">// "[ERROR] Request /api/users failed with status 404"</span></code></pre></div>
+                <div class="hint">💡 Hint: <code>template.split('%s')</code> gives you an array of parts; interleave them with values using <code>reduce</code> or a loop.</div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="rp-summary">
+              <ul class="takeaways">
+                <li>Rest parameters (<code>...name: T[]</code>) collect any number of trailing arguments into a typed, real array</li>
+                <li>Unlike <code>arguments</code>, rest params work in arrow functions and have full Array method support</li>
+                <li>Only one rest parameter allowed per function — it must be the last parameter</li>
+                <li>Use tuple rest types <code>[T, ...T[]]</code> to require at least one argument</li>
+                <li>Combine with spread (<code>...args</code>) to forward collected arguments to other functions</li>
+                <li>Use <code>Parameters&lt;typeof fn&gt;</code> to build type-safe wrappers around existing functions</li>
+              </ul>
+              <div class="mental-model">🧠 Mental model: Rest parameters are a "net" at the end of your parameter list — they catch everything the caller throws in and hand it to you as a tidy, typed array.</div>
+            </div>
+
+          </div>
+        </details>
+
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- TOPIC 5: Return Types                                      -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <details class="topic-panel" id="topic-return-types">
+          <summary>
+            <svg class="panel-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            <span class="topic-name">Return Types</span>
+            <span class="badge intermediate">Intermediate</span>
+          </summary>
+
+          <div class="panel-tabs">
+            <button class="tab active" data-tab="rt-def">Definition</button>
+            <button class="tab" data-tab="rt-why">Why It Exists</button>
+            <button class="tab" data-tab="rt-when">When to Use</button>
+            <button class="tab" data-tab="rt-notwhen">When NOT to Use</button>
+            <button class="tab" data-tab="rt-internals">How It Works</button>
+            <button class="tab" data-tab="rt-syntax">Syntax</button>
+            <button class="tab" data-tab="rt-example">Example</button>
+            <button class="tab" data-tab="rt-real">Real-World</button>
+            <button class="tab" data-tab="rt-usecases">Use Cases</button>
+            <button class="tab" data-tab="rt-mistakes">Mistakes</button>
+            <button class="tab" data-tab="rt-bp">Best Practices</button>
+            <button class="tab" data-tab="rt-interview">Interview Qs</button>
+            <button class="tab" data-tab="rt-exercise">Exercise</button>
+            <button class="tab" data-tab="rt-summary">Summary</button>
+          </div>
+
+          <div class="panel-content">
+
+            <div class="tab-pane active" data-pane="rt-def">
+              <h4>Simple Explanation</h4>
+              <p>A return type tells TypeScript what kind of value a function will hand back. It's like a label on a machine that says "this machine outputs oranges" — TypeScript makes sure you don't accidentally output apples, and callers know exactly what they're going to receive.</p>
+              <h4>Technical Explanation</h4>
+              <p>Return types are type annotations placed after the function's parameter list, following a colon (<code>: Type</code>). TypeScript performs control flow analysis on the function body, verifying that every possible <code>return</code> statement returns a value assignable to the declared type. TypeScript can also infer return types automatically, but explicit annotations create a documented contract and act as a safety net against accidental changes.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="rt-why">
+              <h4>The Problem: Silent Type Drift</h4>
+              <p>Without explicit return types, TypeScript infers the return type from the function body. This works well initially, but as the function evolves, a new branch might accidentally return <code>undefined</code> instead of the expected type. The callers silently receive a different type without any warning.</p>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// Without return type — drift is silent</span>
+<span class="kw">function</span> <span class="fn">getUser</span>(id: <span class="ty">number</span>) {
+  <span class="kw">if</span> (id &gt; <span class="num">0</span>) {
+    <span class="kw">return</span> { name: <span class="str">'Alice'</span>, id };
+  }
+  <span class="cm">// Missing return — TypeScript infers: { name: string; id: number } | undefined</span>
+  <span class="cm">// Callers now get undefined silently — no warning!</span>
+}
+
+<span class="cm">// With explicit return type — caught immediately</span>
+<span class="kw">function</span> <span class="fn">getUser</span>(id: <span class="ty">number</span>): { name: <span class="ty">string</span>; id: <span class="ty">number</span> } {
+  <span class="kw">if</span> (id &gt; <span class="num">0</span>) {
+    <span class="kw">return</span> { name: <span class="str">'Alice'</span>, id };
+  }
+  <span class="cm">// Error: Function lacks ending return statement and return type</span>
+  <span class="cm">// does not include 'undefined'</span>
+}</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="rt-when">
+              <ul>
+                <li><strong>Public API functions and exported utilities</strong> — callers rely on the contract; changing the type should be a deliberate breaking change</li>
+                <li><strong>Async functions</strong> — document the resolved type explicitly: <code>async function fn(): Promise&lt;User&gt;</code></li>
+                <li><strong>Complex functions with multiple branches</strong> — explicit types verify all paths return the correct shape</li>
+                <li><strong>Team settings</strong> — prevents unintentional return type changes from slipping past code review</li>
+                <li><strong>When inference is too wide</strong> — TypeScript might infer <code>string | undefined</code> when you know it's always <code>string</code></li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="rt-notwhen">
+              <ul>
+                <li><strong>Trivial one-liners where inference is obvious</strong> — <code>const double = (n: number) => n * 2</code> doesn't need <code>: number</code> at the end</li>
+                <li><strong>Private internal helpers</strong> — let inference do the work; explicit annotations add noise</li>
+                <li><strong>Simple arrow callbacks in array methods</strong> — <code>users.map(u => u.id)</code> doesn't benefit from annotating <code>: number</code></li>
+                <li><strong>Never use <code>any</code> as a return type</strong> — this defeats type safety entirely; investigate the root cause instead</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="rt-internals">
+              <p>TypeScript performs <strong>control flow analysis</strong> on the function body. It tracks every execution path and verifies each <code>return</code> statement returns a value assignable to the declared return type.</p>
+              <p>Special return types and what the compiler checks:</p>
+              <ul>
+                <li><strong><code>void</code></strong> — allows any return statement or no return at all; callers should not use the value</li>
+                <li><strong><code>never</code></strong> — verifies the function never returns normally (always throws or infinite loops); enables exhaustiveness checking in switch statements</li>
+                <li><strong><code>Promise&lt;T&gt;</code></strong> — enforces that <code>async</code> functions have the correct resolved type; TypeScript auto-wraps any returned value in a Promise</li>
+                <li><strong>Union returns</strong> — all branches must return a value in the union; TypeScript errors if any path is missing</li>
+              </ul>
+              <p>All type annotations are erased in the JavaScript output — return types are purely a compile-time construct.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="rt-syntax">
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// Basic return type — after the parameter list</span>
+<span class="kw">function</span> <span class="fn">add</span>(a: <span class="ty">number</span>, b: <span class="ty">number</span>): <span class="ty">number</span> {
+<span class="cm">//                               ^^^^^^ return type annotation</span>
+  <span class="kw">return</span> a + b; <span class="cm">// TypeScript verifies this is a number</span>
+}
+
+<span class="cm">// Arrow function return type</span>
+<span class="kw">const</span> multiply = (a: <span class="ty">number</span>, b: <span class="ty">number</span>): <span class="ty">number</span> =&gt; a * b;
+
+<span class="cm">// Async function — return type is always Promise&lt;T&gt;</span>
+<span class="kw">async function</span> <span class="fn">fetchUser</span>(id: <span class="ty">number</span>): <span class="ty">Promise</span>&lt;<span class="ty">User</span>&gt; {
+  <span class="kw">const</span> res = <span class="kw">await</span> fetch(<span class="str">`/users/</span><span class="op">${</span>id<span class="op">}</span><span class="str">`</span>);
+  <span class="kw">return</span> res.json(); <span class="cm">// TypeScript checks this resolves to User</span>
+}
+
+<span class="cm">// void — function doesn't meaningfully return</span>
+<span class="kw">function</span> <span class="fn">logMessage</span>(msg: <span class="ty">string</span>): <span class="ty">void</span> {
+  console.log(msg); <span class="cm">// no return needed</span>
+}
+
+<span class="cm">// never — function never returns normally</span>
+<span class="kw">function</span> <span class="fn">throwError</span>(msg: <span class="ty">string</span>): <span class="kw">never</span> {
+  <span class="kw">throw new</span> Error(msg); <span class="cm">// always throws</span>
+}</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="rt-example">
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">type</span> <span class="ty">UserRole</span> = <span class="str">'admin'</span> | <span class="str">'editor'</span> | <span class="str">'viewer'</span>;
+
+<span class="kw">interface</span> <span class="ty">User</span> {
+  id: <span class="ty">number</span>;
+  name: <span class="ty">string</span>;
+  role: <span class="ty">UserRole</span>;
+}
+
+<span class="kw">interface</span> <span class="ty">ApiResponse</span>&lt;T&gt; {
+  data: <span class="ty">T</span>;
+  status: <span class="ty">number</span>;
+  message: <span class="ty">string</span>;
+}
+
+<span class="kw">function</span> <span class="fn">createResponse</span>&lt;T&gt;(data: <span class="ty">T</span>, msg = <span class="str">'Success'</span>): <span class="ty">ApiResponse</span>&lt;<span class="ty">T</span>&gt; {
+  <span class="kw">return</span> { data, status: <span class="num">200</span>, message: msg };
+}
+
+<span class="kw">async function</span> <span class="fn">getUser</span>(id: <span class="ty">number</span>): <span class="ty">Promise</span>&lt;<span class="ty">ApiResponse</span>&lt;<span class="ty">User</span>&gt;&gt; {
+  <span class="kw">const</span> user: <span class="ty">User</span> = { id, name: <span class="str">'Alice'</span>, role: <span class="str">'admin'</span> };
+  <span class="kw">return</span> <span class="fn">createResponse</span>(user);
+}
+
+<span class="cm">// never for exhaustiveness checking</span>
+<span class="kw">function</span> <span class="fn">assertNever</span>(value: <span class="kw">never</span>): <span class="kw">never</span> {
+  <span class="kw">throw new</span> Error(<span class="str">`Unhandled: </span><span class="op">${</span>JSON.stringify(value)<span class="op">}</span><span class="str">`</span>);
+}
+
+<span class="kw">function</span> <span class="fn">getPermissions</span>(role: <span class="ty">UserRole</span>): <span class="ty">string</span>[] {
+  <span class="kw">switch</span> (role) {
+    <span class="kw">case</span> <span class="str">'admin'</span>:  <span class="kw">return</span> [<span class="str">'read'</span>, <span class="str">'write'</span>, <span class="str">'delete'</span>];
+    <span class="kw">case</span> <span class="str">'editor'</span>: <span class="kw">return</span> [<span class="str">'read'</span>, <span class="str">'write'</span>];
+    <span class="kw">case</span> <span class="str">'viewer'</span>: <span class="kw">return</span> [<span class="str">'read'</span>];
+    <span class="kw">default</span>:        <span class="kw">return</span> <span class="fn">assertNever</span>(role); <span class="cm">// TypeScript errors if any role is unhandled</span>
+  }
+}</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="rt-real">
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// Next.js API route handler with explicit return types</span>
+<span class="kw">import type</span> { NextApiRequest, NextApiResponse } <span class="kw">from</span> <span class="str">'next'</span>;
+
+<span class="kw">type</span> <span class="ty">ApiError</span>        = { error: <span class="ty">string</span>; code: <span class="ty">number</span> };
+<span class="kw">type</span> <span class="ty">ApiSuccess</span>&lt;T&gt;  = { data: <span class="ty">T</span>; total?: <span class="ty">number</span> };
+<span class="kw">type</span> <span class="ty">ApiResult</span>&lt;T&gt;   = <span class="ty">ApiSuccess</span>&lt;<span class="ty">T</span>&gt; | <span class="ty">ApiError</span>;
+
+<span class="kw">interface</span> <span class="ty">Product</span> { id: <span class="ty">string</span>; name: <span class="ty">string</span>; price: <span class="ty">number</span>; }
+
+<span class="cm">// Type guard — explicit return type narrows the union</span>
+<span class="kw">function</span> <span class="fn">isApiError</span>(r: <span class="ty">ApiResult</span>&lt;<span class="ty">unknown</span>&gt;): r <span class="kw">is</span> <span class="ty">ApiError</span> {
+  <span class="kw">return</span> <span class="str">'error'</span> <span class="kw">in</span> r;
+}
+
+<span class="kw">async function</span> <span class="fn">fetchProducts</span>(
+  page = <span class="num">1</span>, limit = <span class="num">10</span>
+): <span class="ty">Promise</span>&lt;<span class="ty">ApiResult</span>&lt;<span class="ty">Product</span>[]&gt;&gt; {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> res = <span class="kw">await</span> fetch(<span class="str">`/api/products?page=</span><span class="op">${</span>page<span class="op">}</span><span class="str">&limit=</span><span class="op">${</span>limit<span class="op">}</span><span class="str">`</span>);
+    <span class="kw">if</span> (!res.ok) <span class="kw">return</span> { error: <span class="str">'Fetch failed'</span>, code: res.status };
+    <span class="kw">const</span> data: <span class="ty">Product</span>[] = <span class="kw">await</span> res.json();
+    <span class="kw">return</span> { data, total: Number(res.headers.get(<span class="str">'X-Total-Count'</span>)) };
+  } <span class="kw">catch</span> (err) {
+    <span class="kw">return</span> { error: (err <span class="kw">as</span> Error).message, code: <span class="num">500</span> };
+  }
+}
+
+<span class="kw">export default async function</span> <span class="fn">handler</span>(
+  req: <span class="ty">NextApiRequest</span>,
+  res: <span class="ty">NextApiResponse</span>&lt;<span class="ty">ApiResult</span>&lt;<span class="ty">Product</span>[]&gt;&gt;
+): <span class="ty">Promise</span>&lt;<span class="ty">void</span>&gt; {
+  <span class="kw">const</span> result = <span class="kw">await</span> <span class="fn">fetchProducts</span>(Number(req.query.page), Number(req.query.limit));
+  <span class="kw">if</span> (<span class="fn">isApiError</span>(result)) {
+    res.status(result.code).json(result);
+  } <span class="kw">else</span> {
+    res.status(<span class="num">200</span>).json(result);
+  }
+}</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="rt-usecases">
+              <ul>
+                <li><strong>Public library functions</strong> — explicit return types form the stable API contract; any change becomes a documented breaking change that TypeScript flags at every call site</li>
+                <li><strong>Redux reducers</strong> — typed as <code>(state: State, action: Action) =&gt; State</code>; explicit return type guarantees the new state shape matches the old</li>
+                <li><strong>tRPC procedures</strong> — return type annotations propagate to the client, giving end-to-end type safety without a code generation step</li>
+                <li><strong>Database query functions</strong> — <code>Promise&lt;User | null&gt;</code> forces callers to handle the "not found" case before accessing user properties</li>
+                <li><strong>React hooks</strong> — <code>useSomeHook(): [State, Dispatch&lt;Action&gt;]</code> pins the exact tuple type so destructuring is correctly typed</li>
+                <li><strong>Type guard functions</strong> — <code>function isUser(v: unknown): v is User</code> — the <code>v is User</code> predicate return type tells TypeScript to narrow the type inside <code>if</code> blocks</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="rt-mistakes">
+              <div class="mistake-block">
+                <div class="mistake-label">1. Async function without <code>Promise&lt;T&gt;</code> wrapper</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// WRONG — async functions always return a Promise</span>
+<span class="kw">async function</span> <span class="fn">getUser</span>(id: <span class="ty">number</span>): <span class="ty">User</span> { <span class="cm">// Error!</span>
+  <span class="kw">return</span> <span class="kw">await</span> <span class="fn">fetchUser</span>(id);
+}
+
+<span class="cm">// CORRECT</span>
+<span class="kw">async function</span> <span class="fn">getUser</span>(id: <span class="ty">number</span>): <span class="ty">Promise</span>&lt;<span class="ty">User</span>&gt; {
+  <span class="kw">return</span> <span class="kw">await</span> <span class="fn">fetchUser</span>(id);
+}</code></pre></div>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label">2. Confusing <code>void</code> and <code>undefined</code></div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// WRONG — void does not mean "returns undefined as a value"</span>
+<span class="kw">function</span> <span class="fn">getIndex</span>(): <span class="ty">void</span> {
+  <span class="kw">return</span> <span class="num">0</span>; <span class="cm">// Error: 0 is not assignable to void</span>
+}
+
+<span class="cm">// CORRECT</span>
+<span class="kw">function</span> <span class="fn">getIndex</span>(): <span class="ty">number</span> { <span class="kw">return</span> <span class="num">0</span>; }
+<span class="kw">function</span> <span class="fn">sideEffect</span>(): <span class="ty">void</span> { console.log(<span class="str">'done'</span>); }</code></pre></div>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label">3. Missing return path in a non-void function</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// WRONG — missing the n === 0 case</span>
+<span class="kw">function</span> <span class="fn">classify</span>(n: <span class="ty">number</span>): <span class="ty">string</span> {
+  <span class="kw">if</span> (n &gt; <span class="num">0</span>) <span class="kw">return</span> <span class="str">'positive'</span>;
+  <span class="kw">if</span> (n &lt; <span class="num">0</span>) <span class="kw">return</span> <span class="str">'negative'</span>;
+  <span class="cm">// Error: not all code paths return a value</span>
+}
+
+<span class="cm">// CORRECT</span>
+<span class="kw">function</span> <span class="fn">classify</span>(n: <span class="ty">number</span>): <span class="ty">string</span> {
+  <span class="kw">if</span> (n &gt; <span class="num">0</span>) <span class="kw">return</span> <span class="str">'positive'</span>;
+  <span class="kw">if</span> (n &lt; <span class="num">0</span>) <span class="kw">return</span> <span class="str">'negative'</span>;
+  <span class="kw">return</span> <span class="str">'zero'</span>;
+}</code></pre></div>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label">4. Using <code>void</code> in a map callback — loses the mapped type</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// WRONG — void discards the return value from the mapper</span>
+<span class="kw">const</span> ids = users.map((u): <span class="ty">void</span> =&gt; u.id); <span class="cm">// Type: void[]</span>
+
+<span class="cm">// CORRECT</span>
+<span class="kw">const</span> ids = users.map((u): <span class="ty">number</span> =&gt; u.id); <span class="cm">// Type: number[]</span></code></pre></div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="rt-bp">
+              <ol>
+                <li><strong>Always annotate public functions and exported utilities</strong> — the return type is part of the API contract</li>
+                <li><strong>Use <code>Promise&lt;T&gt;</code> for all async functions</strong> — be explicit about the resolved type</li>
+                <li><strong>Use <code>void</code> for side-effect callbacks</strong> — signals to callers that the return value is irrelevant</li>
+                <li><strong>Use <code>never</code> for always-throwing functions</strong> — enables exhaustive switch checking with <code>assertNever</code></li>
+                <li><strong>Let TypeScript infer simple private helpers</strong> — annotation on a one-liner arrow adds noise without benefit</li>
+                <li><strong>Avoid <code>any</code> return types</strong> — if the type is unknown, use <code>unknown</code> and narrow at the call site</li>
+                <li><strong>Use <code>readonly</code> return types</strong> — <code>ReadonlyArray&lt;T&gt;</code> prevents callers from mutating your internal state accidentally</li>
+              </ol>
+            </div>
+
+            <div class="tab-pane" data-pane="rt-interview">
+              <div class="qa-block">
+                <div class="qa-q">Q: What are the common return types in TypeScript? <span class="qa-difficulty easy">Easy</span></div>
+                <div class="qa-a">Common return types: primitives (<code>string</code>, <code>number</code>, <code>boolean</code>), object types, array types, <code>void</code> (side-effect functions), <code>never</code> (always-throws functions), <code>Promise&lt;T&gt;</code> (async functions), <code>undefined</code>, <code>null</code>, and union types. TypeScript can infer the return type from the function body when no annotation is given.</div>
+              </div>
+              <div class="qa-block">
+                <div class="qa-q">Q: What is the difference between <code>void</code> and <code>never</code> return types? <span class="qa-difficulty easy">Easy</span></div>
+                <div class="qa-a"><code>void</code> means the function returns without a meaningful value — it may return <code>undefined</code>, but callers shouldn't use the value. <code>never</code> means the function <em>never completes normally</em> — it always throws or has an infinite loop. A <code>void</code> function returns; a <code>never</code> function does not.</div>
+              </div>
+              <div class="qa-block">
+                <div class="qa-q">Q: When should you use <code>Promise&lt;void&gt;</code> versus <code>Promise&lt;undefined&gt;</code>? <span class="qa-difficulty medium">Medium</span></div>
+                <div class="qa-a"><code>Promise&lt;void&gt;</code> signals that the async function performs a side effect and the resolved value should be ignored. <code>Promise&lt;undefined&gt;</code> means the function explicitly resolves with <code>undefined</code> as an intentional value. In nearly all cases, <code>Promise&lt;void&gt;</code> is the correct choice for async functions that don't return data.</div>
+              </div>
+              <div class="qa-block">
+                <div class="qa-q">Q: How does TypeScript use <code>never</code> for exhaustiveness checking? <span class="qa-difficulty medium">Medium</span></div>
+                <div class="qa-a">When you declare a function <code>function assertNever(v: never): never</code> and call it in the <code>default</code> branch of a switch on a discriminated union, TypeScript verifies that all union members are handled. If you add a new union member without handling it, TypeScript errors: "type 'NewMember' is not assignable to type 'never'."</div>
+              </div>
+              <div class="qa-block">
+                <div class="qa-q">Q: Can a function's return type be conditional based on the input type? Show an example. <span class="qa-difficulty hard">Hard</span></div>
+                <div class="qa-a">Yes, via overloads or generic conditional return types. Example with overloads: <code>function parse(input: string): number; function parse(input: number): string;</code>. With generic conditionals: <code>function wrap&lt;T&gt;(v: T): T extends string ? number : string</code>. The implementation signature must cover all overload cases. Overloads are simpler for a small fixed set; conditional types are for complex generic scenarios.</div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="rt-exercise">
+              <div class="challenge-box">
+                <div class="goal"><strong>Goal:</strong> Build a <code>Result&lt;T, E&gt;</code> type and typed helper functions for it.</div>
+                <h4>Requirements</h4>
+                <ul>
+                  <li>Define: <code>type Result&lt;T, E = Error&gt; = &#123; ok: true; value: T &#125; | &#123; ok: false; error: E &#125;</code></li>
+                  <li>Write <code>ok&lt;T&gt;(value: T): Result&lt;T, never&gt;</code> — wraps a success value</li>
+                  <li>Write <code>err&lt;E&gt;(error: E): Result&lt;never, E&gt;</code> — wraps an error</li>
+                  <li>Write <code>map&lt;T, U, E&gt;(result: Result&lt;T, E&gt;, fn: (v: T) =&gt; U): Result&lt;U, E&gt;</code></li>
+                  <li>All return types must be explicit annotations</li>
+                </ul>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">type</span> <span class="ty">Result</span>&lt;T, E = <span class="ty">Error</span>&gt; =
+  | { ok: <span class="kw">true</span>;  value: <span class="ty">T</span> }
+  | { ok: <span class="kw">false</span>; error: <span class="ty">E</span> };
+
+<span class="kw">function</span> ok&lt;T&gt;(value: <span class="ty">T</span>): <span class="ty">Result</span>&lt;<span class="ty">T</span>, <span class="kw">never</span>&gt; {
+  <span class="cm">// TODO: return a success result</span>
+}
+
+<span class="kw">function</span> err&lt;E&gt;(error: <span class="ty">E</span>): <span class="ty">Result</span>&lt;<span class="kw">never</span>, <span class="ty">E</span>&gt; {
+  <span class="cm">// TODO: return an error result</span>
+}
+
+<span class="kw">function</span> map&lt;T, U, E&gt;(
+  result: <span class="ty">Result</span>&lt;<span class="ty">T</span>, <span class="ty">E</span>&gt;,
+  fn: (v: <span class="ty">T</span>) =&gt; <span class="ty">U</span>
+): <span class="ty">Result</span>&lt;<span class="ty">U</span>, <span class="ty">E</span>&gt; {
+  <span class="cm">// TODO: if result.ok is true, apply fn to value</span>
+  <span class="cm">// Hint: use result.ok as the discriminant to narrow the union</span>
+}
+
+<span class="cm">// Should work without errors:</span>
+<span class="kw">const</span> doubled = map(ok(<span class="num">42</span>), n =&gt; n * <span class="num">2</span>); <span class="cm">// Result&lt;number, never&gt;</span>
+<span class="kw">const</span> failed  = map(err(<span class="str">'oops'</span>), n =&gt; n * <span class="num">2</span>); <span class="cm">// Result&lt;never, string&gt;</span></code></pre></div>
+                <div class="hint">💡 Hint: <code>if (result.ok) { return ok(fn(result.value)); } else { return result; }</code></div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="rt-summary">
+              <ul class="takeaways">
+                <li>Return type annotations come after the parameter list: <code>function fn(params): ReturnType</code></li>
+                <li>TypeScript's control flow analysis verifies every possible code path returns the correct type</li>
+                <li><code>void</code> = "don't use the return value"; <code>never</code> = "this function never returns at all"</li>
+                <li>All <code>async</code> functions must be annotated as <code>Promise&lt;T&gt;</code> — TypeScript enforces this</li>
+                <li>Explicit return types create a contract — a safety net against accidental type changes as the function evolves</li>
+                <li>Let inference handle simple private helpers; use explicit annotations for public APIs and complex functions</li>
+                <li>Use <code>assertNever(v: never): never</code> in switch <code>default</code> branches to get exhaustiveness checking for free</li>
+              </ul>
+              <div class="mental-model">🧠 Mental model: The return type is a seal on the function's output. TypeScript won't let the machine ship the wrong product — it checks every assembly line (code path) before the box closes.</div>
+            </div>
+
+          </div>
+        </details>
+
+      </div><!-- end topic-panels -->
+
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <!-- MINI-PROJECT: Expense Tracker                              -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <div class="mini-project" id="mini-project">
+        <h3>Mini-Project: Expense Tracker</h3>
+        <p>Apply every concept from this module — function types, optional parameters, default parameters, rest parameters, and return types — to build a typed expense tracking system.</p>
+
+        <h4>What You'll Build</h4>
+        <ul>
+          <li>An <code>Expense</code> type with category, amount, description, and optional metadata</li>
+          <li>Functions to add, filter, total, and format expenses</li>
+          <li>A typed reporting function that accepts a variable number of filter predicates</li>
+          <li>A budget-check utility with default budget limits</li>
+        </ul>
+
+        <h4>TypeScript Concepts Used</h4>
+        <ul>
+          <li><strong>Function Types</strong> — typed callback for filtering and sorting expenses</li>
+          <li><strong>Optional Parameters</strong> — optional description and tags on expenses</li>
+          <li><strong>Default Parameters</strong> — default budget limits, default currency format</li>
+          <li><strong>Rest Parameters</strong> — <code>...predicates</code> for composing multiple filters</li>
+          <li><strong>Return Types</strong> — explicit return types on all public functions</li>
+        </ul>
+
+        <h4>Architecture Overview</h4>
+        <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cm">// Types</span>
+<span class="kw">type</span> <span class="ty">Category</span> = <span class="str">'food'</span> | <span class="str">'transport'</span> | <span class="str">'utilities'</span> | <span class="str">'entertainment'</span> | <span class="str">'other'</span>;
+<span class="kw">type</span> <span class="ty">ExpensePredicate</span> = (expense: <span class="ty">Expense</span>) =&gt; <span class="ty">boolean</span>; <span class="cm">// function type</span>
+
+<span class="kw">interface</span> <span class="ty">Expense</span> {
+  id: <span class="ty">number</span>;
+  amount: <span class="ty">number</span>;
+  category: <span class="ty">Category</span>;
+  date: <span class="ty">Date</span>;
+  description?: <span class="ty">string</span>;   <span class="cm">// optional parameter concept</span>
+  tags?: <span class="ty">string</span>[];         <span class="cm">// optional parameter concept</span>
+}
+
+<span class="kw">interface</span> <span class="ty">ExpenseReport</span> {
+  expenses: <span class="ty">Expense</span>[];
+  total: <span class="ty">number</span>;
+  byCategory: Record&lt;<span class="ty">Category</span>, <span class="ty">number</span>&gt;;
+  overBudget: <span class="ty">boolean</span>;
+}</code></pre></div>
+
+        <h4>Starter Code</h4>
+        <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">type</span> <span class="ty">Category</span> = <span class="str">'food'</span> | <span class="str">'transport'</span> | <span class="str">'utilities'</span> | <span class="str">'entertainment'</span> | <span class="str">'other'</span>;
+<span class="kw">type</span> <span class="ty">ExpensePredicate</span> = (e: <span class="ty">Expense</span>) =&gt; <span class="ty">boolean</span>;
+
+<span class="kw">interface</span> <span class="ty">Expense</span> {
+  id: <span class="ty">number</span>;
+  amount: <span class="ty">number</span>;
+  category: <span class="ty">Category</span>;
+  date: <span class="ty">Date</span>;
+  description?: <span class="ty">string</span>;
+  tags?: <span class="ty">string</span>[];
+}
+
+<span class="kw">interface</span> <span class="ty">ExpenseReport</span> {
+  expenses: <span class="ty">Expense</span>[];
+  total: <span class="ty">number</span>;
+  byCategory: Partial&lt;Record&lt;<span class="ty">Category</span>, <span class="ty">number</span>&gt;&gt;;
+  overBudget: <span class="ty">boolean</span>;
+}
+
+<span class="kw">let</span> nextId = <span class="num">1</span>;
+
+<span class="cm">// TODO 1: addExpense — optional description and tags</span>
+<span class="kw">function</span> <span class="fn">addExpense</span>(
+  amount: <span class="ty">number</span>,
+  category: <span class="ty">Category</span>,
+  description?: <span class="ty">string</span>,   <span class="cm">// optional param</span>
+  tags?: <span class="ty">string</span>[]           <span class="cm">// optional param</span>
+): <span class="ty">Expense</span> {
+  <span class="cm">// TODO: create and return an Expense object</span>
+  <span class="kw">return</span> {} <span class="kw">as</span> <span class="ty">Expense</span>;
+}
+
+<span class="cm">// TODO 2: filterExpenses — rest params for multiple predicates</span>
+<span class="kw">function</span> <span class="fn">filterExpenses</span>(
+  expenses: <span class="ty">Expense</span>[],
+  ...predicates: <span class="ty">ExpensePredicate</span>[]  <span class="cm">// rest param</span>
+): <span class="ty">Expense</span>[] {
+  <span class="cm">// TODO: return expenses matching ALL predicates</span>
+  <span class="kw">return</span> [];
+}
+
+<span class="cm">// TODO 3: totalExpenses — default currency and locale</span>
+<span class="kw">function</span> <span class="fn">totalExpenses</span>(
+  expenses: <span class="ty">Expense</span>[],
+  currency: <span class="ty">string</span>  = <span class="str">'USD'</span>,   <span class="cm">// default param</span>
+  locale: <span class="ty">string</span>    = <span class="str">'en-US'</span>  <span class="cm">// default param</span>
+): <span class="ty">string</span> {
+  <span class="cm">// TODO: sum amounts and format as currency</span>
+  <span class="kw">return</span> <span class="str">''</span>;
+}
+
+<span class="cm">// TODO 4: generateReport — default budget per category</span>
+<span class="kw">function</span> <span class="fn">generateReport</span>(
+  expenses: <span class="ty">Expense</span>[],
+  budget: <span class="ty">number</span> = <span class="num">1000</span>  <span class="cm">// default param</span>
+): <span class="ty">ExpenseReport</span> {
+  <span class="cm">// TODO: build report with total, byCategory breakdown, overBudget flag</span>
+  <span class="kw">return</span> {} <span class="kw">as</span> <span class="ty">ExpenseReport</span>;
+}
+
+<span class="cm">// ── Usage example ──────────────────────────────────────────────────────────</span>
+<span class="kw">const</span> expenses = [
+  <span class="fn">addExpense</span>(<span class="num">45.50</span>, <span class="str">'food'</span>, <span class="str">'Lunch'</span>),
+  <span class="fn">addExpense</span>(<span class="num">12.00</span>, <span class="str">'transport'</span>),
+  <span class="fn">addExpense</span>(<span class="num">200.00</span>, <span class="str">'utilities'</span>, <span class="str">'Electric bill'</span>, [<span class="str">'monthly'</span>, <span class="str">'recurring'</span>]),
+  <span class="fn">addExpense</span>(<span class="num">89.99</span>, <span class="str">'entertainment'</span>, <span class="str">'Streaming'</span>),
+];
+
+<span class="cm">// Filter using multiple predicates (rest params)</span>
+<span class="kw">const</span> overFifty    = (e: <span class="ty">Expense</span>): <span class="ty">boolean</span> =&gt; e.amount &gt; <span class="num">50</span>;
+<span class="kw">const</span> hasDescription = (e: <span class="ty">Expense</span>): <span class="ty">boolean</span> =&gt; e.description !== <span class="kw">undefined</span>;
+
+<span class="kw">const</span> filtered = <span class="fn">filterExpenses</span>(expenses, overFifty, hasDescription);
+console.log(<span class="fn">totalExpenses</span>(filtered));            <span class="cm">// "$289.99"</span>
+console.log(<span class="fn">totalExpenses</span>(filtered, <span class="str">'EUR'</span>, <span class="str">'de-DE'</span>)); <span class="cm">// "289,99 €"</span>
+
+<span class="kw">const</span> report = <span class="fn">generateReport</span>(expenses);          <span class="cm">// default budget 1000</span>
+<span class="kw">const</span> tightReport = <span class="fn">generateReport</span>(expenses, <span class="num">250</span>); <span class="cm">// custom budget</span></code></pre></div>
+
+        <h4>Step-by-Step Build Instructions</h4>
+        <ol>
+          <li>Implement <code>addExpense</code>: create an <code>Expense</code> object, auto-incrementing <code>nextId</code>, spreading optional <code>description</code> and <code>tags</code> only if they are provided</li>
+          <li>Implement <code>filterExpenses</code>: use <code>Array.prototype.filter</code> with <code>predicates.every(p =&gt; p(expense))</code> to apply all predicates</li>
+          <li>Implement <code>totalExpenses</code>: sum <code>expense.amount</code> with <code>reduce</code>, then format using <code>Intl.NumberFormat</code></li>
+          <li>Implement <code>generateReport</code>: compute total, build <code>byCategory</code> with <code>reduce</code>, set <code>overBudget = total &gt; budget</code></li>
+          <li>Test all combinations: no optional args, some optional args, multiple predicates, default vs custom budget</li>
+        </ol>
+
+        <h4>Stretch Goals</h4>
+        <ul>
+          <li><strong>Add a <code>sortExpenses</code> function</strong> that takes a typed <code>Comparator&lt;Expense&gt;</code> function type and returns a sorted copy</li>
+          <li><strong>Add a <code>groupByCategory</code> function</strong> that returns <code>Map&lt;Category, Expense[]&gt;</code></li>
+          <li><strong>Add budget per category</strong>: accept <code>budgetByCategory: Partial&lt;Record&lt;Category, number&gt;&gt;</code> with defaults for each category</li>
+        </ul>
+      </div><!-- end mini-project -->
+
+    </section>
+  </main>
+</div>
+
+<button id="back-to-top" aria-label="Back to top">↑</button>
+
+<script>
+// ── Progress bar ──────────────────────────────────────────────────────────────
+const progressBar = document.getElementById('progress-bar');
+window.addEventListener('scroll', () => {
+  const scrolled = window.scrollY;
+  const total = document.documentElement.scrollHeight - window.innerHeight;
+  progressBar.style.width = total > 0 ? `${(scrolled / total) * 100}%` : '0%';
+}, { passive: true });
+
+// ── Back to top ───────────────────────────────────────────────────────────────
+const backToTop = document.getElementById('back-to-top');
+window.addEventListener('scroll', () => {
+  backToTop.classList.toggle('visible', window.scrollY > 400);
+}, { passive: true });
+backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+// ── Smooth scroll for sidebar links ──────────────────────────────────────────
+document.querySelectorAll('#module-nav a').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(link.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+// ── Scroll-spy ────────────────────────────────────────────────────────────────
+const panels = document.querySelectorAll('.topic-panel[id]');
+const navLinks = document.querySelectorAll('#module-nav a');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(a => a.classList.remove('active'));
+      const active = document.querySelector(`#module-nav a[href="#${entry.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-10% 0px -80% 0px' });
+panels.forEach(p => observer.observe(p));
+
+// ── Tab switching (scoped to each panel) ─────────────────────────────────────
+document.querySelectorAll('.topic-panel').forEach(panel => {
+  const tabs = panel.querySelectorAll('.tab');
+  const panes = panel.querySelectorAll('.tab-pane');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      tabs.forEach(t => t.classList.remove('active'));
+      panes.forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      const pane = panel.querySelector(`[data-pane="${target}"]`);
+      if (pane) pane.classList.add('active');
+    });
+  });
+});
+
+// ── Copy buttons ──────────────────────────────────────────────────────────────
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const code = btn.closest('.code-block').querySelector('code');
+    const text = code.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+    });
+  });
+});
+
+// ── Module checkboxes (localStorage) ─────────────────────────────────────────
+document.querySelectorAll('.module-check').forEach(cb => {
+  const id = cb.dataset.id;
+  const saved = localStorage.getItem(`ts-module-done-${id}`);
+  if (saved === 'true') {
+    cb.checked = true;
+    cb.closest('.module').classList.add('completed');
+  }
+  cb.addEventListener('change', () => {
+    localStorage.setItem(`ts-module-done-${id}`, cb.checked);
+    cb.closest('.module').classList.toggle('completed', cb.checked);
+  });
+});
+
+// ── Topic search ──────────────────────────────────────────────────────────────
+const searchInput = document.getElementById('topicSearch');
+searchInput.addEventListener('input', () => {
+  const query = searchInput.value.toLowerCase().trim();
+  document.querySelectorAll('.topic-panel').forEach(panel => {
+    const name = panel.querySelector('.topic-name').textContent.toLowerCase();
+    panel.style.display = !query || name.includes(query) ? '' : 'none';
+  });
+  // Also filter sidebar links
+  document.querySelectorAll('#module-nav a').forEach(a => {
+    const text = a.textContent.toLowerCase();
+    a.parentElement.style.display = !query || text.includes(query) ? '' : 'none';
+  });
+});
+</script>
+
+</body>
+</html>

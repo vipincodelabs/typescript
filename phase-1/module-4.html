@@ -1,0 +1,2054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phase 1 — Module 4: Objects and Type Aliases | TypeScript Learning Path</title>
+  <style>
+    :root {
+      --bg:            #0f1117;
+      --bg-card:       #1a1f2e;
+      --bg-code:       #1e2433;
+      --border:        #2d3748;
+      --text:          #e2e8f0;
+      --text-muted:    #94a3b8;
+      --accent:        #3b82f6;
+      --accent-hover:  #2563eb;
+      --success:       #10b981;
+      --warning:       #f59e0b;
+      --error:         #ef4444;
+      --sidebar-width: 260px;
+      --header-height: 56px;
+      --radius:        8px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+    /* Progress bar */
+    #progress-bar {
+      position: fixed; top: 0; left: 0; height: 3px;
+      background: var(--accent); width: 0%; z-index: 9999;
+      transition: width 0.1s;
+    }
+    /* Header */
+    #site-header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(15,17,23,0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      height: var(--header-height);
+      display: flex; align-items: center; padding: 0 24px;
+    }
+    #site-header h1 {
+      font-size: 18px; font-weight: 600; color: var(--text);
+    }
+    #site-header .phase-badge {
+      margin-left: 12px;
+      background: var(--accent); color: #fff;
+      font-size: 11px; font-weight: 600;
+      padding: 2px 8px; border-radius: 12px;
+    }
+    /* Layout */
+    #layout {
+      display: flex;
+      min-height: calc(100vh - var(--header-height));
+    }
+    /* Sidebar */
+    #sidebar {
+      width: var(--sidebar-width);
+      flex-shrink: 0;
+      position: sticky;
+      top: var(--header-height);
+      height: calc(100vh - var(--header-height));
+      overflow-y: auto;
+      border-right: 1px solid var(--border);
+      padding: 20px 16px;
+      background: var(--bg);
+    }
+    #sidebar::-webkit-scrollbar { width: 4px; }
+    #sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    #topicSearch {
+      width: 100%; padding: 8px 12px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); color: var(--text);
+      font-size: 13px; outline: none; margin-bottom: 16px;
+    }
+    #topicSearch:focus { border-color: var(--accent); }
+    #sidebar h3 {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--text-muted); margin-bottom: 8px; font-weight: 600;
+    }
+    #module-nav { list-style: none; }
+    #module-nav li { margin-bottom: 2px; }
+    #module-nav a {
+      display: block; padding: 6px 10px;
+      color: var(--text-muted); text-decoration: none;
+      border-radius: 6px; font-size: 13px;
+      transition: background 0.15s, color 0.15s;
+    }
+    #module-nav a:hover, #module-nav a.active {
+      background: rgba(59,130,246,0.12); color: var(--accent);
+    }
+    #module-nav .nav-sub { padding-left: 20px; }
+    /* Main content */
+    #content {
+      flex: 1; padding: 32px 40px; max-width: 960px;
+    }
+    /* Module section */
+    .module { margin-bottom: 60px; }
+    .module-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 16px; padding-bottom: 12px;
+      border-bottom: 2px solid var(--border);
+    }
+    .module-header h2 {
+      font-size: 22px; font-weight: 700; color: var(--text);
+    }
+    .module-header label { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .module-check {
+      width: 18px; height: 18px; accent-color: var(--success);
+      cursor: pointer;
+    }
+    .module.completed .module-header h2 {
+      text-decoration: line-through; color: var(--text-muted);
+    }
+    .completed-badge {
+      display: none; background: var(--success); color: #fff;
+      font-size: 11px; font-weight: 600; padding: 2px 8px;
+      border-radius: 12px;
+    }
+    .module.completed .completed-badge { display: inline-block; }
+    .module-intro {
+      color: var(--text-muted); margin-bottom: 24px; font-size: 15px;
+      line-height: 1.7; max-width: 720px;
+    }
+    /* Topics table */
+    .topics-table {
+      width: 100%; border-collapse: collapse; margin-bottom: 28px;
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .topics-table th {
+      background: var(--bg-card); color: var(--text-muted);
+      font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em;
+      padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border);
+    }
+    .topics-table td {
+      padding: 10px 14px; border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .topics-table tr:last-child td { border-bottom: none; }
+    .topics-table tr:hover td { background: rgba(59,130,246,0.04); }
+    /* Difficulty badges */
+    .badge {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      padding: 2px 8px; border-radius: 12px;
+    }
+    .badge.beginner { background: rgba(16,185,129,0.15); color: var(--success); }
+    .badge.intermediate { background: rgba(245,158,11,0.15); color: var(--warning); }
+    .badge.advanced { background: rgba(239,68,68,0.15); color: var(--error); }
+    /* Topic panels */
+    .topic-panels { display: flex; flex-direction: column; gap: 8px; margin-bottom: 32px; }
+    details.topic-panel {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    details.topic-panel[open] { border-color: var(--accent); }
+    details.topic-panel summary {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 18px; cursor: pointer;
+      list-style: none; user-select: none;
+      font-weight: 600; font-size: 15px;
+      transition: background 0.15s;
+    }
+    details.topic-panel summary::-webkit-details-marker { display: none; }
+    details.topic-panel summary:hover { background: rgba(255,255,255,0.03); }
+    .summary-arrow {
+      margin-left: auto; color: var(--text-muted);
+      transition: transform 0.2s;
+      font-size: 12px;
+    }
+    details[open] .summary-arrow { transform: rotate(90deg); }
+    /* Panel tabs */
+    .panel-tabs {
+      display: flex; flex-wrap: wrap; gap: 4px;
+      padding: 12px 18px 0; border-top: 1px solid var(--border);
+      background: rgba(0,0,0,0.2);
+    }
+    .tab {
+      padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 500;
+      background: transparent; border: 1px solid var(--border);
+      color: var(--text-muted); cursor: pointer; transition: all 0.15s;
+    }
+    .tab:hover { border-color: var(--accent); color: var(--accent); }
+    .tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    /* Panel content */
+    .panel-content { padding: 20px 18px; }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+    /* Typography inside panels */
+    .tab-pane h4 {
+      font-size: 14px; font-weight: 700; color: var(--accent);
+      margin: 18px 0 8px; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .tab-pane h4:first-child { margin-top: 0; }
+    .tab-pane p { margin-bottom: 12px; color: var(--text); line-height: 1.7; }
+    .tab-pane ul, .tab-pane ol {
+      padding-left: 20px; margin-bottom: 12px;
+    }
+    .tab-pane li { margin-bottom: 6px; line-height: 1.6; }
+    .tab-pane strong { color: var(--text); }
+    /* Code blocks */
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 12px 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 14px; border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,0.2);
+    }
+    .code-lang {
+      font-size: 11px; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .copy-btn {
+      font-size: 11px; font-weight: 600; padding: 3px 10px;
+      background: transparent; border: 1px solid var(--border);
+      border-radius: 4px; color: var(--text-muted); cursor: pointer;
+      transition: all 0.15s;
+    }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .code-block pre {
+      padding: 14px 16px; overflow-x: auto; margin: 0;
+      font-size: 13px; line-height: 1.6;
+    }
+    .code-block code {
+      font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+      color: var(--text);
+    }
+    /* Syntax highlighting */
+    .kw  { color: #c792ea; }
+    .ty  { color: #82aaff; }
+    .str { color: #c3e88d; }
+    .num { color: #f78c6c; }
+    .cmt { color: #546e7a; font-style: italic; }
+    .fn  { color: #82aaff; }
+    .op  { color: #89ddff; }
+    /* Interview Q&A */
+    .qa-item { margin-bottom: 20px; padding: 14px 16px;
+      background: rgba(0,0,0,0.2); border-radius: var(--radius);
+      border-left: 3px solid var(--accent); }
+    .qa-item .q { font-weight: 700; margin-bottom: 8px; }
+    .qa-item .difficulty {
+      font-size: 11px; font-weight: 700; padding: 1px 7px;
+      border-radius: 10px; margin-left: 8px;
+    }
+    .difficulty.easy { background: rgba(16,185,129,0.2); color: var(--success); }
+    .difficulty.medium { background: rgba(245,158,11,0.2); color: var(--warning); }
+    .difficulty.hard { background: rgba(239,68,68,0.2); color: var(--error); }
+    /* Mistake / best practice items */
+    .mistake-item, .bp-item {
+      margin-bottom: 20px; padding: 14px 16px;
+      background: rgba(0,0,0,0.2); border-radius: var(--radius);
+    }
+    .mistake-item { border-left: 3px solid var(--error); }
+    .bp-item { border-left: 3px solid var(--success); }
+    .mistake-item .label, .bp-item .label {
+      font-weight: 700; margin-bottom: 8px; font-size: 14px;
+    }
+    /* Key takeaways */
+    .takeaway-list { list-style: none; padding: 0; }
+    .takeaway-list li {
+      padding: 8px 12px 8px 36px; margin-bottom: 6px;
+      background: rgba(59,130,246,0.07); border-radius: 6px;
+      position: relative;
+    }
+    .takeaway-list li::before {
+      content: '✦'; position: absolute; left: 12px;
+      color: var(--accent); font-size: 12px;
+    }
+    .mental-model {
+      margin-top: 16px; padding: 14px 16px;
+      background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3);
+      border-radius: var(--radius); font-style: italic; color: var(--accent);
+    }
+    /* Mini-project */
+    .mini-project {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+    }
+    .mini-project h3 {
+      font-size: 18px; font-weight: 700; margin-bottom: 8px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .project-badge {
+      background: rgba(139,92,246,0.2); color: #a78bfa;
+      font-size: 11px; font-weight: 600; padding: 2px 8px;
+      border-radius: 10px;
+    }
+    .mini-project h4 {
+      font-size: 13px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--text-muted); margin: 16px 0 8px;
+    }
+    .mini-project h4:first-of-type { margin-top: 8px; }
+    .mini-project ul { padding-left: 20px; }
+    .mini-project li { margin-bottom: 6px; line-height: 1.6; }
+    .stretch-goal { background: rgba(245,158,11,0.08); border-left: 3px solid var(--warning);
+      padding: 10px 14px; border-radius: 0 var(--radius) var(--radius) 0; margin-bottom: 8px; }
+    /* Back to top */
+    #back-to-top {
+      position: fixed; bottom: 28px; right: 28px;
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 50%; width: 44px; height: 44px;
+      font-size: 18px; cursor: pointer; display: none;
+      align-items: center; justify-content: center;
+      box-shadow: 0 4px 12px rgba(59,130,246,0.4);
+      transition: background 0.15s, transform 0.15s;
+    }
+    #back-to-top:hover { background: var(--accent-hover); transform: translateY(-2px); }
+    #back-to-top.visible { display: flex; }
+    /* Inline code */
+    code:not(.ts-code) {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: 4px; padding: 1px 6px; font-size: 13px;
+      font-family: 'Fira Code', 'Consolas', monospace; color: #82aaff;
+    }
+    hr.section-sep {
+      border: none; border-top: 1px solid var(--border); margin: 24px 0;
+    }
+    @media (max-width: 768px) {
+      #sidebar { display: none; }
+      #content { padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<header id="site-header">
+  <h1>Phase 1 — Module 4: Objects and Type Aliases</h1>
+  <span class="phase-badge">Phase 1</span>
+</header>
+
+<div id="layout">
+
+  <nav id="sidebar">
+    <input type="text" id="topicSearch" placeholder="Search topics…" autocomplete="off" />
+    <h3>Topics</h3>
+    <ul id="module-nav">
+      <li><a href="#topic-object-types">Object Types</a></li>
+      <li><a href="#topic-type-aliases">Type Aliases</a></li>
+      <li><a href="#topic-optional-props">Optional Properties</a></li>
+      <li><a href="#topic-readonly-props">Readonly Properties</a></li>
+      <li><a href="#mini-project" style="margin-top:8px; border-top:1px solid var(--border); padding-top:8px;">Mini-Project</a></li>
+    </ul>
+  </nav>
+
+  <main id="content">
+
+    <section id="module-4" class="module">
+
+      <div class="module-header">
+        <label>
+          <input type="checkbox" class="module-check" data-id="module-4" />
+          <h2>Module 4: Objects and Type Aliases</h2>
+        </label>
+        <span class="completed-badge">✓ Done</span>
+      </div>
+
+      <p class="module-intro">
+        Objects are everywhere in JavaScript — function parameters, API responses, database rows,
+        configuration options. This module teaches you how to describe the exact shape of an object
+        at the type level so TypeScript can catch shape mismatches before your code runs. You'll also
+        learn type aliases — the mechanism for naming and reusing complex types — and two of the most
+        important property modifiers: <code>?</code> for optional properties and <code>readonly</code>
+        for immutable properties. After this module you'll be able to model real-world data precisely
+        and write code that's self-documenting about what it expects.
+      </p>
+
+      <table class="topics-table">
+        <thead>
+          <tr>
+            <th>Topic</th>
+            <th>What You'll Learn</th>
+            <th>Difficulty</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Object Types</strong></td>
+            <td>Describe the shape of an object with property names and value types</td>
+            <td><span class="badge beginner">Beginner</span></td>
+          </tr>
+          <tr>
+            <td><strong>Type Aliases</strong></td>
+            <td>Name any TypeScript type so it can be reused across your codebase</td>
+            <td><span class="badge beginner">Beginner</span></td>
+          </tr>
+          <tr>
+            <td><strong>Optional Properties</strong></td>
+            <td>Mark properties as may-or-may-not-exist using the <code>?</code> modifier</td>
+            <td><span class="badge beginner">Beginner</span></td>
+          </tr>
+          <tr>
+            <td><strong>Readonly Properties</strong></td>
+            <td>Prevent property mutation after initialization with the <code>readonly</code> modifier</td>
+            <td><span class="badge beginner">Beginner</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ═══════════════════════════════════════════════════════════════ -->
+      <!-- TOPIC 1: Object Types -->
+      <!-- ═══════════════════════════════════════════════════════════════ -->
+      <div class="topic-panels">
+
+        <details class="topic-panel" id="topic-object-types">
+          <summary>
+            <span class="topic-name">Object Types</span>
+            <span class="badge beginner" style="margin-left:8px">Beginner</span>
+            <span class="summary-arrow">▶</span>
+          </summary>
+
+          <div class="panel-tabs">
+            <button class="tab active" data-tab="ot-definition">Definition</button>
+            <button class="tab" data-tab="ot-why-exists">Why It Exists</button>
+            <button class="tab" data-tab="ot-when-use">When to Use</button>
+            <button class="tab" data-tab="ot-when-not">When NOT to Use</button>
+            <button class="tab" data-tab="ot-internals">How It Works</button>
+            <button class="tab" data-tab="ot-syntax">Syntax</button>
+            <button class="tab" data-tab="ot-example">Example</button>
+            <button class="tab" data-tab="ot-real-world">Real-World</button>
+            <button class="tab" data-tab="ot-use-cases">Use Cases</button>
+            <button class="tab" data-tab="ot-mistakes">Mistakes</button>
+            <button class="tab" data-tab="ot-best-practices">Best Practices</button>
+            <button class="tab" data-tab="ot-interview">Interview Qs</button>
+            <button class="tab" data-tab="ot-exercise">Exercise</button>
+            <button class="tab" data-tab="ot-summary">Summary</button>
+          </div>
+
+          <div class="panel-content">
+
+            <div class="tab-pane active" data-pane="ot-definition">
+              <h4>Simple Explanation</h4>
+              <p>An object type tells TypeScript what properties an object must have and what type each value should be. Think of it as a blueprint: you declare "this object needs a <code>name</code> string, an <code>age</code> number, and an <code>email</code> string" — and TypeScript enforces that blueprint everywhere the type is used.</p>
+              <h4>Technical Explanation</h4>
+              <p>Object types are anonymous structural type annotations written as <code>{ key: Type; key2: Type2 }</code>. TypeScript uses <strong>structural typing</strong> (also called duck typing): any object that has at least the declared properties with compatible value types satisfies the annotation — regardless of how it was created or what it is named. The type annotation is erased at compile time; it exists only during static analysis.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="ot-why-exists">
+              <h4>The Problem It Solves</h4>
+              <p>In plain JavaScript, accessing a property that doesn't exist returns <code>undefined</code> silently. A typo like <code>user.nme</code> instead of <code>user.name</code> produces a bug at runtime that can be incredibly hard to track down in a large codebase.</p>
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">javascript (bug)</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="cmt">// JavaScript — no error, silent bug at runtime</span>
+<span class="kw">function</span> <span class="fn">greet</span>(user) {
+  <span class="kw">return</span> <span class="str">"Hello, "</span> + user.nme; <span class="cmt">// typo! nme instead of name</span>
+}
+<span class="fn">greet</span>({ name: <span class="str">"Alice"</span>, age: <span class="num">30</span> });
+<span class="cmt">// Returns: "Hello, undefined" — no error thrown, hard to debug</span></code></pre>
+              </div>
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript (fixed)</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="cmt">// TypeScript — caught at compile time, before the code runs</span>
+<span class="kw">function</span> <span class="fn">greet</span>(user: { name: <span class="ty">string</span>; age: <span class="ty">number</span> }): <span class="ty">string</span> {
+  <span class="kw">return</span> <span class="str">"Hello, "</span> + user.nme;
+  <span class="cmt">// Error: Property 'nme' does not exist on type '{ name: string; age: number }'</span>
+  <span class="cmt">// Did you mean 'name'?</span>
+}</code></pre>
+              </div>
+              <p>TypeScript also catches passing objects that are missing required properties, or passing the wrong type for a property — all before the code ever runs in a browser or on a server.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="ot-when-use">
+              <h4>When Object Types Are The Right Tool</h4>
+              <ul>
+                <li><strong>Function parameters that receive structured data</strong> — type every function parameter that expects an object with specific properties.</li>
+                <li><strong>One-off object shapes used in a single place</strong> — if a type is only used once, inline it; there's no need to extract it.</li>
+                <li><strong>API response typing (local)</strong> — when you fetch data and immediately destructure it in the same function, an inline object type is clean.</li>
+                <li><strong>Configuration options objects</strong> — functions that accept option bags benefit from object type annotations to communicate what's accepted.</li>
+                <li><strong>Return type annotations</strong> — document what shape a function returns, especially when the shape is small and self-contained.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="ot-when-not">
+              <h4>When NOT to Use Inline Object Types</h4>
+              <ul>
+                <li><strong>When the same type appears in more than one place</strong> — extract it to a type alias or interface. Duplicating inline object types creates a maintenance nightmare when the shape needs to change.</li>
+                <li><strong>When you need to extend or inherit from the type</strong> — inline object types cannot be <code>extends</code>-ed. Use interfaces or extract to a named alias first.</li>
+                <li><strong>When the structure is completely dynamic</strong> — use <code>Record&lt;string, unknown&gt;</code> or an index signature instead of a fixed-shape object type.</li>
+                <li><strong>When nesting gets deep</strong> — deeply nested inline types like <code>{ user: { address: { city: string } } }</code> are unreadable. Give each nested shape its own name.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="ot-internals">
+              <h4>What TypeScript Actually Does</h4>
+              <p>When you write <code>const user: { name: string; age: number } = { ... }</code>, TypeScript:</p>
+              <ol>
+                <li>Records the object type <code>{ name: string; age: number }</code> as the declared type of <code>user</code>.</li>
+                <li>At each assignment, checks the right-hand side has a <code>name</code> property of type <code>string</code> and an <code>age</code> property of type <code>number</code>.</li>
+                <li>At each property access (<code>user.x</code>), verifies <code>x</code> is in the declared shape. If not, it reports an error.</li>
+                <li>Applies an <strong>excess property check</strong> to fresh object literals — if you write extra properties directly in the literal, TypeScript reports them even though structural typing would normally allow extra properties.</li>
+                <li>Compiles to plain JavaScript with all type annotations stripped — no runtime cost.</li>
+              </ol>
+              <p>The output JavaScript for <code>const user: { name: string } = { name: "Alice" }</code> is just <code>const user = { name: "Alice" }</code>.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="ot-syntax">
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="cmt">// ── Variable with inline object type ──────────────────────────────────</span>
+<span class="kw">const</span> point: { x: <span class="ty">number</span>; y: <span class="ty">number</span> } = { x: <span class="num">10</span>, y: <span class="num">20</span> };
+<span class="cmt">//           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^</span>
+<span class="cmt">//           inline object type annotation</span>
+<span class="cmt">//           properties are separated by semicolons (commas also work)</span>
+
+<span class="cmt">// ── Function parameter typed as object ────────────────────────────────</span>
+<span class="kw">function</span> <span class="fn">printPoint</span>(coord: { x: <span class="ty">number</span>; y: <span class="ty">number</span> }): <span class="ty">void</span> {
+<span class="cmt">//                          ^^^^^^^^^^^^^^^^^^^^^^^^</span>
+<span class="cmt">//                          parameter must match this shape</span>
+  console.<span class="fn">log</span>(<span class="str">`</span>${coord.x}<span class="str">, </span>${coord.y}<span class="str">`</span>);
+}
+
+<span class="cmt">// ── Return type annotation ─────────────────────────────────────────────</span>
+<span class="kw">function</span> <span class="fn">createUser</span>(name: <span class="ty">string</span>): { id: <span class="ty">number</span>; name: <span class="ty">string</span> } {
+<span class="cmt">//                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^</span>
+<span class="cmt">//                               return type: the function must return this shape</span>
+  <span class="kw">return</span> { id: <span class="num">1</span>, name };
+}
+
+<span class="cmt">// ── Nested object type ────────────────────────────────────────────────</span>
+<span class="kw">const</span> config: { server: { host: <span class="ty">string</span>; port: <span class="ty">number</span> } } = {
+  server: { host: <span class="str">"localhost"</span>, port: <span class="num">3000</span> }
+};
+<span class="cmt">// Tip: for nested types, extract to named type aliases for readability</span></code></pre>
+              </div>
+              <p>Semicolons (<code>;</code>) are the idiomatic separator between properties in TypeScript type annotations. Commas work too but are less common in types (they're more common in plain JavaScript objects).</p>
+            </div>
+
+            <div class="tab-pane" data-pane="ot-example">
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="cmt">// A typed user record system</span>
+
+<span class="kw">const</span> user: { id: <span class="ty">number</span>; name: <span class="ty">string</span>; email: <span class="ty">string</span> } = {
+  id: <span class="num">1</span>,
+  name: <span class="str">"Alice Johnson"</span>,
+  email: <span class="str">"alice@example.com"</span>,
+};
+
+<span class="kw">function</span> <span class="fn">formatUser</span>(u: { id: <span class="ty">number</span>; name: <span class="ty">string</span>; email: <span class="ty">string</span> }): <span class="ty">string</span> {
+  <span class="kw">return</span> <span class="str">`[</span>${u.id}<span class="str">] </span>${u.name}<span class="str"> &lt;</span>${u.email}<span class="str">&gt;`</span>;
+}
+
+console.<span class="fn">log</span>(<span class="fn">formatUser</span>(user));
+<span class="cmt">// Output: [1] Alice Johnson &lt;alice@example.com&gt;</span>
+
+<span class="cmt">// TypeScript catches wrong shapes at compile time:</span>
+<span class="kw">const</span> partial = { id: <span class="num">2</span>, name: <span class="str">"Bob"</span> }; <span class="cmt">// missing 'email'</span>
+<span class="fn">formatUser</span>(partial);
+<span class="cmt">// Error: Argument of type '{ id: number; name: string; }'</span>
+<span class="cmt">// is not assignable to parameter of type '{ id: number; name: string; email: string; }'</span>
+<span class="cmt">// Property 'email' is missing in type '{ id: number; name: string; }'</span>
+
+<span class="cmt">// Excess property check on fresh object literals:</span>
+<span class="fn">formatUser</span>({ id: <span class="num">3</span>, name: <span class="str">"Carol"</span>, email: <span class="str">"c@c.com"</span>, role: <span class="str">"admin"</span> });
+<span class="cmt">// Error: Object literal may only specify known properties,</span>
+<span class="cmt">// and 'role' does not exist in type '...'</span></code></pre>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="ot-real-world">
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript — Express route handler</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="cmt">// A product creation handler with inline object types for request/response</span>
+
+<span class="kw">function</span> <span class="fn">createProduct</span>(
+  body: { name: <span class="ty">string</span>; price: <span class="ty">number</span>; category: <span class="ty">string</span>; stock: <span class="ty">number</span> }
+): { id: <span class="ty">string</span>; createdAt: <span class="ty">Date</span>; name: <span class="ty">string</span>; price: <span class="ty">number</span> } {
+
+  <span class="cmt">// body.naem would be a compile-time error here — typos are caught</span>
+  <span class="kw">return</span> {
+    id: crypto.<span class="fn">randomUUID</span>(),
+    createdAt: <span class="kw">new</span> <span class="ty">Date</span>(),
+    name: body.name,
+    price: body.price,
+  };
+}
+
+<span class="cmt">// Simulating a DB lookup typed as an inline object type</span>
+<span class="kw">function</span> <span class="fn">getUserById</span>(
+  id: <span class="ty">number</span>
+): { id: <span class="ty">number</span>; username: <span class="ty">string</span>; role: <span class="ty">string</span> } | <span class="ty">null</span> {
+  <span class="kw">const</span> rows = [{ id: <span class="num">1</span>, username: <span class="str">"admin"</span>, role: <span class="str">"admin"</span> }];
+  <span class="kw">return</span> rows.<span class="fn">find</span>(row => row.id === id) ?? <span class="kw">null</span>;
+}
+
+<span class="kw">const</span> result = <span class="fn">getUserById</span>(<span class="num">1</span>);
+<span class="kw">if</span> (result !== <span class="kw">null</span>) {
+  console.<span class="fn">log</span>(result.username); <span class="cmt">// OK: TypeScript knows shape after null check</span>
+  console.<span class="fn">log</span>(result.role);     <span class="cmt">// OK</span>
+}</code></pre>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="ot-use-cases">
+              <ul>
+                <li><strong>API request body validation</strong> — Type Express handler parameters as inline object types matching the expected JSON body shape. Saves you from accessing fields that don't exist.</li>
+                <li><strong>Database row modeling</strong> — Before migrating to Prisma or Drizzle, type raw query results as object types matching table columns to get autocomplete and shape safety.</li>
+                <li><strong>Configuration objects</strong> — Libraries like Vite, Jest, and ESLint accept configuration objects; TypeScript types their parameters as inline object types so you can't pass unknown keys.</li>
+                <li><strong>Event handler payloads</strong> — Custom event systems pass data objects to handlers; inline object types communicate exactly what each event carries.</li>
+                <li><strong>Prototype typing</strong> — When quickly prototyping a component or function, inline object types are faster to write than creating a full interface file.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="ot-mistakes">
+              <div class="mistake-item">
+                <div class="label">❌ Mistake 1 — Repeating the same inline type in multiple places</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript — BAD</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">function</span> <span class="fn">save</span>(user: { name: <span class="ty">string</span>; email: <span class="ty">string</span> }) { <span class="cmt">/* ... */</span> }
+<span class="kw">function</span> <span class="fn">validate</span>(user: { name: <span class="ty">string</span>; email: <span class="ty">string</span> }) { <span class="cmt">/* ... */</span> }
+<span class="kw">function</span> <span class="fn">display</span>(user: { name: <span class="ty">string</span>; email: <span class="ty">string</span> }) { <span class="cmt">/* ... */</span> }
+<span class="cmt">// If you add 'phone' to User, you must update 3 places</span></code></pre></div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript — GOOD</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">type</span> <span class="ty">User</span> = { name: <span class="ty">string</span>; email: <span class="ty">string</span> };
+<span class="kw">function</span> <span class="fn">save</span>(user: <span class="ty">User</span>) { <span class="cmt">/* ... */</span> }
+<span class="kw">function</span> <span class="fn">validate</span>(user: <span class="ty">User</span>) { <span class="cmt">/* ... */</span> }
+<span class="kw">function</span> <span class="fn">display</span>(user: <span class="ty">User</span>) { <span class="cmt">/* ... */</span> }
+<span class="cmt">// Change User once — all three functions updated automatically</span></code></pre></div>
+              </div>
+              <div class="mistake-item">
+                <div class="label">❌ Mistake 2 — Surprised by excess property checks on literals</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">function</span> <span class="fn">connect</span>(opts: { host: <span class="ty">string</span>; port: <span class="ty">number</span> }) { <span class="cmt">/* ... */</span> }
+
+<span class="cmt">// OK: variable with extra property passes (structural typing)</span>
+<span class="kw">const</span> config = { host: <span class="str">"localhost"</span>, port: <span class="num">3000</span>, debug: <span class="kw">true</span> };
+<span class="fn">connect</span>(config); <span class="cmt">// ✓ No error — extra properties allowed via variable</span>
+
+<span class="cmt">// ERROR: fresh object literal with extra property fails (excess property check)</span>
+<span class="fn">connect</span>({ host: <span class="str">"localhost"</span>, port: <span class="num">3000</span>, debug: <span class="kw">true</span> });
+<span class="cmt">// Error: Argument of type '{ host: string; port: number; debug: boolean; }'</span>
+<span class="cmt">// is not assignable to parameter of type '{ host: string; port: number; }'</span>
+<span class="cmt">// Object literal may only specify known properties</span></code></pre></div>
+                <p>Excess property checks only apply to fresh object literals. When you pass a variable, TypeScript uses structural typing and allows extra properties. This is intentional — literals are often where accidental typos live.</p>
+              </div>
+              <div class="mistake-item">
+                <div class="label">❌ Mistake 3 — Deeply nesting inline types without extraction</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript — BAD</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">function</span> <span class="fn">processOrder</span>(order: {
+  id: <span class="ty">number</span>;
+  customer: { name: <span class="ty">string</span>; address: { street: <span class="ty">string</span>; city: <span class="ty">string</span> } };
+  items: { productId: <span class="ty">number</span>; qty: <span class="ty">number</span> }[];
+}) { <span class="cmt">/* ... */</span> }
+<span class="cmt">// Unreadable, unreusable, hard to maintain</span></code></pre></div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript — GOOD</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">type</span> <span class="ty">Address</span>   = { street: <span class="ty">string</span>; city: <span class="ty">string</span> };
+<span class="kw">type</span> <span class="ty">Customer</span>  = { name: <span class="ty">string</span>; address: <span class="ty">Address</span> };
+<span class="kw">type</span> <span class="ty">OrderItem</span> = { productId: <span class="ty">number</span>; qty: <span class="ty">number</span> };
+<span class="kw">type</span> <span class="ty">Order</span>     = { id: <span class="ty">number</span>; customer: <span class="ty">Customer</span>; items: <span class="ty">OrderItem</span>[] };
+
+<span class="kw">function</span> <span class="fn">processOrder</span>(order: <span class="ty">Order</span>) { <span class="cmt">/* ... */</span> }</code></pre></div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="ot-best-practices">
+              <div class="bp-item">
+                <div class="label">1. Use semicolons to separate properties in type annotations</div>
+                <p>Semicolons (<code>{ name: string; age: number }</code>) are idiomatic in TypeScript object types. Commas work too but look more like JavaScript object literals and can confuse readers.</p>
+              </div>
+              <div class="bp-item">
+                <div class="label">2. Extract reused shapes to type aliases or interfaces</div>
+                <p>If an inline object type appears in more than one place, give it a name. A single source of truth makes refactoring safe — change the type in one place and everything updates.</p>
+              </div>
+              <div class="bp-item">
+                <div class="label">3. Prefer interfaces for types you plan to extend</div>
+                <p>Interfaces support <code>extends</code> and declaration merging; inline object types and type aliases do not. If a type will ever need to be extended by other types, start with an interface.</p>
+              </div>
+              <div class="bp-item">
+                <div class="label">4. Nest inline types at most one level deep</div>
+                <p>If a property's value is an object with multiple properties, give that nested shape its own named type. Deep nesting in a single type annotation is a readability problem.</p>
+              </div>
+              <div class="bp-item">
+                <div class="label">5. Avoid using empty object type <code>{}</code></div>
+                <p>The empty type <code>{}</code> does not mean "an empty object" — it means "any non-null, non-undefined value." This is almost never what you want. Use <code>Record&lt;string, never&gt;</code> for a truly empty object.</p>
+              </div>
+              <div class="bp-item">
+                <div class="label">6. Use explicit, descriptive property names</div>
+                <p>Write <code>{ firstName: string; lastName: string }</code> over <code>{ fn: string; ln: string }</code>. TypeScript error messages include property names — descriptive names make errors immediately understandable.</p>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="ot-interview">
+              <div class="qa-item">
+                <div class="q">Q: What is structural typing in TypeScript? <span class="difficulty easy">Easy</span></div>
+                <p>Structural typing means TypeScript checks compatibility based on the shape of a type — its property names and value types — rather than the type's declared name. If object A has at least the properties declared in type T with compatible value types, A satisfies T, even if A was never explicitly declared as T. This is sometimes called "duck typing" — if it walks like a duck and quacks like a duck, TypeScript treats it as a duck. This contrasts with nominal typing (like Java or C#) where types must explicitly declare their relationships through <code>implements</code> or inheritance.</p>
+              </div>
+              <div class="qa-item">
+                <div class="q">Q: Why does TypeScript allow passing a variable with extra properties but reject an object literal with extra properties? <span class="difficulty medium">Medium</span></div>
+                <p>This is the <strong>excess property check</strong> — TypeScript applies it only to fresh object literals assigned to a typed variable or passed directly as a typed argument. When you first assign to a variable and then pass that variable, the check isn't applied because the variable could legitimately be used in other places that expect those extra properties. Object literals are treated as a "fresh" suspicious source where accidental typos are most likely to appear, so the stricter check helps catch mistakes like <code>{ diabled: true }</code> instead of <code>{ disabled: true }</code>.</p>
+              </div>
+              <div class="qa-item">
+                <div class="q">Q: What is the difference between an object type and an interface? <span class="difficulty medium">Medium</span></div>
+                <p>Both describe the shape of objects and are mostly interchangeable for basic use cases. Key differences: (1) Interfaces support declaration merging — you can reopen an interface in multiple files and TypeScript merges the definitions. Type aliases cannot be reopened. (2) Interfaces have better error messages in some cases. (3) Type aliases can describe any type — unions, intersections, primitives, function signatures — while interfaces can only describe object shapes. Most TypeScript style guides prefer interfaces for object shapes you plan to extend and type aliases for unions, intersections, and everything else.</p>
+              </div>
+              <div class="qa-item">
+                <div class="q">Q: What does the empty object type <code>{}</code> mean in TypeScript? <span class="difficulty hard">Hard</span></div>
+                <p>Counterintuitively, <code>{}</code> does NOT mean an empty object. It means "any value that is not <code>null</code> or <code>undefined</code>." This is because TypeScript's structural typing considers any value with at least zero properties to satisfy <code>{}</code>, and every non-null value in JavaScript has at least zero properties. This catches developers off guard when they use <code>{}</code> to mean "an object with no properties" — the actual way to express that is <code>Record&lt;string, never&gt;</code>. The <code>{}</code> type is sometimes used intentionally in type-level programming to mean "any non-nullable value."</p>
+              </div>
+              <div class="qa-item">
+                <div class="q">Q: How does TypeScript handle <code>{ ...a, ...b }</code> object spread types? <span class="difficulty hard">Hard</span></div>
+                <p>TypeScript infers the type of <code>{ ...a, ...b }</code> as a merged object type where properties from <code>b</code> override same-named properties from <code>a</code>. The inferred type reflects that later spread properties shadow earlier ones — unlike <code>A &amp; B</code> intersection which would create a conflict for overlapping property names. This means <code>{ ...defaults, ...overrides }</code> gives you an accurate type where <code>overrides</code> properties have their own types, not an intersection. This is one of the rare cases where the type of a value-level operation is subtly different from a pure type-level expression.</p>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="ot-exercise">
+              <h4>Goal</h4>
+              <p>Build a type-safe contact creation function using only inline object types (no type aliases).</p>
+              <h4>Requirements</h4>
+              <ul>
+                <li>Accept an object with <code>firstName</code>, <code>lastName</code>, <code>email</code>, and <code>phone</code> (all strings)</li>
+                <li>Return an object with <code>id</code> (number), <code>fullName</code> (string), <code>email</code> (string), and <code>phone</code> (string)</li>
+                <li>Use inline object types on both the parameter and the return type annotation</li>
+                <li>Do NOT use any type aliases — everything inline</li>
+              </ul>
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript — starter</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">function</span> <span class="fn">createContact</span>(
+  contact: <span class="cmt">/* TODO: inline object type */</span>
+): <span class="cmt">/* TODO: inline return type */</span> {
+  <span class="cmt">// TODO: build and return the contact object</span>
+  <span class="cmt">// Use Date.now() for a simple numeric id</span>
+}
+
+<span class="cmt">// Test — should compile without errors</span>
+<span class="kw">const</span> c = <span class="fn">createContact</span>({
+  firstName: <span class="str">"Alice"</span>, lastName: <span class="str">"Smith"</span>,
+  email: <span class="str">"alice@example.com"</span>, phone: <span class="str">"555-1234"</span>
+});
+console.<span class="fn">log</span>(c.fullName); <span class="cmt">// "Alice Smith"</span>
+console.<span class="fn">log</span>(c.id);       <span class="cmt">// a number</span></code></pre>
+              </div>
+              <p><strong>Hint:</strong> Template literal strings work inside return values: <code>`${contact.firstName} ${contact.lastName}`</code></p>
+            </div>
+
+            <div class="tab-pane" data-pane="ot-summary">
+              <ul class="takeaway-list">
+                <li>Object types describe the shape of an object: property names paired with their value types.</li>
+                <li>TypeScript uses structural typing — compatibility is based on shape, not the name of the type.</li>
+                <li>Inline object types are ideal for one-off shapes; extract to type aliases or interfaces when reused.</li>
+                <li>Excess property checks apply to fresh object literals but not to variable references — a subtle but important distinction.</li>
+                <li>Property access on an object type is fully type-checked — typos and missing properties are compile-time errors.</li>
+                <li>All type annotations are erased at compile time — zero runtime overhead, zero shipped JavaScript for types.</li>
+                <li>The empty type <code>{}</code> means "any non-null value," not "an empty object" — a common gotcha.</li>
+              </ul>
+              <div class="mental-model">
+                💡 Mental model: An object type is a contract — any object that fulfills the contract (has at least the required properties with the right types) passes the check, regardless of what extra properties it might also have.
+              </div>
+            </div>
+
+          </div><!-- /panel-content -->
+        </details>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- TOPIC 2: Type Aliases -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <details class="topic-panel" id="topic-type-aliases">
+          <summary>
+            <span class="topic-name">Type Aliases</span>
+            <span class="badge beginner" style="margin-left:8px">Beginner</span>
+            <span class="summary-arrow">▶</span>
+          </summary>
+
+          <div class="panel-tabs">
+            <button class="tab active" data-tab="ta-definition">Definition</button>
+            <button class="tab" data-tab="ta-why-exists">Why It Exists</button>
+            <button class="tab" data-tab="ta-when-use">When to Use</button>
+            <button class="tab" data-tab="ta-when-not">When NOT to Use</button>
+            <button class="tab" data-tab="ta-internals">How It Works</button>
+            <button class="tab" data-tab="ta-syntax">Syntax</button>
+            <button class="tab" data-tab="ta-example">Example</button>
+            <button class="tab" data-tab="ta-real-world">Real-World</button>
+            <button class="tab" data-tab="ta-use-cases">Use Cases</button>
+            <button class="tab" data-tab="ta-mistakes">Mistakes</button>
+            <button class="tab" data-tab="ta-best-practices">Best Practices</button>
+            <button class="tab" data-tab="ta-interview">Interview Qs</button>
+            <button class="tab" data-tab="ta-exercise">Exercise</button>
+            <button class="tab" data-tab="ta-summary">Summary</button>
+          </div>
+
+          <div class="panel-content">
+
+            <div class="tab-pane active" data-pane="ta-definition">
+              <h4>Simple Explanation</h4>
+              <p>A type alias gives a name to any TypeScript type. Instead of writing <code>{ name: string; age: number }</code> in every function signature, you define it once as <code>type User = { name: string; age: number }</code> and then use <code>User</code> everywhere. It's like a variable — but for types instead of values.</p>
+              <h4>Technical Explanation</h4>
+              <p>The <code>type</code> keyword creates an alias — another name — for a TypeScript type expression. Type aliases can name any type: primitive types, object types, union types, intersection types, function types, tuple types, and generic types. They are resolved entirely at compile time: the TypeScript compiler substitutes the full definition wherever the alias appears, then strips all type declarations from the output JavaScript.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="ta-why-exists">
+              <h4>The Problem It Solves</h4>
+              <p>Without type aliases, you'd repeat complex type expressions in every function that uses them. When the shape needs to change — add a property, rename one — you'd have to hunt down every occurrence in the codebase and update them manually.</p>
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript — without aliases (bad)</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="cmt">// Repetition creates a maintenance nightmare</span>
+<span class="kw">function</span> <span class="fn">saveUser</span>(u: { id: <span class="ty">number</span>; name: <span class="ty">string</span>; email: <span class="ty">string</span> }): <span class="ty">void</span> { }
+<span class="kw">function</span> <span class="fn">updateUser</span>(u: { id: <span class="ty">number</span>; name: <span class="ty">string</span>; email: <span class="ty">string</span> }): <span class="ty">void</span> { }
+<span class="kw">function</span> <span class="fn">deleteUser</span>(u: { id: <span class="ty">number</span>; name: <span class="ty">string</span>; email: <span class="ty">string</span> }): <span class="ty">void</span> { }
+<span class="cmt">// Adding 'role' requires updating 3 function signatures manually</span></code></pre>
+              </div>
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript — with aliases (good)</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="cmt">// Single source of truth — update once, fixes everywhere</span>
+<span class="kw">type</span> <span class="ty">User</span> = { id: <span class="ty">number</span>; name: <span class="ty">string</span>; email: <span class="ty">string</span> };
+
+<span class="kw">function</span> <span class="fn">saveUser</span>(u: <span class="ty">User</span>): <span class="ty">void</span>   { }
+<span class="kw">function</span> <span class="fn">updateUser</span>(u: <span class="ty">User</span>): <span class="ty">void</span> { }
+<span class="kw">function</span> <span class="fn">deleteUser</span>(u: <span class="ty">User</span>): <span class="ty">void</span> { }
+<span class="cmt">// Add 'role' to User once — all three functions automatically updated</span></code></pre>
+              </div>
+              <p>Type aliases are also the only way to name union types, intersection types, and function types — concepts that can't be expressed as interfaces.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="ta-when-use">
+              <h4>When Type Aliases Are the Right Tool</h4>
+              <ul>
+                <li><strong>Any type used in more than one place</strong> — duplicate types are a maintenance risk. Name it.</li>
+                <li><strong>Union types</strong> — <code>type Status = "active" | "inactive" | "banned"</code> is unreadable inline; name it.</li>
+                <li><strong>Intersection types</strong> — <code>type AdminUser = User &amp; { permissions: string[] }</code> combines two types into one.</li>
+                <li><strong>Function types</strong> — <code>type EventHandler = (event: Event) => void</code> is far cleaner than repeating function signatures.</li>
+                <li><strong>Semantic primitive aliases</strong> — <code>type UserId = number</code> communicates intent; raw <code>number</code> does not.</li>
+                <li><strong>Generic utility types</strong> — <code>type Nullable&lt;T&gt; = T | null</code> creates a reusable pattern for any type T.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="ta-when-not">
+              <h4>When NOT to Use Type Aliases</h4>
+              <ul>
+                <li><strong>When you need declaration merging</strong> — if you're extending a library's types (e.g., adding properties to Express's <code>Request</code>), you need interfaces, not type aliases. Type aliases cannot be reopened or merged.</li>
+                <li><strong>When defining class shapes for OOP</strong> — use classes for implementations that combine state and behavior. Type aliases describe shapes, not implementations.</li>
+                <li><strong>Over-aliasing obvious types</strong> — creating <code>type MyString = string</code> adds noise without benefit. Alias only when the name communicates something the underlying type does not.</li>
+                <li><strong>When a simple inline type is clearer</strong> — <code>function foo(x: string | number)</code> is clearer than introducing <code>type StringOrNumber = string | number</code> for a type used exactly once.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="ta-internals">
+              <h4>What TypeScript Actually Does</h4>
+              <p>Type aliases are purely a compile-time construct. The TypeScript compiler:</p>
+              <ol>
+                <li>Parses <code>type X = ...</code> and registers <code>X</code> in its type registry with its full definition.</li>
+                <li>When <code>X</code> appears anywhere in code, substitutes the full definition for type checking purposes.</li>
+                <li>Checks structural compatibility using the underlying type — not the alias name. Two aliases <code>type A = { x: number }</code> and <code>type B = { x: number }</code> are completely interchangeable.</li>
+                <li>Emits <strong>zero JavaScript</strong> for <code>type</code> declarations — they are fully erased.</li>
+              </ol>
+              <p>This means type aliases are cost-free at runtime. They are a developer experience tool, not a runtime mechanism. Because TypeScript uses structural typing, you cannot distinguish two aliases with identical structures — both are just the structure they alias.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="ta-syntax">
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="cmt">// ── Basic type alias ──────────────────────────────────────────────────</span>
+<span class="kw">type</span> <span class="ty">UserName</span> = <span class="ty">string</span>;
+<span class="cmt">//   ^^^^^^^^   ^^^^^^</span>
+<span class="cmt">//   alias name  the type being aliased (can be ANY type expression)</span>
+
+<span class="cmt">// ── Object type alias ─────────────────────────────────────────────────</span>
+<span class="kw">type</span> <span class="ty">Point</span> = {
+  x: <span class="ty">number</span>;
+  y: <span class="ty">number</span>;
+};
+
+<span class="cmt">// ── Union type alias ──────────────────────────────────────────────────</span>
+<span class="kw">type</span> <span class="ty">Direction</span> = <span class="str">"north"</span> | <span class="str">"south"</span> | <span class="str">"east"</span> | <span class="str">"west"</span>;
+<span class="kw">type</span> <span class="ty">ID</span>        = <span class="ty">string</span> | <span class="ty">number</span>;
+
+<span class="cmt">// ── Intersection type alias ───────────────────────────────────────────</span>
+<span class="kw">type</span> <span class="ty">WithTimestamps</span> = { createdAt: <span class="ty">Date</span>; updatedAt: <span class="ty">Date</span> };
+<span class="kw">type</span> <span class="ty">User</span>           = { id: <span class="ty">number</span>; name: <span class="ty">string</span> };
+<span class="kw">type</span> <span class="ty">UserRecord</span>     = <span class="ty">User</span> & <span class="ty">WithTimestamps</span>;
+<span class="cmt">//                         ^</span>
+<span class="cmt">//                         intersection: UserRecord has ALL properties of both types</span>
+
+<span class="cmt">// ── Function type alias ───────────────────────────────────────────────</span>
+<span class="kw">type</span> <span class="ty">Comparator</span>&lt;<span class="ty">T</span>&gt; = (a: <span class="ty">T</span>, b: <span class="ty">T</span>) => <span class="ty">number</span>;
+<span class="cmt">//               ^^^</span>
+<span class="cmt">//               generic type parameter</span>
+
+<span class="cmt">// ── Referencing other aliases ─────────────────────────────────────────</span>
+<span class="kw">type</span> <span class="ty">NullableUser</span> = <span class="ty">User</span> | <span class="kw">null</span>;
+<span class="cmt">//                  ^^^^</span>
+<span class="cmt">//                  references the User alias defined above</span></code></pre>
+              </div>
+              <p>The <code>type</code> keyword is always followed by a name (PascalCase by convention), an equals sign, and the type expression. The type expression can be anything TypeScript supports: primitives, objects, unions, intersections, functions, tuples, or references to other type aliases.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="ta-example">
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="cmt">// A typed blog system using type aliases</span>
+
+<span class="kw">type</span> <span class="ty">PostId</span>     = <span class="ty">number</span>;
+<span class="kw">type</span> <span class="ty">AuthorId</span>   = <span class="ty">number</span>;
+<span class="kw">type</span> <span class="ty">PostStatus</span> = <span class="str">"draft"</span> | <span class="str">"published"</span> | <span class="str">"archived"</span>;
+
+<span class="kw">type</span> <span class="ty">Author</span> = {
+  id: <span class="ty">AuthorId</span>;
+  name: <span class="ty">string</span>;
+  bio: <span class="ty">string</span>;
+};
+
+<span class="kw">type</span> <span class="ty">Post</span> = {
+  id: <span class="ty">PostId</span>;
+  title: <span class="ty">string</span>;
+  content: <span class="ty">string</span>;
+  author: <span class="ty">Author</span>;
+  status: <span class="ty">PostStatus</span>;
+  createdAt: <span class="ty">Date</span>;
+};
+
+<span class="cmt">// Function using the aliases — clean, readable signatures</span>
+<span class="kw">function</span> <span class="fn">publishPost</span>(post: <span class="ty">Post</span>): <span class="ty">Post</span> {
+  <span class="kw">return</span> { ...post, status: <span class="str">"published"</span> };
+}
+
+<span class="kw">function</span> <span class="fn">getPostsByStatus</span>(posts: <span class="ty">Post</span>[], status: <span class="ty">PostStatus</span>): <span class="ty">Post</span>[] {
+  <span class="kw">return</span> posts.<span class="fn">filter</span>(p => p.status === status);
+}
+
+<span class="cmt">// Usage</span>
+<span class="kw">const</span> draft: <span class="ty">Post</span> = {
+  id: <span class="num">1</span>, title: <span class="str">"Hello TypeScript"</span>, content: <span class="str">"..."</span>,
+  author: { id: <span class="num">10</span>, name: <span class="str">"Alice"</span>, bio: <span class="str">"Developer"</span> },
+  status: <span class="str">"draft"</span>, createdAt: <span class="kw">new</span> <span class="ty">Date</span>(),
+};
+<span class="kw">const</span> published = <span class="fn">publishPost</span>(draft);
+console.<span class="fn">log</span>(published.status); <span class="cmt">// "published"</span></code></pre>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="ta-real-world">
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript — REST API response modeling</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="cmt">// Typed API client response structure used across a full-stack app</span>
+
+<span class="kw">type</span> <span class="ty">ApiStatus</span> = <span class="str">"success"</span> | <span class="str">"error"</span> | <span class="str">"loading"</span>;
+
+<span class="kw">type</span> <span class="ty">PaginationMeta</span> = {
+  page: <span class="ty">number</span>;
+  pageSize: <span class="ty">number</span>;
+  totalItems: <span class="ty">number</span>;
+  totalPages: <span class="ty">number</span>;
+};
+
+<span class="cmt">// Generic alias — works for any response data type</span>
+<span class="kw">type</span> <span class="ty">ApiResponse</span>&lt;<span class="ty">T</span>&gt; = {
+  status: <span class="ty">ApiStatus</span>;
+  data: <span class="ty">T</span> | <span class="kw">null</span>;
+  error: <span class="ty">string</span> | <span class="kw">null</span>;
+  meta: <span class="ty">PaginationMeta</span> | <span class="kw">null</span>;
+};
+
+<span class="kw">type</span> <span class="ty">Product</span> = {
+  id: <span class="ty">number</span>;
+  name: <span class="ty">string</span>;
+  price: <span class="ty">number</span>;
+  category: <span class="ty">string</span>;
+};
+
+<span class="cmt">// Function returns ApiResponse&lt;Product[]&gt; — fully typed</span>
+<span class="kw">async function</span> <span class="fn">fetchProducts</span>(page: <span class="ty">number</span>): <span class="ty">Promise</span>&lt;<span class="ty">ApiResponse</span>&lt;<span class="ty">Product</span>[]&gt;&gt; {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> res  = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">`/api/products?page=</span>${page}<span class="str">`</span>);
+    <span class="kw">const</span> body = <span class="kw">await</span> res.<span class="fn">json</span>();
+    <span class="kw">return</span> { status: <span class="str">"success"</span>, data: body.products, error: <span class="kw">null</span>, meta: body.pagination };
+  } <span class="kw">catch</span> (err) {
+    <span class="kw">return</span> { status: <span class="str">"error"</span>, data: <span class="kw">null</span>, error: <span class="ty">String</span>(err), meta: <span class="kw">null</span> };
+  }
+}</code></pre>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="ta-use-cases">
+              <ul>
+                <li><strong>Domain modeling</strong> — Type aliases like <code>type OrderStatus = "pending" | "processing" | "shipped" | "delivered"</code> make business logic self-documenting and enforce valid state values at the type level.</li>
+                <li><strong>Generic utility types</strong> — Libraries define type aliases like <code>type Nullable&lt;T&gt; = T | null</code> that work for any type T, reducing boilerplate across the codebase.</li>
+                <li><strong>React component props</strong> — Event handler types like <code>type ClickHandler = React.MouseEventHandler&lt;HTMLButtonElement&gt;</code> are aliased once and reused across all button components.</li>
+                <li><strong>Branded types</strong> — <code>type UserId = number &amp; { readonly _brand: "UserId" }</code> prevents accidentally passing a ProductId where a UserId is expected, catching logic errors at compile time.</li>
+                <li><strong>Zod schema types</strong> — <code>type UserSchema = z.infer&lt;typeof userSchema&gt;</code> keeps the runtime validation schema and the static type in sync automatically.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="ta-mistakes">
+              <div class="mistake-item">
+                <div class="label">❌ Mistake 1 — Aliasing <code>any</code> and calling it typed</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript — BAD</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">type</span> <span class="ty">MysteryData</span> = <span class="ty">any</span>; <span class="cmt">// This just hides your use of any</span>
+<span class="kw">function</span> <span class="fn">process</span>(data: <span class="ty">MysteryData</span>) { <span class="cmt">/* zero type safety */</span> }</code></pre></div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript — GOOD</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">type</span> <span class="ty">MysteryData</span> = <span class="ty">unknown</span>; <span class="cmt">// Forces you to check before using</span>
+<span class="kw">function</span> <span class="fn">process</span>(data: <span class="ty">MysteryData</span>) {
+  <span class="kw">if</span> (<span class="kw">typeof</span> data === <span class="str">"string"</span>) { <span class="cmt">/* safely narrowed to string */</span> }
+}</code></pre></div>
+              </div>
+              <div class="mistake-item">
+                <div class="label">❌ Mistake 2 — Creating aliases that look distinct but are identical to TypeScript</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">type</span> <span class="ty">UserId</span>    = <span class="ty">number</span>;
+<span class="kw">type</span> <span class="ty">ProductId</span> = <span class="ty">number</span>;
+
+<span class="kw">function</span> <span class="fn">getUser</span>(id: <span class="ty">UserId</span>) { <span class="cmt">/* ... */</span> }
+
+<span class="kw">const</span> productId: <span class="ty">ProductId</span> = <span class="num">42</span>;
+<span class="fn">getUser</span>(productId); <span class="cmt">// ✓ No error! TypeScript sees both as 'number'</span>
+
+<span class="cmt">// For REAL nominal distinction, use branded types:</span>
+<span class="kw">type</span> <span class="ty">UserId</span>    = <span class="ty">number</span> & { <span class="kw">readonly</span> _brand: <span class="str">"UserId"</span> };
+<span class="kw">type</span> <span class="ty">ProductId</span> = <span class="ty">number</span> & { <span class="kw">readonly</span> _brand: <span class="str">"ProductId"</span> };
+<span class="fn">getUser</span>(productId); <span class="cmt">// Now errors — ProductId is not UserId</span></code></pre></div>
+              </div>
+              <div class="mistake-item">
+                <div class="label">❌ Mistake 3 — Using camelCase names for type aliases</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">type</span> <span class="ty">userProfile</span> = { name: <span class="ty">string</span>; age: <span class="ty">number</span> }; <span class="cmt">// BAD — looks like a variable</span>
+<span class="kw">type</span> <span class="ty">UserProfile</span> = { name: <span class="ty">string</span>; age: <span class="ty">number</span> }; <span class="cmt">// GOOD — PascalCase convention</span></code></pre></div>
+                <p>PascalCase for type aliases is a universal TypeScript convention. camelCase names look like variables and confuse readers about whether they're looking at a value or a type.</p>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="ta-best-practices">
+              <div class="bp-item"><div class="label">1. Use PascalCase for all type aliases</div><p>This is the universal TypeScript convention, matching class and interface naming. It signals at a glance that a name refers to a type, not a variable.</p></div>
+              <div class="bp-item"><div class="label">2. Name types semantically — convey intent, not structure</div><p><code>type UserRole = "admin" | "user" | "guest"</code> is better than <code>type StringLiteral = "admin" | "user" | "guest"</code>. The name should tell you what the type represents, not describe its structure.</p></div>
+              <div class="bp-item"><div class="label">3. Prefer type aliases for union and intersection types</div><p>Complex types like <code>string | number | null</code> or <code>User &amp; Permissions</code> are much more readable when given a meaningful name. Inline unions spanning more than two options should almost always be named.</p></div>
+              <div class="bp-item"><div class="label">4. Prefer <code>interface</code> for public API object shapes</div><p>Interfaces generate better error messages in some scenarios and support declaration merging — important when writing libraries or defining contracts that classes will implement.</p></div>
+              <div class="bp-item"><div class="label">5. Co-locate type aliases with their primary usage</div><p>Define types in the same file or module where they are primarily used. Export them if other modules need them. Avoid creating a single large <code>types.ts</code> file with unrelated types — it becomes a dumping ground.</p></div>
+              <div class="bp-item"><div class="label">6. Use type aliases to document intent for primitives</div><p><code>type Milliseconds = number</code> adds no type safety (it's still just <code>number</code>) but documents that a parameter expects a time in milliseconds, not a count or an ID. This is especially useful for function parameter names.</p></div>
+            </div>
+
+            <div class="tab-pane" data-pane="ta-interview">
+              <div class="qa-item">
+                <div class="q">Q: What is the difference between <code>type</code> and <code>interface</code>? <span class="difficulty medium">Medium</span></div>
+                <p>Both describe object shapes and are often interchangeable. Key differences: (1) <code>interface</code> supports declaration merging — you can reopen an interface in multiple files and TypeScript merges the definitions; <code>type</code> aliases cannot be reopened. (2) <code>type</code> can alias any type — unions, intersections, primitives, functions, tuples; <code>interface</code> can only describe object shapes with named properties. (3) Error messages involving interfaces sometimes display the interface name rather than the expanded structure, which can be cleaner. Common style: prefer <code>interface</code> for object shapes and <code>type</code> for everything else.</p>
+              </div>
+              <div class="qa-item">
+                <div class="q">Q: Are two type aliases with identical structures compatible? <span class="difficulty easy">Easy</span></div>
+                <p>Yes. Because TypeScript uses structural typing, <code>type A = { x: number }</code> and <code>type B = { x: number }</code> are fully compatible and interchangeable — a value of type A can be assigned to a variable of type B and vice versa. The alias names don't matter for compatibility; only the underlying structure does. This is unlike nominal typing where two types with the same structure but different names would be incompatible.</p>
+              </div>
+              <div class="qa-item">
+                <div class="q">Q: Can a type alias reference itself recursively? <span class="difficulty hard">Hard</span></div>
+                <p>Yes — type aliases can be self-referential for recursive data structures: <code>type Tree&lt;T&gt; = { value: T; children: Tree&lt;T&gt;[] }</code>. TypeScript evaluates this lazily since the recursion is inside an object property (an array). However, direct recursion at the top level is not allowed: <code>type Infinite = Infinite[]</code> is a circular reference error. The key rule is that recursive references must appear inside an object, array, or generic parameter — not directly as the definition itself.</p>
+              </div>
+              <div class="qa-item">
+                <div class="q">Q: How do you simulate interface extension with type aliases? <span class="difficulty medium">Medium</span></div>
+                <p>Use the intersection operator (<code>&amp;</code>): <code>type Admin = User &amp; { permissions: string[] }</code>. This creates a new type with all properties of <code>User</code> plus <code>permissions</code>, structurally equivalent to extending an interface. The difference is that intersection combines using structural composition rather than named inheritance, and overlapping properties in an intersection must be compatible — if both types define <code>id</code>, their types must be compatible or the intersection becomes <code>never</code>.</p>
+              </div>
+              <div class="qa-item">
+                <div class="q">Q: When would you always use a type alias instead of an interface? <span class="difficulty easy">Easy</span></div>
+                <p>Always use type aliases for: (1) Union types — <code>type Direction = "north" | "south"</code>; interfaces cannot express unions. (2) Intersection types — <code>type WithId&lt;T&gt; = T &amp; { id: number }</code>. (3) Function types — <code>type Handler = (req: Request, res: Response) => void</code>. (4) Tuple types — <code>type Pair&lt;A, B&gt; = [A, B]</code>. (5) Conditional types and mapped types. For these non-object-shape types, interfaces simply don't support the syntax and type aliases are the only option.</p>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="ta-exercise">
+              <h4>Goal</h4>
+              <p>Build a mini type library for a task management application using type aliases.</p>
+              <h4>Requirements</h4>
+              <ul>
+                <li>Create <code>TaskId</code> (number) and <code>UserId</code> (number) semantic aliases</li>
+                <li>Create a <code>Priority</code> union type: <code>"low" | "medium" | "high" | "critical"</code></li>
+                <li>Create a <code>TaskStatus</code> union: <code>"todo" | "in-progress" | "done" | "cancelled"</code></li>
+                <li>Create an <code>Assignee</code> type with <code>id: UserId</code>, <code>name: string</code>, <code>email: string</code></li>
+                <li>Create a <code>Task</code> type with <code>id</code>, <code>title</code>, <code>description</code>, <code>priority</code>, <code>status</code>, <code>assignee</code>, <code>dueDate: Date</code></li>
+              </ul>
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript — starter</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">type</span> <span class="ty">TaskId</span>  = <span class="cmt">/* TODO */</span>;
+<span class="kw">type</span> <span class="ty">UserId</span>  = <span class="cmt">/* TODO */</span>;
+<span class="kw">type</span> <span class="ty">Priority</span>   = <span class="cmt">/* TODO: union of 4 priority strings */</span>;
+<span class="kw">type</span> <span class="ty">TaskStatus</span> = <span class="cmt">/* TODO: union of 4 status strings */</span>;
+
+<span class="kw">type</span> <span class="ty">Assignee</span> = {
+  <span class="cmt">// TODO</span>
+};
+
+<span class="kw">type</span> <span class="ty">Task</span> = {
+  <span class="cmt">// TODO</span>
+};
+
+<span class="cmt">// Test — this should compile without errors</span>
+<span class="kw">const</span> task: <span class="ty">Task</span> = {
+  id: <span class="num">1</span>, title: <span class="str">"Set up TypeScript"</span>, description: <span class="str">"Configure tsconfig.json"</span>,
+  priority: <span class="str">"high"</span>, status: <span class="str">"in-progress"</span>,
+  assignee: { id: <span class="num">10</span>, name: <span class="str">"Alice"</span>, email: <span class="str">"alice@co.com"</span> },
+  dueDate: <span class="kw">new</span> <span class="ty">Date</span>(<span class="str">"2025-01-31"</span>),
+};</code></pre>
+              </div>
+              <p><strong>Hint:</strong> Union types use the <code>|</code> operator: <code>"a" | "b" | "c"</code></p>
+            </div>
+
+            <div class="tab-pane" data-pane="ta-summary">
+              <ul class="takeaway-list">
+                <li>The <code>type</code> keyword creates a named alias for any TypeScript type expression.</li>
+                <li>Type aliases can name object types, union types, intersection types, function types, tuple types, and generics.</li>
+                <li>They are compile-time only — the <code>type</code> declaration emits zero JavaScript.</li>
+                <li>Structural typing means two aliases with identical definitions are fully compatible — names don't matter for assignability.</li>
+                <li>Use <code>interface</code> for object shapes you'll extend; use <code>type</code> for unions, intersections, functions, and utilities.</li>
+                <li>PascalCase is the TypeScript convention for type alias names.</li>
+                <li>Name types for what they represent (semantics), not for what they look like (structure).</li>
+              </ul>
+              <div class="mental-model">
+                💡 Mental model: A type alias is like a variable for types — you define a complex or frequently used type once, give it a memorable name, and reference the name everywhere instead of repeating the full definition.
+              </div>
+            </div>
+
+          </div>
+        </details>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- TOPIC 3: Optional Properties -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <details class="topic-panel" id="topic-optional-props">
+          <summary>
+            <span class="topic-name">Optional Properties</span>
+            <span class="badge beginner" style="margin-left:8px">Beginner</span>
+            <span class="summary-arrow">▶</span>
+          </summary>
+
+          <div class="panel-tabs">
+            <button class="tab active" data-tab="op-definition">Definition</button>
+            <button class="tab" data-tab="op-why-exists">Why It Exists</button>
+            <button class="tab" data-tab="op-when-use">When to Use</button>
+            <button class="tab" data-tab="op-when-not">When NOT to Use</button>
+            <button class="tab" data-tab="op-internals">How It Works</button>
+            <button class="tab" data-tab="op-syntax">Syntax</button>
+            <button class="tab" data-tab="op-example">Example</button>
+            <button class="tab" data-tab="op-real-world">Real-World</button>
+            <button class="tab" data-tab="op-use-cases">Use Cases</button>
+            <button class="tab" data-tab="op-mistakes">Mistakes</button>
+            <button class="tab" data-tab="op-best-practices">Best Practices</button>
+            <button class="tab" data-tab="op-interview">Interview Qs</button>
+            <button class="tab" data-tab="op-exercise">Exercise</button>
+            <button class="tab" data-tab="op-summary">Summary</button>
+          </div>
+
+          <div class="panel-content">
+
+            <div class="tab-pane active" data-pane="op-definition">
+              <h4>Simple Explanation</h4>
+              <p>An optional property is one that might or might not be there. You mark it with a <code>?</code> after the property name to say "this might exist on the object — but it might not." Objects with or without that property both pass the type check.</p>
+              <h4>Technical Explanation</h4>
+              <p>In TypeScript, the <code>?</code> modifier after a property name converts the property from required to optional. Internally, TypeScript treats an optional property's type as <code>Type | undefined</code>. With <code>strictNullChecks</code> enabled, accessing an optional property returns a <code>Type | undefined</code> union, and TypeScript requires you to narrow out the <code>undefined</code> case before performing operations that assume a value.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="op-why-exists">
+              <h4>The Problem It Solves</h4>
+              <p>Real-world data is rarely complete. Not every user has a phone number. Not every API response includes all fields. JavaScript lets you create objects with missing properties freely, but without optional properties in the type system, TypeScript would force you to either lie (provide empty strings or fake values) or use <code>any</code> and lose type safety entirely.</p>
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript — without optional (lying)</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">type</span> <span class="ty">User</span> = { name: <span class="ty">string</span>; phone: <span class="ty">string</span> }; <span class="cmt">// phone is "required"</span>
+<span class="kw">const</span> user: <span class="ty">User</span> = { name: <span class="str">"Alice"</span>, phone: <span class="str">""</span> };
+<span class="cmt">// Empty string is a lie — phone is missing, not empty</span></code></pre>
+              </div>
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript — with optional (honest)</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">type</span> <span class="ty">User</span> = { name: <span class="ty">string</span>; phone?: <span class="ty">string</span> }; <span class="cmt">// phone is optional</span>
+<span class="kw">const</span> minimalUser: <span class="ty">User</span> = { name: <span class="str">"Alice"</span> };           <span class="cmt">// ✓ valid</span>
+<span class="kw">const</span> fullUser: <span class="ty">User</span>    = { name: <span class="str">"Bob"</span>, phone: <span class="str">"555-0100"</span> }; <span class="cmt">// ✓ also valid</span></code></pre>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="op-when-use">
+              <h4>When Optional Properties Are the Right Choice</h4>
+              <ul>
+                <li><strong>Properties that exist in some cases but not others</strong> — middle name, phone extension, secondary email, avatar URL.</li>
+                <li><strong>Options/configuration bags</strong> — when functions accept option objects, most options have defaults; mark everything with a default as optional.</li>
+                <li><strong>Partial data</strong> — multi-step forms, draft documents, records in progress where not all fields are filled yet.</li>
+                <li><strong>API responses with conditional fields</strong> — some REST APIs include certain fields only when the related feature is active.</li>
+                <li><strong>Database columns allowing NULL</strong> — columns that accept NULL in your schema should be optional in TypeScript.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="op-when-not">
+              <h4>When NOT to Use Optional Properties</h4>
+              <ul>
+                <li><strong>When a property is conceptually required</strong> — using <code>?</code> on a field that's always present misleads readers and forces unnecessary null checks.</li>
+                <li><strong>As a substitute for default values</strong> — if a property has a sensible default (<code>false</code>, <code>0</code>, <code>""</code>), provide the default in the function body; don't make the property optional on the type.</li>
+                <li><strong>When making everything optional out of laziness</strong> — an object type where every property is optional provides almost no type safety. Be intentional about what's genuinely optional.</li>
+                <li><strong>Mutually exclusive properties</strong> — if having <code>fieldA</code> means <code>fieldB</code> shouldn't exist, use a discriminated union instead of making both optional.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="op-internals">
+              <h4>What TypeScript Actually Does</h4>
+              <p>When TypeScript sees <code>prop?: Type</code>:</p>
+              <ol>
+                <li>Records <code>prop</code> as optional in the object type with effective type <code>Type | undefined</code>.</li>
+                <li>Allows objects that omit <code>prop</code> entirely to satisfy the type — the property can be absent.</li>
+                <li>When you access <code>obj.prop</code>, the result type is <code>Type | undefined</code>.</li>
+                <li>With <code>strictNullChecks: true</code>, TypeScript requires narrowing before treating the value as <code>Type</code>: an <code>if (obj.prop !== undefined)</code> check or optional chaining (<code>obj.prop?.method()</code>) is required before calling methods on it.</li>
+                <li>Compiles to plain JavaScript — no difference in the output object structure.</li>
+              </ol>
+              <p>The JavaScript runtime doesn't know the property was optional. Absent properties are simply absent in the object — TypeScript's type system is the only place this is tracked.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="op-syntax">
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">type</span> <span class="ty">UserProfile</span> = {
+  id: <span class="ty">number</span>;           <span class="cmt">// required — every UserProfile MUST have id</span>
+  name: <span class="ty">string</span>;        <span class="cmt">// required</span>
+  bio?: <span class="ty">string</span>;        <span class="cmt">// optional — '?' makes it 'string | undefined'</span>
+  <span class="cmt">//  ^</span>
+  <span class="cmt">//  the '?' goes between the property name and the colon</span>
+  avatar?: <span class="ty">string</span>;     <span class="cmt">// optional</span>
+  phone?: <span class="ty">string</span>;      <span class="cmt">// optional</span>
+};
+
+<span class="cmt">// Both of these are valid:</span>
+<span class="kw">const</span> minimal: <span class="ty">UserProfile</span> = { id: <span class="num">1</span>, name: <span class="str">"Alice"</span> };
+<span class="kw">const</span> full: <span class="ty">UserProfile</span>    = { id: <span class="num">2</span>, name: <span class="str">"Bob"</span>, bio: <span class="str">"Dev"</span>, avatar: <span class="str">"/img/bob.jpg"</span> };
+
+<span class="cmt">// Accessing optional property — type is string | undefined</span>
+<span class="kw">const</span> bio = minimal.bio;   <span class="cmt">// Type: string | undefined</span>
+
+<span class="cmt">// Option 1: explicit undefined check</span>
+<span class="kw">if</span> (minimal.bio !== <span class="ty">undefined</span>) {
+  console.<span class="fn">log</span>(minimal.bio.<span class="fn">toUpperCase</span>()); <span class="cmt">// OK: narrowed to string</span>
+}
+
+<span class="cmt">// Option 2: optional chaining (returns undefined instead of throwing)</span>
+console.<span class="fn">log</span>(minimal.bio?.<span class="fn">toUpperCase</span>()); <span class="cmt">// string | undefined</span>
+
+<span class="cmt">// Option 3: nullish coalescing (provide a default)</span>
+console.<span class="fn">log</span>(minimal.bio ?? <span class="str">"No bio provided"</span>); <span class="cmt">// always string</span></code></pre>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="op-example">
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">type</span> <span class="ty">ButtonConfig</span> = {
+  label: <span class="ty">string</span>;              <span class="cmt">// required</span>
+  onClick: () => <span class="ty">void</span>;        <span class="cmt">// required</span>
+  disabled?: <span class="ty">boolean</span>;         <span class="cmt">// optional</span>
+  size?: <span class="str">"sm"</span> | <span class="str">"md"</span> | <span class="str">"lg"</span>; <span class="cmt">// optional</span>
+  variant?: <span class="str">"primary"</span> | <span class="str">"secondary"</span> | <span class="str">"ghost"</span>; <span class="cmt">// optional</span>
+  tooltip?: <span class="ty">string</span>;           <span class="cmt">// optional</span>
+};
+
+<span class="kw">function</span> <span class="fn">renderButton</span>(config: <span class="ty">ButtonConfig</span>): <span class="ty">string</span> {
+  <span class="cmt">// Apply defaults for all optional fields with ??</span>
+  <span class="kw">const</span> disabled = config.disabled ?? <span class="kw">false</span>;
+  <span class="kw">const</span> size      = config.size    ?? <span class="str">"md"</span>;
+  <span class="kw">const</span> variant   = config.variant ?? <span class="str">"primary"</span>;
+  <span class="kw">const</span> tooltip   = config.tooltip ?? <span class="str">""</span>;
+
+  <span class="kw">return</span> <span class="str">`&lt;button class="btn btn-</span>${variant}<span class="str"> btn-</span>${size}<span class="str">"</span>
+    <span class="str">${disabled ? "disabled" : ""}</span>
+    <span class="str">title="</span>${tooltip}<span class="str">"&gt;</span>${config.label}<span class="str">&lt;/button&gt;`</span>;
+}
+
+<span class="cmt">// Minimal — only required fields</span>
+<span class="fn">renderButton</span>({ label: <span class="str">"Save"</span>, onClick: () => console.<span class="fn">log</span>(<span class="str">"saved"</span>) });
+
+<span class="cmt">// Full — all optional fields provided</span>
+<span class="fn">renderButton</span>({
+  label: <span class="str">"Delete"</span>, onClick: () => {},
+  disabled: <span class="kw">false</span>, size: <span class="str">"sm"</span>, variant: <span class="str">"ghost"</span>, tooltip: <span class="str">"Delete this item"</span>
+});</code></pre>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="op-real-world">
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript — Express query parameters</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="cmt">// URL query parameters are always optional — perfect use case</span>
+
+<span class="kw">type</span> <span class="ty">ProductQuery</span> = {
+  search?:   <span class="ty">string</span>;
+  category?: <span class="ty">string</span>;
+  minPrice?: <span class="ty">number</span>;
+  maxPrice?: <span class="ty">number</span>;
+  page?:     <span class="ty">number</span>;
+  pageSize?: <span class="ty">number</span>;
+  sortBy?:   <span class="str">"price"</span> | <span class="str">"name"</span> | <span class="str">"createdAt"</span>;
+  sortOrder?:<span class="str">"asc"</span> | <span class="str">"desc"</span>;
+};
+
+<span class="kw">function</span> <span class="fn">buildQuery</span>(params: <span class="ty">ProductQuery</span>): <span class="ty">string</span> {
+  <span class="kw">const</span> conditions: <span class="ty">string</span>[] = [];
+
+  <span class="cmt">// Only add a condition when the param was actually provided</span>
+  <span class="kw">if</span> (params.search    !== <span class="ty">undefined</span>) conditions.<span class="fn">push</span>(<span class="str">`name ILIKE '%</span>${params.search}<span class="str">%'`</span>);
+  <span class="kw">if</span> (params.category  !== <span class="ty">undefined</span>) conditions.<span class="fn">push</span>(<span class="str">`category = '</span>${params.category}<span class="str">'`</span>);
+  <span class="kw">if</span> (params.minPrice  !== <span class="ty">undefined</span>) conditions.<span class="fn">push</span>(<span class="str">`price &gt;= </span>${params.minPrice}<span class="str">`</span>);
+  <span class="kw">if</span> (params.maxPrice  !== <span class="ty">undefined</span>) conditions.<span class="fn">push</span>(<span class="str">`price &lt;= </span>${params.maxPrice}<span class="str">`</span>);
+
+  <span class="kw">const</span> where   = conditions.length ? <span class="str">`WHERE </span>${conditions.<span class="fn">join</span>(<span class="str">" AND "</span>)}<span class="str">`</span> : <span class="str">""</span>;
+  <span class="kw">const</span> limit   = params.pageSize ?? <span class="num">20</span>;
+  <span class="kw">const</span> offset  = ((params.page ?? <span class="num">1</span>) - <span class="num">1</span>) * limit;
+  <span class="kw">const</span> orderBy = params.sortBy
+    ? <span class="str">`ORDER BY </span>${params.sortBy}<span class="str"> </span>${params.sortOrder ?? <span class="str">"asc"</span>}<span class="str">`</span>
+    : <span class="str">""</span>;
+
+  <span class="kw">return</span> <span class="str">`SELECT * FROM products </span>${where}<span class="str"> </span>${orderBy}<span class="str"> LIMIT </span>${limit}<span class="str"> OFFSET </span>${offset}<span class="str">`</span>;
+}</code></pre>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="op-use-cases">
+              <ul>
+                <li><strong>HTTP query parameters</strong> — All URL query params are inherently optional. Typing them as optional properties means you can handle both <code>?search=laptop</code> and no search parameter without special casing.</li>
+                <li><strong>React component props</strong> — Most props have sensible defaults. Marking them optional (<code>className?</code>, <code>disabled?</code>, <code>size?</code>) lets consumers omit them and use your defaults.</li>
+                <li><strong>Library configuration objects</strong> — Axios, Jest, and Webpack all accept large config objects where most settings are optional with documented defaults.</li>
+                <li><strong>Partial update DTOs</strong> — When updating a database record, only changed fields are sent. A <code>Partial&lt;User&gt;</code> (all properties optional) models this naturally.</li>
+                <li><strong>Conditional API response fields</strong> — Some APIs include <code>errorDetail</code> only on error responses, or <code>nextPageToken</code> only when more results exist. Optional properties model this accurately.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="op-mistakes">
+              <div class="mistake-item">
+                <div class="label">❌ Mistake 1 — Accessing optional properties without a null check</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript — BAD</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">type</span> <span class="ty">User</span> = { name: <span class="ty">string</span>; bio?: <span class="ty">string</span> };
+<span class="kw">const</span> u: <span class="ty">User</span> = { name: <span class="str">"Alice"</span> };
+console.<span class="fn">log</span>(u.bio.<span class="fn">toUpperCase</span>()); <span class="cmt">// Error: Object is possibly 'undefined'</span></code></pre></div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript — GOOD</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="cmt">// Option 1: explicit check</span>
+<span class="kw">if</span> (u.bio !== <span class="ty">undefined</span>) { console.<span class="fn">log</span>(u.bio.<span class="fn">toUpperCase</span>()); }
+
+<span class="cmt">// Option 2: optional chaining (returns undefined safely)</span>
+console.<span class="fn">log</span>(u.bio?.<span class="fn">toUpperCase</span>());
+
+<span class="cmt">// Option 3: nullish coalescing (provide a fallback)</span>
+console.<span class="fn">log</span>((u.bio ?? <span class="str">"no bio"</span>).<span class="fn">toUpperCase</span>());</code></pre></div>
+              </div>
+              <div class="mistake-item">
+                <div class="label">❌ Mistake 2 — Making every property optional</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript — BAD</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">type</span> <span class="ty">Order</span> = {
+  id?:       <span class="ty">number</span>;   <span class="cmt">// always exists — don't make it optional</span>
+  customer?: <span class="ty">string</span>;   <span class="cmt">// always exists</span>
+  items?:    <span class="ty">string</span>[]; <span class="cmt">// always exists</span>
+  discount?: <span class="ty">number</span>;   <span class="cmt">// genuinely optional</span>
+};
+<span class="cmt">// Now every property access requires an undefined check — pointless</span></code></pre></div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript — GOOD</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">type</span> <span class="ty">Order</span> = {
+  id:       <span class="ty">number</span>;    <span class="cmt">// always present</span>
+  customer: <span class="ty">string</span>;    <span class="cmt">// always present</span>
+  items:    <span class="ty">string</span>[];  <span class="cmt">// always present</span>
+  discount?: <span class="ty">number</span>;  <span class="cmt">// genuinely optional — not every order has a discount</span>
+};</code></pre></div>
+              </div>
+              <div class="mistake-item">
+                <div class="label">❌ Mistake 3 — Confusing optional (<code>?</code>) with nullable (<code>| null</code>)</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="cmt">// These are semantically different:</span>
+<span class="kw">type</span> <span class="ty">A</span> = { value?: <span class="ty">string</span> };          <span class="cmt">// value may be absent OR undefined</span>
+<span class="kw">type</span> <span class="ty">B</span> = { value: <span class="ty">string</span> | <span class="kw">null</span> };    <span class="cmt">// value is ALWAYS present but may be null</span>
+
+<span class="kw">const</span> a: <span class="ty">A</span> = {};                       <span class="cmt">// ✓ missing property is fine</span>
+<span class="kw">const</span> b: <span class="ty">B</span> = { value: <span class="kw">null</span> };          <span class="cmt">// ✓ explicitly null</span>
+<span class="kw">const</span> c: <span class="ty">B</span> = {};                       <span class="cmt">// ✗ Error: missing 'value'</span>
+
+<span class="cmt">// Match your type to what the data source actually provides:</span>
+<span class="cmt">// REST APIs often send null; absent DB columns are often undefined</span></code></pre></div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="op-best-practices">
+              <div class="bp-item"><div class="label">1. Always enable <code>strictNullChecks</code> in tsconfig.json</div><p>Without it, optional properties don't give you compile-time null safety. The check is disabled by default in old configs but enabled by the <code>"strict": true</code> shorthand. Always use strict mode.</p></div>
+              <div class="bp-item"><div class="label">2. Use optional chaining (<code>?.</code>) and nullish coalescing (<code>??</code>) for ergonomic handling</div><p><code>user.bio?.toUpperCase() ?? "No bio"</code> is more readable than explicit <code>if</code> checks for simple value access patterns. Use <code>if</code> when you need to branch on the presence of a value.</p></div>
+              <div class="bp-item"><div class="label">3. Use <code>Partial&lt;T&gt;</code> for update operations</div><p>Instead of manually marking all fields optional for patch/update DTOs, <code>Partial&lt;User&gt;</code> makes all User properties optional at once. This keeps update types in sync with the base type automatically.</p></div>
+              <div class="bp-item"><div class="label">4. Document why a property is optional</div><p>A comment like <code>// only present for verified accounts</code> tells future readers the invariant, so they know when they can safely skip the undefined check in specific contexts.</p></div>
+              <div class="bp-item"><div class="label">5. Use <code>prop?: Type</code> over <code>prop: Type | undefined</code> for object properties</div><p>Both are similar but <code>prop?: Type</code> communicates "this property may be absent" while <code>prop: Type | undefined</code> implies "always present but may be undefined." For object properties, <code>?</code> is idiomatic and more clearly communicates absence.</p></div>
+              <div class="bp-item"><div class="label">6. Create separate types for different required/optional profiles</div><p>If an entity has different required fields in different contexts (create vs update vs display), define separate types: <code>CreateUserInput</code>, <code>UpdateUserInput</code>, <code>UserView</code>. Don't try to express all cases in one type with everything optional.</p></div>
+            </div>
+
+            <div class="tab-pane" data-pane="op-interview">
+              <div class="qa-item">
+                <div class="q">Q: What does <code>?</code> after a property name mean in TypeScript? <span class="difficulty easy">Easy</span></div>
+                <p>The <code>?</code> marks a property as optional, meaning it may be entirely absent from the object or its value may be <code>undefined</code>. TypeScript treats the property's effective type as <code>Type | undefined</code>. For example, <code>phone?: string</code> means you can create an object without a <code>phone</code> property and it satisfies the type. With <code>strictNullChecks</code> enabled, TypeScript requires you to check for <code>undefined</code> before using the property as a <code>string</code>.</p>
+              </div>
+              <div class="qa-item">
+                <div class="q">Q: What is the difference between <code>name?: string</code> and <code>name: string | undefined</code>? <span class="difficulty medium">Medium</span></div>
+                <p>They are very similar but have a subtle semantic difference. <code>name?: string</code> means the property can be completely absent — <code>{}</code> satisfies the type. <code>name: string | undefined</code> technically requires the property to be present, though its value can be <code>undefined</code> — so <code>{ name: undefined }</code> satisfies it, but <code>{}</code> technically does not. In practice, TypeScript's default behavior treats them almost identically. However, with <code>exactOptionalPropertyTypes</code> enabled, this distinction is strictly enforced, and <code>{ name: undefined }</code> would not satisfy <code>{ name?: string }</code>.</p>
+              </div>
+              <div class="qa-item">
+                <div class="q">Q: How do you handle optional properties ergonomically without lots of <code>if</code> checks? <span class="difficulty medium">Medium</span></div>
+                <p>Use optional chaining (<code>?.</code>) to safely access a property or call a method that might not exist: <code>user.address?.city</code> returns <code>undefined</code> instead of throwing. Use nullish coalescing (<code>??</code>) to provide a fallback when a value is <code>null</code> or <code>undefined</code>: <code>user.name ?? "Anonymous"</code>. Combine them: <code>user.config?.theme ?? "dark"</code>. For more complex logic where you need to do multiple operations on a potentially-undefined value, a guard clause (<code>if (!user.config) return</code>) keeps the rest of the function free of null checks.</p>
+              </div>
+              <div class="qa-item">
+                <div class="q">Q: When would you use <code>Partial&lt;T&gt;</code> vs manually making properties optional? <span class="difficulty medium">Medium</span></div>
+                <p><code>Partial&lt;T&gt;</code> makes ALL properties of T optional at once — use it for patch/update operations where any field may change. Manually marking specific properties optional is better when only some fields are genuinely optional by design — it communicates intent more precisely and provides better type safety for the required fields. Creating a <code>Partial&lt;User&gt;</code> type for a PATCH endpoint is idiomatic and keeps the update type automatically in sync with any changes to the base <code>User</code> type.</p>
+              </div>
+              <div class="qa-item">
+                <div class="q">Q: What is <code>exactOptionalPropertyTypes</code> and when does it matter? <span class="difficulty hard">Hard</span></div>
+                <p>It's a TypeScript compiler option (introduced in 4.4) that makes optional property handling stricter. Without it, <code>{ prop: undefined }</code> satisfies <code>{ prop?: string }</code>. With <code>exactOptionalPropertyTypes: true</code>, an optional property (<code>prop?: string</code>) can only be absent or set to <code>string</code> — explicitly setting it to <code>undefined</code> is an error. This catches a class of bugs where you think you're "clearing" a property by setting it to <code>undefined</code>, but the type system was silently allowing it. It matters most when spreading objects or using Object.assign to update partial records.</p>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="op-exercise">
+              <h4>Goal</h4>
+              <p>Build a typed search options object for a product catalog with optional parameters and defaults.</p>
+              <h4>Requirements</h4>
+              <ul>
+                <li>Create a <code>SearchOptions</code> type with required <code>query: string</code></li>
+                <li>Add optional: <code>category</code> (string), <code>minPrice</code> (number), <code>maxPrice</code> (number), <code>page</code> (number), <code>inStockOnly</code> (boolean)</li>
+                <li>Write a <code>searchProducts</code> function accepting <code>SearchOptions</code></li>
+                <li>Apply defaults for all optional fields using <code>??</code></li>
+                <li>Return a descriptive string summarizing the search parameters</li>
+              </ul>
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript — starter</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">type</span> <span class="ty">SearchOptions</span> = {
+  query: <span class="ty">string</span>; <span class="cmt">// required</span>
+  <span class="cmt">// TODO: add optional fields</span>
+};
+
+<span class="kw">function</span> <span class="fn">searchProducts</span>(opts: <span class="ty">SearchOptions</span>): <span class="ty">string</span> {
+  <span class="cmt">// TODO: apply defaults with ?? operator</span>
+  <span class="kw">const</span> category    = <span class="cmt">/* opts.category ?? "all categories" */</span>;
+  <span class="kw">const</span> minPrice    = <span class="cmt">/* ... */</span>;
+  <span class="kw">const</span> maxPrice    = <span class="cmt">/* ... */</span>;
+  <span class="kw">const</span> page        = <span class="cmt">/* ... */</span>;
+  <span class="kw">const</span> inStockOnly = <span class="cmt">/* ... */</span>;
+  <span class="cmt">// TODO: return a summary string</span>
+  <span class="kw">return</span> <span class="str">""</span>;
+}
+
+<span class="cmt">// Tests:</span>
+console.<span class="fn">log</span>(<span class="fn">searchProducts</span>({ query: <span class="str">"laptop"</span> }));
+<span class="cmt">// "Searching 'laptop', all categories, $0-Inf, page 1, in-stock: false"</span>
+
+console.<span class="fn">log</span>(<span class="fn">searchProducts</span>({ query: <span class="str">"laptop"</span>, category: <span class="str">"electronics"</span>, maxPrice: <span class="num">1000</span> }));
+<span class="cmt">// "Searching 'laptop', electronics, $0-$1000, page 1, in-stock: false"</span></code></pre>
+              </div>
+              <p><strong>Hint:</strong> <code>const x = opts.someOptional ?? defaultValue</code> is the default-application pattern.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="op-summary">
+              <ul class="takeaway-list">
+                <li>The <code>?</code> modifier makes a property optional — the property may be absent or its value may be <code>undefined</code>.</li>
+                <li>Always enable <code>strictNullChecks</code> (via <code>"strict": true</code>) to get compile-time protection for optional properties.</li>
+                <li>TypeScript's optional chaining (<code>?.</code>) and nullish coalescing (<code>??</code>) operators make handling optionals ergonomic.</li>
+                <li>Make properties optional only when they're genuinely optional — not as a shortcut to avoid declaring them required.</li>
+                <li><code>Partial&lt;T&gt;</code> is the idiomatic way to make all properties of a type optional at once, perfect for update DTOs.</li>
+                <li>Optional (<code>prop?: T</code>) and nullable (<code>prop: T | null</code>) are different — know which your data source provides.</li>
+                <li>Mutually exclusive fields belong in discriminated unions, not in a single type with everything optional.</li>
+              </ul>
+              <div class="mental-model">
+                💡 Mental model: A <code>?</code> next to a property name is TypeScript saying "I promise I'll check whether this exists before I use it" — and the compiler holds you to that promise by making the type <code>T | undefined</code>.
+              </div>
+            </div>
+
+          </div>
+        </details>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- TOPIC 4: Readonly Properties -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <details class="topic-panel" id="topic-readonly-props">
+          <summary>
+            <span class="topic-name">Readonly Properties</span>
+            <span class="badge beginner" style="margin-left:8px">Beginner</span>
+            <span class="summary-arrow">▶</span>
+          </summary>
+
+          <div class="panel-tabs">
+            <button class="tab active" data-tab="rp-definition">Definition</button>
+            <button class="tab" data-tab="rp-why-exists">Why It Exists</button>
+            <button class="tab" data-tab="rp-when-use">When to Use</button>
+            <button class="tab" data-tab="rp-when-not">When NOT to Use</button>
+            <button class="tab" data-tab="rp-internals">How It Works</button>
+            <button class="tab" data-tab="rp-syntax">Syntax</button>
+            <button class="tab" data-tab="rp-example">Example</button>
+            <button class="tab" data-tab="rp-real-world">Real-World</button>
+            <button class="tab" data-tab="rp-use-cases">Use Cases</button>
+            <button class="tab" data-tab="rp-mistakes">Mistakes</button>
+            <button class="tab" data-tab="rp-best-practices">Best Practices</button>
+            <button class="tab" data-tab="rp-interview">Interview Qs</button>
+            <button class="tab" data-tab="rp-exercise">Exercise</button>
+            <button class="tab" data-tab="rp-summary">Summary</button>
+          </div>
+
+          <div class="panel-content">
+
+            <div class="tab-pane active" data-pane="rp-definition">
+              <h4>Simple Explanation</h4>
+              <p>A <code>readonly</code> property is one that can be set when an object is created, but cannot be changed afterward. Think of it like writing in concrete while it's wet — once it sets, it's permanent. You can read the value any time, but you can't change it.</p>
+              <h4>Technical Explanation</h4>
+              <p>The <code>readonly</code> modifier in TypeScript marks a property as immutable after initialization. Any attempt to reassign a readonly property — whether by direct assignment (<code>obj.prop = value</code>) or compound assignment (<code>obj.prop += 1</code>) — produces a compile-time error. The compiled JavaScript is unchanged (there's no runtime enforcement); <code>readonly</code> is a purely static type-checking constraint.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="rp-why-exists">
+              <h4>The Problem It Solves</h4>
+              <p>JavaScript's <code>const</code> prevents reassigning a variable binding, but it doesn't prevent mutating the object the variable points to. This means an ID, a creation timestamp, or a configuration value set at startup can be accidentally changed by any code that has a reference to the object.</p>
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">javascript — the problem</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">const</span> user = { id: <span class="num">1</span>, name: <span class="str">"Alice"</span> };
+user.id = <span class="num">999</span>; <span class="cmt">// JavaScript allows this — const only protects the binding!</span>
+<span class="cmt">// id is now corrupted — no error, no warning</span></code></pre>
+              </div>
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript — the solution</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">type</span> <span class="ty">User</span> = { <span class="kw">readonly</span> id: <span class="ty">number</span>; name: <span class="ty">string</span> };
+<span class="kw">const</span> user: <span class="ty">User</span> = { id: <span class="num">1</span>, name: <span class="str">"Alice"</span> };
+
+user.id = <span class="num">999</span>;   <span class="cmt">// Error: Cannot assign to 'id' because it is a read-only property</span>
+user.name = <span class="str">"Bob"</span>; <span class="cmt">// OK — 'name' is not readonly</span></code></pre>
+              </div>
+              <p>This is especially valuable for entity primary keys, creation timestamps, and configuration values that define the identity of an object — things that should be set once and never touched again.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="rp-when-use">
+              <h4>When Readonly Is the Right Choice</h4>
+              <ul>
+                <li><strong>Primary keys and IDs</strong> — <code>readonly id: number</code> prevents the most dangerous possible mutation: changing a record's identity.</li>
+                <li><strong>Creation timestamps</strong> — <code>readonly createdAt: Date</code> set when the record is created should never change.</li>
+                <li><strong>Configuration values</strong> — Server port, database URL, API keys loaded at startup are set once and should stay fixed.</li>
+                <li><strong>Computed/derived values</strong> — Values calculated from other immutable data and stored for performance should not be changed externally.</li>
+                <li><strong>Function parameters you don't want to mutate</strong> — <code>Readonly&lt;Config&gt;</code> on a parameter signals the function reads but doesn't write the config.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="rp-when-not">
+              <h4>When NOT to Use Readonly</h4>
+              <ul>
+                <li><strong>Properties that legitimately need to change</strong> — shopping cart items, user profile fields, counters, status flags — don't make them readonly.</li>
+                <li><strong>When you're implementing immutable updates via object spread</strong> — if your pattern is <code>return { ...obj, field: newValue }</code>, readonly helps; but if you need direct mutation (e.g., for performance), it gets in the way.</li>
+                <li><strong>Don't use it to force immutability at runtime</strong> — <code>readonly</code> is compile-time only. For true runtime immutability (e.g., protecting shared config from third-party code), use <code>Object.freeze()</code> instead.</li>
+                <li><strong>When it leads to excessive object spreading</strong> — if every update requires spreading the entire object just to change one field, reconsider whether the type should be mutable and managed differently.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="rp-internals">
+              <h4>What TypeScript Actually Does</h4>
+              <p><code>readonly</code> is a compile-time-only constraint. The TypeScript compiler:</p>
+              <ol>
+                <li>Records which properties are marked <code>readonly</code> in the type.</li>
+                <li>At every assignment expression (<code>obj.prop = ...</code>, <code>obj.prop += ...</code>, <code>obj.prop++</code>), checks whether <code>prop</code> is readonly on <code>obj</code>'s type.</li>
+                <li>If readonly, emits a compile-time error and refuses to compile.</li>
+                <li>In the output JavaScript, the property behaves like any regular property — there is no <code>Object.defineProperty</code> with <code>writable: false</code>, no <code>Object.freeze</code>. The restriction exists only in the type checker.</li>
+              </ol>
+              <p>This means a cast to <code>any</code> — <code>(obj as any).id = 999</code> — bypasses the check at runtime. For genuine runtime immutability, combine <code>readonly</code> (for type safety) with <code>Object.freeze</code> (for runtime enforcement). Note that <code>Object.freeze</code> is also shallow.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="rp-syntax">
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="cmt">// ── readonly in a type alias ──────────────────────────────────────────</span>
+<span class="kw">type</span> <span class="ty">Config</span> = {
+  <span class="kw">readonly</span> apiUrl:     <span class="ty">string</span>; <span class="cmt">// 'readonly' comes before the property name</span>
+  <span class="kw">readonly</span> maxRetries: <span class="ty">number</span>;
+  timeout: <span class="ty">number</span>;              <span class="cmt">// NOT readonly — can be updated</span>
+};
+
+<span class="cmt">// ── readonly in an interface (same syntax) ───────────────────────────</span>
+<span class="kw">interface</span> <span class="ty">User</span> {
+  <span class="kw">readonly</span> id: <span class="ty">number</span>;  <span class="cmt">// primary key — immutable</span>
+  name: <span class="ty">string</span>;          <span class="cmt">// mutable</span>
+}
+
+<span class="cmt">// ── readonly arrays ───────────────────────────────────────────────────</span>
+<span class="kw">const</span> ids: <span class="kw">readonly</span> <span class="ty">number</span>[] = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>];
+<span class="cmt">//         ^^^^^^^^</span>
+<span class="cmt">//         no push, pop, splice, shift, unshift — array is immutable</span>
+ids.<span class="fn">push</span>(<span class="num">4</span>);   <span class="cmt">// Error: Property 'push' does not exist on type 'readonly number[]'</span>
+ids[<span class="num">0</span>] = <span class="num">99</span>;  <span class="cmt">// Error: Index signature in type 'readonly number[]' only permits reading</span>
+
+<span class="cmt">// ── Readonly&lt;T&gt; utility type — makes ALL properties readonly at once ──</span>
+<span class="kw">type</span> <span class="ty">ImmutableUser</span> = Readonly&lt;<span class="ty">User</span>&gt;;
+<span class="cmt">// equivalent to: { readonly id: number; readonly name: string }</span>
+
+<span class="cmt">// ── as const — readonly AND narrows to literal types ─────────────────</span>
+<span class="kw">const</span> config = { port: <span class="num">3000</span>, host: <span class="str">"localhost"</span> } <span class="kw">as const</span>;
+<span class="cmt">// type: { readonly port: 3000; readonly host: "localhost" }</span>
+<span class="cmt">//        (literal types, not number/string)</span></code></pre>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="rp-example">
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">type</span> <span class="ty">DatabaseRecord</span> = {
+  <span class="kw">readonly</span> id:        <span class="ty">number</span>; <span class="cmt">// set at creation, never changes</span>
+  <span class="kw">readonly</span> createdAt: <span class="ty">Date</span>;   <span class="cmt">// set at creation, never changes</span>
+  updatedAt: <span class="ty">Date</span>;            <span class="cmt">// mutable — changes on every update</span>
+  data: <span class="ty">string</span>;               <span class="cmt">// mutable — the actual content</span>
+};
+
+<span class="kw">function</span> <span class="fn">createRecord</span>(data: <span class="ty">string</span>): <span class="ty">DatabaseRecord</span> {
+  <span class="kw">return</span> {
+    id:        Math.<span class="fn">floor</span>(Math.<span class="fn">random</span>() * <span class="num">1_000_000</span>),
+    createdAt: <span class="kw">new</span> <span class="ty">Date</span>(),
+    updatedAt: <span class="kw">new</span> <span class="ty">Date</span>(),
+    data,
+  };
+}
+
+<span class="kw">function</span> <span class="fn">updateRecord</span>(record: <span class="ty">DatabaseRecord</span>, newData: <span class="ty">string</span>): <span class="ty">DatabaseRecord</span> {
+  <span class="cmt">// record.id = 999;           Error: Cannot assign to 'id' — read-only</span>
+  <span class="cmt">// record.createdAt = new Date(); Error: Cannot assign to 'createdAt' — read-only</span>
+
+  <span class="cmt">// Must create a new object — the immutable update pattern</span>
+  <span class="kw">return</span> {
+    ...record,               <span class="cmt">// preserves readonly id and createdAt</span>
+    updatedAt: <span class="kw">new</span> <span class="ty">Date</span>(), <span class="cmt">// updates the mutable field</span>
+    data: newData,
+  };
+}
+
+<span class="kw">const</span> rec     = <span class="fn">createRecord</span>(<span class="str">"original"</span>);
+<span class="kw">const</span> updated = <span class="fn">updateRecord</span>(rec, <span class="str">"updated"</span>);
+console.<span class="fn">log</span>(rec.id === updated.id);           <span class="cmt">// true — id preserved</span>
+console.<span class="fn">log</span>(rec.createdAt === updated.createdAt); <span class="cmt">// true — createdAt preserved</span></code></pre>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="rp-real-world">
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript — request context middleware</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="cmt">// A per-request context object — some fields are facts about the</span>
+<span class="cmt">// request (readonly), others are accumulated during processing (mutable)</span>
+
+<span class="kw">type</span> <span class="ty">RequestContext</span> = {
+  <span class="kw">readonly</span> requestId: <span class="ty">string</span>;    <span class="cmt">// UUID generated once per request</span>
+  <span class="kw">readonly</span> startTime: <span class="ty">number</span>;    <span class="cmt">// performance.now() at request entry</span>
+  <span class="kw">readonly</span> userId:    <span class="ty">number</span> | <span class="kw">null</span>; <span class="cmt">// set during auth, never changes</span>
+  <span class="kw">readonly</span> ip:        <span class="ty">string</span>;    <span class="cmt">// client IP — immutable fact</span>
+  metadata: Record&lt;<span class="ty">string</span>, <span class="ty">unknown</span>&gt;; <span class="cmt">// mutable — middleware accumulates data here</span>
+};
+
+<span class="kw">function</span> <span class="fn">createContext</span>(userId: <span class="ty">number</span> | <span class="kw">null</span>, ip: <span class="ty">string</span>): <span class="ty">RequestContext</span> {
+  <span class="kw">return</span> {
+    requestId: crypto.<span class="fn">randomUUID</span>(),
+    startTime: performance.<span class="fn">now</span>(),
+    userId, ip,
+    metadata: {},
+  };
+}
+
+<span class="kw">function</span> <span class="fn">addMetadata</span>(ctx: <span class="ty">RequestContext</span>, key: <span class="ty">string</span>, value: <span class="ty">unknown</span>): <span class="ty">void</span> {
+  <span class="cmt">// ctx.userId    = 999;  Error: read-only</span>
+  <span class="cmt">// ctx.requestId = "x";  Error: read-only</span>
+  ctx.metadata[key] = value; <span class="cmt">// OK: metadata itself is mutable</span>
+}
+
+<span class="kw">function</span> <span class="fn">logRequest</span>(ctx: <span class="ty">RequestContext</span>): <span class="ty">void</span> {
+  <span class="kw">const</span> elapsed = performance.<span class="fn">now</span>() - ctx.startTime;
+  console.<span class="fn">log</span>(
+    <span class="str">`[</span>${ctx.requestId}<span class="str">] </span>${elapsed.<span class="fn">toFixed</span>(<span class="num">2</span>)}<span class="str">ms — user: </span>${ctx.userId ?? <span class="str">"anon"</span>}<span class="str">`</span>
+  );
+}</code></pre>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="rp-use-cases">
+              <ul>
+                <li><strong>Entity primary keys</strong> — <code>readonly id: number</code> in domain models prevents the most dangerous mutation possible — changing a record's identity key after creation.</li>
+                <li><strong>Server startup configuration</strong> — Database URLs, API keys, and ports loaded at startup are set once and should never change mid-execution. <code>readonly</code> enforces this at the type level.</li>
+                <li><strong>Redux/Zustand state</strong> — Entity IDs in state stores are marked readonly so reducers can't accidentally change object identity while updating other properties.</li>
+                <li><strong>Value objects in domain-driven design</strong> — Value objects (money, coordinates, date ranges) are defined by their properties, not their identity. All properties are readonly because changing a property means creating a new value object.</li>
+                <li><strong>Event objects</strong> — Custom application events or DOM events carry facts about what happened. Making all properties readonly enforces that handlers observe but don't modify the event data.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="rp-mistakes">
+              <div class="mistake-item">
+                <div class="label">❌ Mistake 1 — Assuming readonly prevents nested mutation</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">type</span> <span class="ty">Config</span> = {
+  <span class="kw">readonly</span> server: { host: <span class="ty">string</span>; port: <span class="ty">number</span> };
+};
+<span class="kw">const</span> cfg: <span class="ty">Config</span> = { server: { host: <span class="str">"localhost"</span>, port: <span class="num">3000</span> } };
+
+cfg.server = { host: <span class="str">"other"</span>, port: <span class="num">4000</span> }; <span class="cmt">// Error: server is readonly ✓</span>
+cfg.server.host = <span class="str">"production.example.com"</span>;   <span class="cmt">// No error! Nested mutation still works</span>
+
+<span class="cmt">// Fix: mark nested properties readonly too</span>
+<span class="kw">type</span> <span class="ty">Config</span> = {
+  <span class="kw">readonly</span> server: { <span class="kw">readonly</span> host: <span class="ty">string</span>; <span class="kw">readonly</span> port: <span class="ty">number</span> };
+};
+<span class="cmt">// Or use Readonly&lt;&gt; for the nested type:</span>
+<span class="kw">type</span> <span class="ty">Config</span> = { <span class="kw">readonly</span> server: Readonly&lt;{ host: <span class="ty">string</span>; port: <span class="ty">number</span> }&gt; };</code></pre></div>
+              </div>
+              <div class="mistake-item">
+                <div class="label">❌ Mistake 2 — Confusing <code>const</code> with <code>readonly</code></div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="cmt">// const prevents reassigning the VARIABLE BINDING</span>
+<span class="kw">const</span> user = { name: <span class="str">"Alice"</span> };
+user = { name: <span class="str">"Bob"</span> };   <span class="cmt">// Error: cannot reassign const ✓</span>
+user.name = <span class="str">"Bob"</span>;        <span class="cmt">// No error: property mutation is fine ✗</span>
+
+<span class="cmt">// readonly prevents reassigning the PROPERTY</span>
+<span class="kw">type</span> <span class="ty">User</span> = { <span class="kw">readonly</span> name: <span class="ty">string</span> };
+<span class="kw">const</span> user2: <span class="ty">User</span> = { name: <span class="str">"Alice"</span> };
+user2.name = <span class="str">"Bob"</span>; <span class="cmt">// Error: read-only property ✓</span>
+
+<span class="cmt">// For full immutability: BOTH const + readonly</span></code></pre></div>
+              </div>
+              <div class="mistake-item">
+                <div class="label">❌ Mistake 3 — Making state properties readonly when they need to change</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript — BAD</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">type</span> <span class="ty">Counter</span> = { <span class="kw">readonly</span> count: <span class="ty">number</span> };
+<span class="kw">const</span> counter: <span class="ty">Counter</span> = { count: <span class="num">0</span> };
+counter.count++; <span class="cmt">// Error! Now you must recreate the object every increment</span></code></pre></div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript — GOOD</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">type</span> <span class="ty">Counter</span> = { count: <span class="ty">number</span> }; <span class="cmt">// count is mutable — it needs to change</span>
+<span class="kw">const</span> counter: <span class="ty">Counter</span> = { count: <span class="num">0</span> };
+counter.count++; <span class="cmt">// OK — this is the intended behavior</span></code></pre></div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="rp-best-practices">
+              <div class="bp-item"><div class="label">1. Mark all ID and primary key fields readonly</div><p>IDs are the single most important fields to mark readonly. Changing an ID corrupts the object's identity and can cause data integrity bugs that are nearly impossible to debug.</p></div>
+              <div class="bp-item"><div class="label">2. Use <code>Readonly&lt;T&gt;</code> on function parameters that shouldn't be mutated</div><p><code>function processConfig(cfg: Readonly&lt;Config&gt;): void</code> signals clearly that this function reads the config but doesn't change it. Makes intent visible in the function signature.</p></div>
+              <div class="bp-item"><div class="label">3. Use <code>readonly T[]</code> to prevent array mutations</div><p><code>readonly number[]</code> (or equivalently <code>ReadonlyArray&lt;number&gt;</code>) prevents push, pop, splice, and index assignment. Great for shared arrays like lookup tables or constants.</p></div>
+              <div class="bp-item"><div class="label">4. Remember that readonly is shallow — document it when it matters</div><p>Nested objects through a readonly property can still be mutated. If deep immutability is required, either mark nested properties explicitly or use a <code>DeepReadonly</code> utility type from the <code>type-fest</code> library.</p></div>
+              <div class="bp-item"><div class="label">5. Use <code>as const</code> for configuration constants</div><p><code>const ROUTES = { HOME: "/", ABOUT: "/about" } as const</code> makes all properties readonly AND narrows their types to literal strings. This is the cleanest way to define constant lookup objects.</p></div>
+              <div class="bp-item"><div class="label">6. Prefer creating new objects over fighting readonly</div><p>When an object with readonly properties needs to "change," return a new object with the updated value using object spread: <code>return { ...record, updatedAt: new Date() }</code>. This immutable update pattern works naturally with readonly.</p></div>
+            </div>
+
+            <div class="tab-pane" data-pane="rp-interview">
+              <div class="qa-item">
+                <div class="q">Q: What is the difference between <code>const</code> and <code>readonly</code>? <span class="difficulty easy">Easy</span></div>
+                <p><code>const</code> is a JavaScript keyword that prevents reassigning a variable binding — the variable always points to the same value or reference. It doesn't prevent mutating the object's properties. <code>readonly</code> is a TypeScript type modifier that prevents reassigning a specific property on an object. You need both: <code>const</code> to prevent the variable from pointing to a different object, and <code>readonly</code> to prevent the object's properties from being mutated. <code>const obj = { x: 1 }</code> still allows <code>obj.x = 2</code>, while adding <code>readonly x</code> to the type prevents that.</p>
+              </div>
+              <div class="qa-item">
+                <div class="q">Q: Does <code>readonly</code> provide runtime immutability? <span class="difficulty medium">Medium</span></div>
+                <p>No — <code>readonly</code> is a compile-time constraint only. TypeScript detects and rejects assignments to readonly properties in source code during type checking, but the compiled JavaScript has no special handling. The property is a regular writable JavaScript property. Someone can bypass it at runtime with <code>(obj as any).id = 999</code>. For actual runtime immutability, use <code>Object.freeze(obj)</code>, which prevents property mutation at the JavaScript engine level. A common pattern is combining both: <code>readonly</code> for compile-time safety and <code>Object.freeze</code> for runtime enforcement — but note <code>Object.freeze</code> is also shallow.</p>
+              </div>
+              <div class="qa-item">
+                <div class="q">Q: What is <code>Readonly&lt;T&gt;</code> and when would you use it? <span class="difficulty medium">Medium</span></div>
+                <p><code>Readonly&lt;T&gt;</code> is a built-in utility type that takes any type T and makes all its top-level properties readonly. It's equivalent to manually prefixing every property with <code>readonly</code>. Use it when: passing an object to a function that should not mutate it (<code>process(config: Readonly&lt;Config&gt;)</code>), creating an immutable snapshot of a type, or signaling that a returned object is read-only. It does not affect nested objects — <code>Readonly&lt;{ server: { port: number } }&gt;</code> prevents replacing <code>server</code>, but not mutating <code>server.port</code>.</p>
+              </div>
+              <div class="qa-item">
+                <div class="q">Q: What is <code>as const</code> and how does it relate to <code>readonly</code>? <span class="difficulty hard">Hard</span></div>
+                <p><code>as const</code> is a const assertion that does two things: (1) makes all properties readonly recursively throughout the object tree, and (2) narrows all values to their most specific literal types. So <code>const x = { port: 3000 } as const</code> gives <code>x</code> the type <code>{ readonly port: 3000 }</code> — note <code>3000</code> (literal number type) not <code>number</code>. This is more powerful than just <code>readonly</code> alone and is the idiomatic way to create typed constant lookup objects. The literal type narrowing means TypeScript knows exactly what value to expect, not just what primitive type.</p>
+              </div>
+              <div class="qa-item">
+                <div class="q">Q: How do you make a deeply nested object fully readonly in TypeScript? <span class="difficulty hard">Hard</span></div>
+                <p>The built-in <code>Readonly&lt;T&gt;</code> is shallow — it only makes the top-level properties readonly. For deep readonly, you need a recursive utility type: <code>type DeepReadonly&lt;T&gt; = { readonly [K in keyof T]: T[K] extends object ? DeepReadonly&lt;T[K]&gt; : T[K] }</code>. This maps over every key K in T, marks it readonly, and recursively applies the same transformation to nested objects. Libraries like <code>type-fest</code> provide this as <code>ReadonlyDeep&lt;T&gt;</code>. For many use cases, the <code>as const</code> assertion achieves deep readonly on literal values, and combining <code>as const</code> with <code>Object.freeze</code> covers most production scenarios.</p>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="rp-exercise">
+              <h4>Goal</h4>
+              <p>Create a type-safe immutable application configuration object where TypeScript prevents accidental mutation.</p>
+              <h4>Requirements</h4>
+              <ul>
+                <li>Create a <code>DatabaseConfig</code> type with readonly fields: <code>host</code>, <code>port</code>, <code>name</code></li>
+                <li>Create an <code>AppConfig</code> type with readonly fields: <code>apiUrl</code>, <code>version</code>, <code>maxRetries</code>, <code>timeoutMs</code>, and a <code>database: DatabaseConfig</code></li>
+                <li>Write a <code>loadConfig</code> function that returns an <code>AppConfig</code></li>
+                <li>Write a <code>getApiUrl</code> function that accepts <code>Readonly&lt;AppConfig&gt;</code> and returns the apiUrl</li>
+                <li>Verify TypeScript prevents mutation by commenting out a mutation attempt</li>
+              </ul>
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript — starter</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">type</span> <span class="ty">DatabaseConfig</span> = {
+  <span class="cmt">// TODO: readonly host: string; port: number; name: string</span>
+};
+
+<span class="kw">type</span> <span class="ty">AppConfig</span> = {
+  <span class="cmt">// TODO: readonly apiUrl, version, maxRetries, timeoutMs, database</span>
+};
+
+<span class="kw">function</span> <span class="fn">loadConfig</span>(): <span class="ty">AppConfig</span> {
+  <span class="kw">return</span> {
+    <span class="cmt">// TODO: fill in values</span>
+  };
+}
+
+<span class="kw">function</span> <span class="fn">getApiUrl</span>(config: Readonly&lt;<span class="ty">AppConfig</span>&gt;): <span class="ty">string</span> {
+  <span class="kw">return</span> <span class="cmt">/* TODO */</span>;
+}
+
+<span class="kw">const</span> config = <span class="fn">loadConfig</span>();
+<span class="cmt">// Uncomment to see the TypeScript error:</span>
+<span class="cmt">// config.apiUrl = "https://different.api.com";</span>
+<span class="cmt">// Error: Cannot assign to 'apiUrl' because it is a read-only property</span>
+
+console.<span class="fn">log</span>(<span class="fn">getApiUrl</span>(config)); <span class="cmt">// should print the apiUrl</span></code></pre>
+              </div>
+              <p><strong>Hint:</strong> Try the <code>as const</code> approach on the return value of <code>loadConfig</code> as a bonus — notice how it narrows types to literals.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="rp-summary">
+              <ul class="takeaway-list">
+                <li>The <code>readonly</code> modifier prevents a property from being reassigned after the object is created.</li>
+                <li>It is compile-time only — the compiled JavaScript has no runtime enforcement of immutability.</li>
+                <li><code>const</code> and <code>readonly</code> are complementary: <code>const</code> protects the variable binding, <code>readonly</code> protects the property.</li>
+                <li><code>readonly</code> is shallow — nested objects can still be mutated through a readonly reference unless their properties are also marked readonly.</li>
+                <li><code>Readonly&lt;T&gt;</code> makes all top-level properties of T readonly at once.</li>
+                <li><code>as const</code> makes all properties readonly AND narrows values to literal types — ideal for constant lookup objects.</li>
+                <li>For genuine runtime immutability, combine <code>readonly</code> with <code>Object.freeze()</code>.</li>
+              </ul>
+              <div class="mental-model">
+                💡 Mental model: <code>readonly</code> is like writing in permanent marker — once the value is set at creation time, you can read it as much as you want, but you can't erase or change it. To "update" a readonly property, you write a whole new object (object spread pattern).
+              </div>
+            </div>
+
+          </div>
+        </details>
+
+      </div><!-- /topic-panels -->
+
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <!-- MINI-PROJECT -->
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <div class="mini-project" id="mini-project">
+        <h3>
+          <span>Mini-Project</span>
+          <span class="project-badge">Project</span>
+        </h3>
+        <h4>Employee Management System</h4>
+        <p style="color:var(--text-muted); margin-top:4px; margin-bottom:0">
+          Build a fully typed employee record system that uses every concept from this module:
+          object types, type aliases, optional properties, and readonly properties.
+        </p>
+
+        <h4>What You'll Build</h4>
+        <ul>
+          <li>A typed <code>Employee</code> record with required identity fields and optional contact details</li>
+          <li>Separate types for <code>CreateEmployeeInput</code> (no generated fields) and <code>UpdateEmployeeInput</code> (all optional except id)</li>
+          <li>An in-memory employee store with typed CRUD operations</li>
+          <li>A salary summary function that returns a typed report object</li>
+        </ul>
+
+        <h4>TypeScript Concepts Used</h4>
+        <ul>
+          <li><strong>Object types</strong> — for describing employee shape and function parameters</li>
+          <li><strong>Type aliases</strong> — for <code>EmployeeId</code>, <code>Department</code>, <code>EmployeeStatus</code>, and all major data shapes</li>
+          <li><strong>Optional properties</strong> — for phone, extension, manager, start date</li>
+          <li><strong>Readonly properties</strong> — for id, employeeNumber, and createdAt</li>
+        </ul>
+
+        <h4>Starter Code</h4>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="ts-code"><span class="cmt">// ── Type Definitions ──────────────────────────────────────────────────</span>
+
+<span class="cmt">// Semantic aliases</span>
+<span class="kw">type</span> <span class="ty">EmployeeId</span> = <span class="ty">number</span>;
+<span class="kw">type</span> <span class="ty">Department</span> = <span class="str">"engineering"</span> | <span class="str">"marketing"</span> | <span class="str">"sales"</span> | <span class="str">"hr"</span> | <span class="str">"finance"</span>;
+<span class="kw">type</span> <span class="ty">EmployeeStatus</span> = <span class="str">"active"</span> | <span class="str">"inactive"</span> | <span class="str">"on-leave"</span>;
+
+<span class="cmt">// TODO 1: Define Address type with street, city, state, zipCode (all strings)</span>
+<span class="kw">type</span> <span class="ty">Address</span> = { <span class="cmt">/* ... */</span> };
+
+<span class="cmt">// TODO 2: Define Employee type</span>
+<span class="cmt">// Required fields: firstName, lastName, email, department, salary, status</span>
+<span class="cmt">// Readonly fields: id (EmployeeId), employeeNumber (string), createdAt (Date)</span>
+<span class="cmt">// Optional fields: phone, extension, managerId (EmployeeId), address (Address), startDate (Date)</span>
+<span class="kw">type</span> <span class="ty">Employee</span> = {
+  <span class="cmt">/* TODO */</span>
+};
+
+<span class="cmt">// TODO 3: CreateEmployeeInput — same as Employee but without readonly generated fields</span>
+<span class="cmt">// (no id, no employeeNumber, no createdAt)</span>
+<span class="kw">type</span> <span class="ty">CreateEmployeeInput</span> = {
+  <span class="cmt">/* TODO */</span>
+};
+
+<span class="cmt">// TODO 4: UpdateEmployeeInput — id is required (to identify who to update),</span>
+<span class="cmt">// everything else is optional</span>
+<span class="kw">type</span> <span class="ty">UpdateEmployeeInput</span> = {
+  <span class="kw">readonly</span> id: <span class="ty">EmployeeId</span>; <span class="cmt">// required — tells us which employee</span>
+  <span class="cmt">/* TODO: all other Employee fields optional */</span>
+};
+
+<span class="cmt">// TODO 5: SalaryReport return type</span>
+<span class="kw">type</span> <span class="ty">SalaryReport</span> = {
+  department: <span class="ty">Department</span>;
+  headcount: <span class="ty">number</span>;
+  totalSalary: <span class="ty">number</span>;
+  averageSalary: <span class="ty">number</span>;
+  <span class="cmt">/* TODO: add highestPaid and lowestPaid (both Employee) */</span>
+};
+
+<span class="cmt">// ── In-memory store ───────────────────────────────────────────────────</span>
+<span class="kw">const</span> employees: <span class="ty">Employee</span>[] = [];
+<span class="kw">let</span> nextId = <span class="num">1</span>;
+<span class="kw">let</span> nextEmpNum = <span class="num">1000</span>;
+
+<span class="cmt">// TODO 6: createEmployee function</span>
+<span class="cmt">// - Accept CreateEmployeeInput</span>
+<span class="cmt">// - Generate id, employeeNumber ("EMP-" + nextEmpNum++), createdAt</span>
+<span class="cmt">// - Push to employees array and return the new Employee</span>
+<span class="kw">function</span> <span class="fn">createEmployee</span>(input: <span class="ty">CreateEmployeeInput</span>): <span class="ty">Employee</span> {
+  <span class="cmt">// TODO</span>
+  <span class="kw">throw</span> <span class="kw">new</span> Error(<span class="str">"not implemented"</span>);
+}
+
+<span class="cmt">// TODO 7: updateEmployee function</span>
+<span class="cmt">// - Accept UpdateEmployeeInput</span>
+<span class="cmt">// - Find the employee by id, return null if not found</span>
+<span class="cmt">// - Merge changes using object spread (preserving readonly fields)</span>
+<span class="cmt">// - Replace old entry in employees array, return updated employee</span>
+<span class="kw">function</span> <span class="fn">updateEmployee</span>(input: <span class="ty">UpdateEmployeeInput</span>): <span class="ty">Employee</span> | <span class="kw">null</span> {
+  <span class="cmt">// TODO</span>
+  <span class="kw">return</span> <span class="kw">null</span>;
+}
+
+<span class="cmt">// TODO 8: getSalaryReport function</span>
+<span class="cmt">// - Accept a department name</span>
+<span class="cmt">// - Filter employees by department and status "active"</span>
+<span class="cmt">// - Return a SalaryReport (return null if no employees in that department)</span>
+<span class="kw">function</span> <span class="fn">getSalaryReport</span>(dept: <span class="ty">Department</span>): <span class="ty">SalaryReport</span> | <span class="kw">null</span> {
+  <span class="cmt">// TODO</span>
+  <span class="kw">return</span> <span class="kw">null</span>;
+}
+
+<span class="cmt">// ── Test it ───────────────────────────────────────────────────────────</span>
+<span class="kw">const</span> alice = <span class="fn">createEmployee</span>({
+  firstName: <span class="str">"Alice"</span>, lastName: <span class="str">"Chen"</span>,
+  email: <span class="str">"alice@company.com"</span>, department: <span class="str">"engineering"</span>,
+  salary: <span class="num">95000</span>, status: <span class="str">"active"</span>,
+  phone: <span class="str">"555-0100"</span>,
+});
+
+<span class="kw">const</span> bob = <span class="fn">createEmployee</span>({
+  firstName: <span class="str">"Bob"</span>, lastName: <span class="str">"Smith"</span>,
+  email: <span class="str">"bob@company.com"</span>, department: <span class="str">"engineering"</span>,
+  salary: <span class="num">88000</span>, status: <span class="str">"active"</span>,
+});
+
+<span class="cmt">// This should fail — id and createdAt are readonly on Employee</span>
+<span class="cmt">// alice.id = 999;           // Error: read-only</span>
+<span class="cmt">// alice.createdAt = new Date(); // Error: read-only</span>
+
+<span class="kw">const</span> updated = <span class="fn">updateEmployee</span>({ id: alice.id, salary: <span class="num">100000</span> });
+console.<span class="fn">log</span>(updated?.salary);   <span class="cmt">// 100000</span>
+console.<span class="fn">log</span>(updated?.id === alice.id); <span class="cmt">// true — id preserved</span>
+
+<span class="kw">const</span> report = <span class="fn">getSalaryReport</span>(<span class="str">"engineering"</span>);
+console.<span class="fn">log</span>(report?.headcount);      <span class="cmt">// 2</span>
+console.<span class="fn">log</span>(report?.averageSalary);   <span class="cmt">// 94000 (after update)</span></code></pre>
+        </div>
+
+        <h4>Step-by-Step Instructions</h4>
+        <ol style="padding-left:20px; line-height:2">
+          <li>Define all type aliases starting from <code>Address</code>, then <code>Employee</code>, then the input/output types.</li>
+          <li>Implement <code>createEmployee</code>: generate the readonly fields (<code>id</code>, <code>employeeNumber</code>, <code>createdAt</code>) and return a full <code>Employee</code> object.</li>
+          <li>Implement <code>updateEmployee</code>: find by id, use object spread to merge changes, replace in array.</li>
+          <li>Implement <code>getSalaryReport</code>: filter by department and active status, compute aggregate values.</li>
+          <li>Run the test code at the bottom — verify no TypeScript errors.</li>
+          <li>Try uncommenting the mutation lines — confirm TypeScript catches them.</li>
+        </ol>
+
+        <h4>Stretch Goals</h4>
+        <div class="stretch-goal">Add a <code>findByDepartment(dept: Department): Employee[]</code> function and a <code>formatEmployee(emp: Employee): string</code> that returns a one-line display string like <code>EMP-1000 | Alice Chen | engineering | $95,000</code>.</div>
+        <div class="stretch-goal">Add a <code>managerId</code> to some employees and write a <code>getDirectReports(managerId: EmployeeId): Employee[]</code> function.</div>
+        <div class="stretch-goal">Use <code>as const</code> for a <code>DEPARTMENTS</code> constant array and see how TypeScript narrows the type to a readonly tuple of literal strings.</div>
+      </div>
+
+    </section>
+  </main>
+</div>
+
+<button id="back-to-top" aria-label="Back to top">↑</button>
+
+<script>
+  // ── Progress bar ────────────────────────────────────────────────────
+  const bar = document.getElementById('progress-bar');
+  window.addEventListener('scroll', () => {
+    const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+    bar.style.width = Math.min(pct, 100) + '%';
+  }, { passive: true });
+
+  // ── Back-to-top ──────────────────────────────────────────────────────
+  const topBtn = document.getElementById('back-to-top');
+  window.addEventListener('scroll', () => {
+    topBtn.classList.toggle('visible', window.scrollY > 400);
+  }, { passive: true });
+  topBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+  // ── Tab switching inside panels ──────────────────────────────────────
+  document.querySelectorAll('.panel-tabs').forEach(tabBar => {
+    tabBar.addEventListener('click', e => {
+      const btn = e.target.closest('.tab');
+      if (!btn) return;
+      const panel = btn.closest('details');
+      const tabId = btn.dataset.tab;
+
+      tabBar.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+
+      panel.querySelectorAll('.tab-pane').forEach(p => {
+        p.classList.toggle('active', p.dataset.pane === tabId);
+      });
+    });
+  });
+
+  // ── Copy buttons ─────────────────────────────────────────────────────
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.copy-btn');
+    if (!btn) return;
+    const code = btn.closest('.code-block').querySelector('code');
+    navigator.clipboard.writeText(code.innerText).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.style.color = 'var(--success)';
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.style.color = '';
+      }, 1500);
+    });
+  });
+
+  // ── Module checkboxes ────────────────────────────────────────────────
+  document.querySelectorAll('.module-check').forEach(cb => {
+    const id = cb.dataset.id;
+    const module = document.getElementById(id);
+    cb.checked = localStorage.getItem('mod-' + id) === '1';
+    if (cb.checked && module) module.classList.add('completed');
+
+    cb.addEventListener('change', () => {
+      localStorage.setItem('mod-' + id, cb.checked ? '1' : '0');
+      if (module) module.classList.toggle('completed', cb.checked);
+    });
+  });
+
+  // ── Topic search ─────────────────────────────────────────────────────
+  document.getElementById('topicSearch').addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('.topic-panel').forEach(panel => {
+      const name = panel.querySelector('.topic-name').textContent.toLowerCase();
+      panel.style.display = name.includes(q) ? '' : 'none';
+    });
+  });
+
+  // ── Smooth scroll for sidebar links ──────────────────────────────────
+  document.querySelectorAll('#module-nav a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // ── Scroll-spy: highlight active sidebar link ─────────────────────────
+  const navLinks = document.querySelectorAll('#module-nav a[href^="#"]');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navLinks.forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  document.querySelectorAll('.topic-panel, #mini-project').forEach(el => obs.observe(el));
+</script>
+
+</body>
+</html>

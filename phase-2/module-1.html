@@ -1,0 +1,1949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phase 2 — Module 1: Interfaces | TypeScript Learning Path</title>
+  <style>
+    :root {
+      --bg:            #0f1117;
+      --bg-card:       #1a1f2e;
+      --bg-code:       #1e2433;
+      --border:        #2d3748;
+      --text:          #e2e8f0;
+      --text-muted:    #94a3b8;
+      --accent:        #3b82f6;
+      --accent-hover:  #2563eb;
+      --success:       #10b981;
+      --warning:       #f59e0b;
+      --error:         #ef4444;
+      --sidebar-width: 260px;
+      --header-height: 56px;
+      --radius:        8px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, sans-serif; font-size: 15px; line-height: 1.6; }
+
+    /* Progress bar */
+    #progress-bar {
+      position: fixed; top: 0; left: 0; height: 3px;
+      background: var(--accent); width: 0%; z-index: 1000;
+      transition: width 0.1s linear;
+    }
+
+    /* Header */
+    #site-header {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--bg-card); border-bottom: 1px solid var(--border);
+      height: var(--header-height); display: flex; align-items: center;
+      padding: 0 1.5rem; gap: 1rem;
+    }
+    #site-header h1 { font-size: 1.1rem; font-weight: 600; color: var(--text); }
+    #site-header .phase-badge {
+      background: var(--accent); color: #fff; font-size: 0.72rem;
+      padding: 2px 8px; border-radius: 999px; font-weight: 600; letter-spacing: 0.02em;
+    }
+    #site-header .module-badge {
+      background: var(--bg); color: var(--text-muted); font-size: 0.72rem;
+      padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border);
+    }
+
+    /* Layout */
+    #layout { display: flex; min-height: calc(100vh - var(--header-height)); }
+
+    /* Sidebar */
+    #sidebar {
+      width: var(--sidebar-width); flex-shrink: 0;
+      position: sticky; top: var(--header-height);
+      height: calc(100vh - var(--header-height)); overflow-y: auto;
+      background: var(--bg-card); border-right: 1px solid var(--border);
+      padding: 1rem;
+    }
+    #topicSearch {
+      width: 100%; background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius); color: var(--text); padding: 0.5rem 0.75rem;
+      font-size: 0.85rem; margin-bottom: 1rem; outline: none;
+    }
+    #topicSearch:focus { border-color: var(--accent); }
+    #sidebar h3 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.5rem; }
+    #module-nav { list-style: none; }
+    #module-nav li a {
+      display: block; padding: 0.35rem 0.5rem; color: var(--text-muted);
+      text-decoration: none; border-radius: 4px; font-size: 0.85rem;
+      transition: background 0.15s, color 0.15s;
+    }
+    #module-nav li a:hover, #module-nav li a.active {
+      background: rgba(59,130,246,0.12); color: var(--accent);
+    }
+    .sidebar-topics { margin-top: 0.75rem; }
+    .sidebar-topics a {
+      display: block; padding: 0.25rem 0.5rem 0.25rem 1rem;
+      color: var(--text-muted); text-decoration: none; font-size: 0.8rem;
+      border-radius: 4px; transition: color 0.15s;
+    }
+    .sidebar-topics a:hover { color: var(--text); }
+
+    /* Main content */
+    #content { flex: 1; padding: 2rem; max-width: 960px; }
+
+    /* Module section */
+    .module { margin-bottom: 3rem; }
+    .module-header {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding-bottom: 0.75rem; border-bottom: 2px solid var(--border);
+      margin-bottom: 1rem;
+    }
+    .module-header label { display: flex; align-items: center; gap: 0.75rem; cursor: pointer; flex: 1; }
+    .module-header h2 { font-size: 1.4rem; font-weight: 700; color: var(--text); }
+    .module-check { width: 18px; height: 18px; accent-color: var(--success); cursor: pointer; flex-shrink: 0; }
+    .module.completed .module-header h2 { text-decoration: line-through; color: var(--text-muted); }
+    .completed-badge {
+      display: none; background: var(--success); color: #fff;
+      font-size: 0.7rem; padding: 2px 8px; border-radius: 999px; font-weight: 600;
+    }
+    .module.completed .completed-badge { display: inline-block; }
+    .module-intro { color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.7; }
+
+    /* Topics table */
+    .topics-table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
+    .topics-table th {
+      background: var(--bg-code); text-align: left; padding: 0.6rem 1rem;
+      font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--text-muted); border-bottom: 1px solid var(--border);
+    }
+    .topics-table td { padding: 0.65rem 1rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    .topics-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    /* Badges */
+    .badge {
+      display: inline-block; font-size: 0.7rem; font-weight: 600;
+      padding: 2px 8px; border-radius: 999px; letter-spacing: 0.03em;
+    }
+    .badge.beginner  { background: rgba(16,185,129,0.15); color: var(--success); }
+    .badge.intermediate { background: rgba(245,158,11,0.15); color: var(--warning); }
+    .badge.advanced  { background: rgba(239,68,68,0.15); color: var(--error); }
+
+    /* Topic panels */
+    .topic-panels { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem; }
+    .topic-panel {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .topic-panel summary {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.85rem 1rem; cursor: pointer; user-select: none;
+      list-style: none; font-weight: 600;
+    }
+    .topic-panel summary::-webkit-details-marker { display: none; }
+    .topic-panel summary .chevron {
+      margin-left: auto; color: var(--text-muted); font-size: 0.8rem;
+      transition: transform 0.2s;
+    }
+    .topic-panel[open] summary .chevron { transform: rotate(90deg); }
+    .topic-panel summary:hover { background: rgba(255,255,255,0.02); }
+
+    /* Panel tabs */
+    .panel-tabs {
+      display: flex; flex-wrap: wrap; gap: 0.35rem;
+      padding: 0.75rem 1rem 0; border-top: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .tab {
+      background: none; border: 1px solid var(--border);
+      color: var(--text-muted); padding: 0.3rem 0.7rem;
+      border-radius: 4px; cursor: pointer; font-size: 0.75rem;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .tab:hover { border-color: var(--accent); color: var(--accent); }
+    .tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    /* Tab panes */
+    .panel-content { padding: 1.25rem 1rem; background: var(--bg); }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+    .tab-pane h4 { font-size: 0.9rem; font-weight: 600; color: var(--accent); margin-bottom: 0.5rem; margin-top: 1rem; }
+    .tab-pane h4:first-child { margin-top: 0; }
+    .tab-pane p { color: var(--text-muted); margin-bottom: 0.75rem; line-height: 1.7; }
+    .tab-pane ul, .tab-pane ol { color: var(--text-muted); padding-left: 1.25rem; margin-bottom: 0.75rem; }
+    .tab-pane li { margin-bottom: 0.35rem; line-height: 1.6; }
+    .tab-pane strong { color: var(--text); }
+
+    /* Code blocks */
+    .code-block { margin: 0.75rem 0; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
+    .code-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.4rem 0.75rem; background: #161b27; border-bottom: 1px solid var(--border);
+    }
+    .code-lang { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .copy-btn {
+      background: none; border: 1px solid var(--border); color: var(--text-muted);
+      padding: 0.2rem 0.6rem; border-radius: 4px; cursor: pointer; font-size: 0.72rem;
+      transition: all 0.15s;
+    }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .copy-btn.copied { border-color: var(--success); color: var(--success); }
+    pre { background: var(--bg-code); padding: 1rem; overflow-x: auto; }
+    code.ts-code { font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; font-size: 0.85rem; line-height: 1.6; }
+
+    /* Syntax highlighting */
+    .kw  { color: #c792ea; }
+    .ty  { color: #82aaff; }
+    .str { color: #c3e88d; }
+    .num { color: #f78c6c; }
+    .cm  { color: #546e7a; font-style: italic; }
+    .fn  { color: #82aaff; }
+    .op  { color: #89ddff; }
+
+    /* Interview Q&A */
+    .qa-block { background: var(--bg-card); border-left: 3px solid var(--accent); padding: 0.75rem 1rem; margin-bottom: 0.75rem; border-radius: 0 var(--radius) var(--radius) 0; }
+    .qa-block .q { font-weight: 600; color: var(--text); margin-bottom: 0.4rem; }
+    .qa-block .diff { font-size: 0.72rem; padding: 1px 6px; border-radius: 3px; margin-left: 0.5rem; vertical-align: middle; }
+    .diff.easy   { background: rgba(16,185,129,0.2); color: var(--success); }
+    .diff.medium { background: rgba(245,158,11,0.2); color: var(--warning); }
+    .diff.hard   { background: rgba(239,68,68,0.2); color: var(--error); }
+    .qa-block .a { color: var(--text-muted); font-size: 0.88rem; }
+
+    /* Mini-project */
+    .mini-project {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-top: 3px solid var(--accent); border-radius: var(--radius);
+      padding: 1.5rem;
+    }
+    .mini-project h3 { font-size: 1.1rem; color: var(--accent); margin-bottom: 0.25rem; }
+    .mini-project .project-label {
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--text-muted); margin-bottom: 0.75rem;
+    }
+    .mini-project h4 { font-size: 0.9rem; color: var(--text); margin-top: 1rem; margin-bottom: 0.35rem; }
+
+    /* Callout box */
+    .callout {
+      padding: 0.75rem 1rem; border-radius: var(--radius); margin: 0.75rem 0;
+      border-left: 3px solid;
+    }
+    .callout.info  { background: rgba(59,130,246,0.08); border-color: var(--accent); }
+    .callout.warn  { background: rgba(245,158,11,0.08); border-color: var(--warning); }
+    .callout.error { background: rgba(239,68,68,0.08); border-color: var(--error); }
+    .callout p { margin: 0; font-size: 0.88rem; }
+
+    /* Back to top */
+    #back-to-top {
+      position: fixed; bottom: 2rem; right: 2rem;
+      background: var(--accent); color: #fff; border: none;
+      width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+      font-size: 1.1rem; display: none; align-items: center; justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4); transition: background 0.15s;
+      z-index: 50;
+    }
+    #back-to-top:hover { background: var(--accent-hover); }
+    #back-to-top.visible { display: flex; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      #sidebar { display: none; }
+      #content { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<header id="site-header">
+  <span class="phase-badge">Phase 2</span>
+  <h1>Intermediate TypeScript</h1>
+  <span class="module-badge">Module 1 of 4</span>
+</header>
+
+<div id="layout">
+
+  <nav id="sidebar">
+    <input type="text" id="topicSearch" placeholder="Search topics…" autocomplete="off" />
+    <h3>Module 1</h3>
+    <ul id="module-nav">
+      <li><a href="#module-1">Module 1: Interfaces</a>
+        <div class="sidebar-topics">
+          <a href="#topic-interfaces">Interfaces</a>
+          <a href="#topic-extension">Interface Extension</a>
+          <a href="#topic-merging">Declaration Merging</a>
+          <a href="#topic-vs-type">Interface vs Type</a>
+        </div>
+      </li>
+    </ul>
+  </nav>
+
+  <main id="content">
+
+    <!-- ══════════════════════════════════════════════ MODULE 1 -->
+    <section id="module-1" class="module">
+      <div class="module-header">
+        <label>
+          <input type="checkbox" class="module-check" data-id="module-1" />
+          <h2>Module 1: Interfaces</h2>
+        </label>
+        <span class="completed-badge">✓ Done</span>
+      </div>
+      <p class="module-intro">
+        Interfaces are TypeScript's primary tool for describing the shape of objects.
+        Before you can write robust TypeScript code, you need to understand how to define contracts,
+        extend them to build richer types, deal with declaration merging (TypeScript's superpower
+        for library augmentation), and know when to reach for <code>interface</code> versus
+        <code>type</code>. After this module you'll be able to model any data structure cleanly
+        and with confidence.
+      </p>
+
+      <!-- Topics table -->
+      <table class="topics-table">
+        <thead>
+          <tr><th>Topic</th><th>What You'll Learn</th><th>Difficulty</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Interfaces</td><td>Define and use object shape contracts; required, optional, and readonly properties</td><td><span class="badge beginner">Beginner</span></td></tr>
+          <tr><td>Interface Extension</td><td>Inherit and compose interfaces with <code>extends</code>; multi-level hierarchies</td><td><span class="badge beginner">Beginner</span></td></tr>
+          <tr><td>Declaration Merging</td><td>How TypeScript merges multiple interface declarations; augmenting external types</td><td><span class="badge intermediate">Intermediate</span></td></tr>
+          <tr><td>Interface vs Type</td><td>The real differences between <code>interface</code> and <code>type</code>; when to use each</td><td><span class="badge intermediate">Intermediate</span></td></tr>
+        </tbody>
+      </table>
+
+      <!-- ─────────────── TOPIC 1: Interfaces ─────────────── -->
+      <div class="topic-panels">
+
+        <details class="topic-panel" id="topic-interfaces">
+          <summary>
+            <span class="topic-name">Interfaces</span>
+            <span class="badge beginner">Beginner</span>
+            <span class="chevron">▶</span>
+          </summary>
+          <div class="panel-tabs">
+            <button class="tab active" data-tab="t1-definition">Definition</button>
+            <button class="tab" data-tab="t1-why-exists">Why It Exists</button>
+            <button class="tab" data-tab="t1-when-use">When to Use</button>
+            <button class="tab" data-tab="t1-when-not">When NOT to Use</button>
+            <button class="tab" data-tab="t1-internals">How It Works</button>
+            <button class="tab" data-tab="t1-syntax">Syntax</button>
+            <button class="tab" data-tab="t1-example">Example</button>
+            <button class="tab" data-tab="t1-real-world">Real-World</button>
+            <button class="tab" data-tab="t1-use-cases">Use Cases</button>
+            <button class="tab" data-tab="t1-mistakes">Mistakes</button>
+            <button class="tab" data-tab="t1-best-practices">Best Practices</button>
+            <button class="tab" data-tab="t1-interview">Interview Qs</button>
+            <button class="tab" data-tab="t1-exercise">Exercise</button>
+            <button class="tab" data-tab="t1-summary">Summary</button>
+          </div>
+          <div class="panel-content">
+
+            <!-- 1. Definition -->
+            <div class="tab-pane active" data-pane="t1-definition">
+              <h4>Simple Explanation</h4>
+              <p>An interface is a contract that says "any object claiming to be this type must have <em>exactly these properties</em> with <em>exactly these types</em>." Think of it like a form — if a function expects a <code>User</code> interface, you must fill out all the required fields before passing it in.</p>
+              <h4>Technical Explanation</h4>
+              <p>An interface in TypeScript defines the structural shape of an object type at compile time. It specifies property names, their types, optionality (<code>?</code>), and mutability (<code>readonly</code>). TypeScript uses <strong>structural typing</strong> (duck typing), meaning any object that satisfies an interface's shape is considered to implement it — no explicit declaration needed. Interfaces exist only at compile time and are completely erased from the compiled JavaScript output.</p>
+            </div>
+
+            <!-- 2. Why It Exists -->
+            <div class="tab-pane" data-pane="t1-why-exists">
+              <h4>The Problem Without Interfaces</h4>
+              <p>In JavaScript, you can pass any object to any function. There's no way to know at a glance what shape an object must have, and mistakes only surface at runtime — often in production.</p>
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">javascript</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="cm">// JavaScript — no protection</span>
+<span class="kw">function</span> <span class="fn">displayUser</span>(user) {
+  <span class="kw">return</span> <span class="str">`Hello, ${user.name}!`</span>; <span class="cm">// crashes if user has no `name`</span>
+}
+
+displayUser({ username: <span class="str">'alice'</span> }); <span class="cm">// Output: "Hello, undefined!" — silent bug</span></code></pre>
+              </div>
+              <h4>The Fix With Interfaces</h4>
+              <p>Interfaces catch shape mismatches at compile time, before you ever run the code. The TypeScript compiler reads your interface, checks every usage site, and shows an error if the object is missing required fields or has the wrong types.</p>
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">interface</span> <span class="ty">User</span> {
+  name: <span class="ty">string</span>;
+  email: <span class="ty">string</span>;
+}
+
+<span class="kw">function</span> <span class="fn">displayUser</span>(user: <span class="ty">User</span>): <span class="ty">string</span> {
+  <span class="kw">return</span> <span class="str">`Hello, ${user.name}!`</span>;
+}
+
+displayUser({ username: <span class="str">'alice'</span> });
+<span class="cm">// TS ERROR: Object literal may only specify known properties,</span>
+<span class="cm">// and 'username' does not exist in type 'User'.</span>
+<span class="cm">// Did you mean to write 'name'?</span></code></pre>
+              </div>
+              <p>The compiler caught the typo (<code>username</code> instead of <code>name</code>) before the code ran. This is the core value of interfaces: <strong>errors at build time, not at runtime.</strong></p>
+            </div>
+
+            <!-- 3. When to Use -->
+            <div class="tab-pane" data-pane="t1-when-use">
+              <h4>Use interfaces when…</h4>
+              <ul>
+                <li><strong>Typing API request/response objects</strong> — interfaces precisely model JSON shapes coming from a REST API or GraphQL endpoint.</li>
+                <li><strong>Defining data models</strong> — User, Product, Order entities that map to database rows or domain objects benefit from the clarity of an interface.</li>
+                <li><strong>Typing function parameters that are objects</strong> — rather than listing five separate parameters, accept one typed object so callers get autocomplete and typo protection.</li>
+                <li><strong>When you want declaration merging</strong> — augmenting third-party library types (Express <code>Request</code>, global <code>Window</code>) requires interfaces, not type aliases.</li>
+                <li><strong>When a class will implement the contract</strong> — <code>class UserService implements IUserService</code> is idiomatic and makes the contract explicit.</li>
+                <li><strong>When other developers will consume your types</strong> — interfaces produce cleaner error messages and are the idiomatic TypeScript choice for public APIs.</li>
+              </ul>
+            </div>
+
+            <!-- 4. When NOT to Use -->
+            <div class="tab-pane" data-pane="t1-when-not">
+              <h4>Don't reach for interface when…</h4>
+              <ul>
+                <li><strong>You need a union type.</strong> Interfaces cannot represent <code>string | number</code> — use <code>type</code> instead.</li>
+                <li><strong>You need a tuple or primitive alias.</strong> <code>interface</code> only works for object shapes. <code>type Point = [number, number]</code> or <code>type ID = string</code> require <code>type</code>.</li>
+                <li><strong>You need computed/mapped types.</strong> <code>type Readonly&lt;T&gt;</code> or mapped types like <code>{ [K in keyof T]: boolean }</code> require <code>type</code>, not <code>interface</code>.</li>
+                <li><strong>You need conditional types.</strong> <code>type IsString&lt;T&gt; = T extends string ? true : false</code> — interfaces can't do this at all.</li>
+                <li><strong>The shape is one-off and internal.</strong> For a tiny local object used once, an inline type annotation (<code>{ id: number; name: string }</code>) is cleaner than a named interface you'll never reuse.</li>
+              </ul>
+            </div>
+
+            <!-- 5. How It Works Internally -->
+            <div class="tab-pane" data-pane="t1-internals">
+              <h4>Compile-Time Only</h4>
+              <p>Interfaces are a purely compile-time construct. When TypeScript compiles your code to JavaScript, <strong>every interface is completely removed</strong>. There is no <code>interface</code> keyword in the output, no runtime object, no prototype — nothing. This means interfaces have zero runtime cost.</p>
+              <h4>Structural Typing</h4>
+              <p>TypeScript checks interfaces using structural typing: it compares the shape of the object against the interface, property by property. An object doesn't need to explicitly say <code>implements User</code> — if it has all the required properties with the correct types, TypeScript accepts it.</p>
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">interface</span> <span class="ty">Greetable</span> {
+  name: <span class="ty">string</span>;
+}
+
+<span class="kw">function</span> <span class="fn">greet</span>(g: <span class="ty">Greetable</span>) { <span class="kw">return</span> <span class="str">`Hi ${g.name}`</span>; }
+
+<span class="kw">const</span> cat = { name: <span class="str">'Whiskers'</span>, lives: <span class="num">9</span> };
+greet(cat); <span class="cm">// OK — cat has `name`, extra `lives` is allowed</span></code></pre>
+              </div>
+              <h4>What Gets Erased</h4>
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript (input)</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">interface</span> <span class="ty">Point</span> { x: <span class="ty">number</span>; y: <span class="ty">number</span>; }
+<span class="kw">const</span> p: <span class="ty">Point</span> = { x: <span class="num">10</span>, y: <span class="num">20</span> };</code></pre>
+              </div>
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">javascript (output)</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="cm">// interface Point is completely gone</span>
+<span class="kw">const</span> p = { x: <span class="num">10</span>, y: <span class="num">20</span> };</code></pre>
+              </div>
+            </div>
+
+            <!-- 6. Syntax -->
+            <div class="tab-pane" data-pane="t1-syntax">
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">interface</span> <span class="ty">Product</span> {
+<span class="cm">// ^^^^^^^^^  keyword that starts an interface declaration</span>
+<span class="cm">//           ^^^^^^^  name (PascalCase by convention)</span>
+
+  id: <span class="ty">number</span>;
+<span class="cm">// ^^  property name</span>
+<span class="cm">//    ^^^^^^  type annotation — this property MUST be a number</span>
+
+  name: <span class="ty">string</span>;        <span class="cm">// required string property</span>
+
+  price: <span class="ty">number</span>;       <span class="cm">// required number property</span>
+
+  description?: <span class="ty">string</span>;
+<span class="cm">//           ^  the `?` makes this property OPTIONAL</span>
+<span class="cm">//              callers may omit it; its type is string | undefined</span>
+
+  <span class="kw">readonly</span> createdAt: <span class="ty">Date</span>;
+<span class="cm">// ^^^^^^^^  cannot be reassigned after the object is created</span>
+<span class="cm">//           attempting to write `product.createdAt = x` is a TS error</span>
+
+  tags: <span class="ty">string</span>[];     <span class="cm">// array type — array of strings</span>
+
+  metadata: {          <span class="cm">// nested inline object type</span>
+    sku: <span class="ty">string</span>;
+    weight: <span class="ty">number</span>;
+  };
+}</code></pre>
+              </div>
+              <p>Semicolons between properties are conventional (commas also work). The interface body uses the same type annotation syntax as variable declarations. Nested objects can be typed inline or via a separate interface.</p>
+            </div>
+
+            <!-- 7. Practical Example -->
+            <div class="tab-pane" data-pane="t1-example">
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="kw">interface</span> <span class="ty">BlogPost</span> {
+  id: <span class="ty">number</span>;
+  title: <span class="ty">string</span>;
+  content: <span class="ty">string</span>;
+  author: <span class="ty">string</span>;
+  publishedAt: <span class="ty">Date</span>;
+  tags?: <span class="ty">string</span>[];
+  <span class="kw">readonly</span> slug: <span class="ty">string</span>;
+}
+
+<span class="kw">function</span> <span class="fn">formatPost</span>(post: <span class="ty">BlogPost</span>): <span class="ty">string</span> {
+  <span class="kw">const</span> tagList = post.tags?.join(<span class="str">', '</span>) ?? <span class="str">'none'</span>;
+  <span class="kw">return</span> <span class="str">`[${post.id}] ${post.title} by ${post.author} | tags: ${tagList}`</span>;
+}
+
+<span class="kw">const</span> post: <span class="ty">BlogPost</span> = {
+  id: <span class="num">1</span>,
+  title: <span class="str">'Getting Started with TypeScript'</span>,
+  content: <span class="str">'TypeScript adds static types to JavaScript...'</span>,
+  author: <span class="str">'Alice'</span>,
+  publishedAt: <span class="kw">new</span> Date(<span class="str">'2024-01-15'</span>),
+  tags: [<span class="str">'typescript'</span>, <span class="str">'javascript'</span>],
+  slug: <span class="str">'getting-started-with-typescript'</span>,
+};
+
+console.log(<span class="fn">formatPost</span>(post));
+<span class="cm">// Output: [1] Getting Started with TypeScript by Alice | tags: typescript, javascript</span>
+
+<span class="cm">// TypeScript prevents this:</span>
+post.slug = <span class="str">'new-slug'</span>; <span class="cm">// ERROR: Cannot assign to 'slug' because it is a read-only property.</span></code></pre>
+              </div>
+            </div>
+
+            <!-- 8. Real-World Example -->
+            <div class="tab-pane" data-pane="t1-real-world">
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">typescript — Express API types</span><button class="copy-btn">Copy</button></div>
+                <pre><code class="ts-code"><span class="cm">// Types for a product API — shared between routes and services</span>
+
+<span class="kw">interface</span> <span class="ty">CreateProductRequest</span> {
+  name: <span class="ty">string</span>;
+  price: <span class="ty">number</span>;
+  categoryId: <span class="ty">string</span>;
+  description?: <span class="ty">string</span>;
+  imageUrl?: <span class="ty">string</span>;
+}
+
+<span class="kw">interface</span> <span class="ty">ProductResponse</span> {
+  <span class="kw">readonly</span> id: <span class="ty">string</span>;
+  name: <span class="ty">string</span>;
+  price: <span class="ty">number</span>;
+  categoryId: <span class="ty">string</span>;
+  description: <span class="ty">string</span> | <span class="kw">null</span>;
+  imageUrl: <span class="ty">string</span> | <span class="kw">null</span>;
+  <span class="kw">readonly</span> createdAt: <span class="ty">string</span>; <span class="cm">// ISO date string from JSON</span>
+  <span class="kw">readonly</span> updatedAt: <span class="ty">string</span>;
+}
+
+<span class="kw">interface</span> <span class="ty">PaginatedResponse</span>&lt;<span class="ty">T</span>&gt; {
+  data: <span class="ty">T</span>[];
+  total: <span class="ty">number</span>;
+  page: <span class="ty">number</span>;
+  pageSize: <span class="ty">number</span>;
+  hasMore: <span class="ty">boolean</span>;
+}
+
+<span class="cm">// Usage in an Express handler</span>
+<span class="kw">async function</span> <span class="fn">createProduct</span>(
+  body: <span class="ty">CreateProductRequest</span>
+): <span class="ty">Promise</span>&lt;<span class="ty">ProductResponse</span>&gt; {
+  <span class="cm">// TypeScript ensures we handle all fields the caller passed</span>
+  <span class="kw">const</span> product = <span class="kw">await</span> db.products.<span class="fn">insert</span>({
+    name: body.name,
+    price: body.price,
+    categoryId: body.categoryId,
+    description: body.description ?? <span class="kw">null</span>,
+    imageUrl: body.imageUrl ?? <span class="kw">null</span>,
+  });
+  <span class="kw">return</span> product;
+}</code></pre>
+              </div>
+            </div>
+
+            <!-- 9. Use Cases -->
+            <div class="tab-pane" data-pane="t1-use-cases">
+              <ul>
+                <li><strong>API contract types</strong> — Define <code>CreateOrderRequest</code> and <code>OrderResponse</code> interfaces once in a <code>types.ts</code> file; import them in both the frontend fetch call and the Express route handler to ensure they stay in sync.</li>
+                <li><strong>Database entity models</strong> — Model <code>User</code>, <code>Product</code>, <code>Order</code> with interfaces that mirror your Drizzle ORM or Prisma schema, giving you autocomplete when reading query results.</li>
+                <li><strong>React component props</strong> — Every React component that accepts an object prop should have an interface for it (e.g., <code>ButtonProps</code>, <code>DataTableProps</code>) — this drives IDE autocomplete for consumers.</li>
+                <li><strong>Service layer contracts</strong> — Define <code>interface IProductService</code> separately from the implementation so you can swap it with a mock in tests.</li>
+                <li><strong>Form state typing</strong> — Type form field objects so React Hook Form or Formik auto-complete field names and show type errors when you mishandle the shape.</li>
+                <li><strong>Config objects</strong> — Library and tool configuration (webpack, jest, eslint) is often typed via interfaces so you get validation and autocomplete in config files.</li>
+              </ul>
+            </div>
+
+            <!-- 10. Common Mistakes -->
+            <div class="tab-pane" data-pane="t1-mistakes">
+              <h4>1. Prefixing interface names with "I"</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="cm">// BAD — Hungarian notation, not idiomatic TypeScript</span>
+<span class="kw">interface</span> <span class="ty">IUser</span> { name: <span class="ty">string</span>; }
+
+<span class="cm">// GOOD — plain PascalCase</span>
+<span class="kw">interface</span> <span class="ty">User</span> { name: <span class="ty">string</span>; }</code></pre></div>
+              <p>The TypeScript team and community style guides (Airbnb, Google) explicitly recommend against the <code>I</code> prefix. It's legacy C# convention; TypeScript has better tooling to distinguish types from values.</p>
+
+              <h4>2. Using interface for non-object types</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="cm">// BAD — interface can't represent a union</span>
+<span class="kw">interface</span> <span class="ty">Status</span> = <span class="str">'active'</span> | <span class="str">'inactive'</span>; <span class="cm">// SYNTAX ERROR</span>
+
+<span class="cm">// GOOD — use type for unions, primitives, tuples</span>
+<span class="kw">type</span> <span class="ty">Status</span> = <span class="str">'active'</span> | <span class="str">'inactive'</span>;</code></pre></div>
+
+              <h4>3. Forgetting optional marker on nullable fields</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="cm">// BAD — bio is required but might not exist in real data</span>
+<span class="kw">interface</span> <span class="ty">User</span> {
+  name: <span class="ty">string</span>;
+  bio: <span class="ty">string</span>; <span class="cm">// callers MUST provide this — unexpected</span>
+}
+
+<span class="cm">// GOOD — mark genuinely optional fields</span>
+<span class="kw">interface</span> <span class="ty">User</span> {
+  name: <span class="ty">string</span>;
+  bio?: <span class="ty">string</span>; <span class="cm">// callers can omit it; type is string | undefined</span>
+}</code></pre></div>
+
+              <h4>4. Defining method signatures with wrong syntax</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="cm">// Confusing but valid — two ways to type a method in an interface</span>
+<span class="kw">interface</span> <span class="ty">Formatter</span> {
+  format(s: <span class="ty">string</span>): <span class="ty">string</span>;         <span class="cm">// method shorthand (preferred)</span>
+  format: (s: <span class="ty">string</span>) => <span class="ty">string</span>;    <span class="cm">// property with function type</span>
+}
+<span class="cm">// They're almost equivalent, but method shorthand is more readable.</span>
+<span class="cm">// Stick to method shorthand for interface method signatures.</span></code></pre></div>
+            </div>
+
+            <!-- 11. Best Practices -->
+            <div class="tab-pane" data-pane="t1-best-practices">
+              <ol>
+                <li><strong>Use PascalCase for interface names.</strong> <code>User</code>, <code>ProductResponse</code>, <code>CartItem</code> — consistent with classes and TypeScript's own built-in types.</li>
+                <li><strong>Mark fields <code>readonly</code> if they shouldn't change after creation.</strong> IDs, timestamps, and slugs are natural candidates. This prevents accidental mutation and makes intent clear: <code>readonly id: string</code>.</li>
+                <li><strong>Prefer <code>interface</code> over inline object types for reusable shapes.</strong> If you write the same object shape in two places, extract it to a named interface. It's easier to document, refactor, and reuse.</li>
+                <li><strong>Keep interfaces focused.</strong> An interface for "a user" shouldn't also carry "the user's shopping cart." Split by concern, then compose with extension or intersection.</li>
+                <li><strong>Use optional <code>?</code> honestly.</strong> Don't mark a field optional just to avoid specifying it — optional means callers can legitimately omit it. If a field is always present, keep it required.</li>
+                <li><strong>Export interfaces from a central <code>types.ts</code> module.</strong> Shared types that cross module boundaries should live in one place, not scattered across implementation files.</li>
+                <li><strong>Separate request and response interfaces.</strong> <code>CreateUserRequest</code> ≠ <code>UserResponse</code>. The input shape rarely equals the output shape (IDs and timestamps are server-generated).</li>
+              </ol>
+            </div>
+
+            <!-- 12. Interview Questions -->
+            <div class="tab-pane" data-pane="t1-interview">
+              <div class="qa-block">
+                <div class="q">Q: What is an interface in TypeScript, and how is it different from a plain JavaScript object?<span class="diff easy">Easy</span></div>
+                <div class="a">An interface is a compile-time contract that defines the required shape of an object. Unlike a plain JavaScript object, an interface exists only in TypeScript source code — it's completely erased when compiled to JavaScript. Its job is to let the type checker verify that any object assigned to that type actually has the right properties and types, catching mistakes before the code runs.</div>
+              </div>
+              <div class="qa-block">
+                <div class="q">Q: What does "structural typing" mean, and how does it relate to interfaces?<span class="diff medium">Medium</span></div>
+                <div class="a">Structural typing means TypeScript checks compatibility based on shape (the properties and their types), not on explicit inheritance or declaration. An object satisfies an interface simply by having the right properties — it doesn't need to say <code>implements User</code>. This is in contrast to nominal typing (C#, Java) where you must explicitly declare a class to implement an interface. In TypeScript: if it looks like a <code>User</code>, it is a <code>User</code>.</div>
+              </div>
+              <div class="qa-block">
+                <div class="q">Q: What's the difference between an optional property (<code>?</code>) and a property typed as <code>string | undefined</code>?<span class="diff medium">Medium</span></div>
+                <div class="a">They're almost the same but have a subtle distinction. <code>bio?: string</code> means the key can be completely absent from the object. <code>bio: string | undefined</code> means the key must be present, but its value can be <code>undefined</code>. In practice, when using <code>exactOptionalPropertyTypes</code> in your tsconfig, TypeScript enforces this distinction strictly — <code>{ bio: undefined }</code> would not satisfy <code>bio?: string</code>.</div>
+              </div>
+              <div class="qa-block">
+                <div class="q">Q: Can a class implement multiple interfaces? How?<span class="diff easy">Easy</span></div>
+                <div class="a">Yes. A class can implement multiple interfaces by separating them with commas: <code>class PayPalService implements PaymentService, Loggable</code>. The class must provide all properties and methods defined in every interface it implements, or TypeScript will report an error.</div>
+              </div>
+              <div class="qa-block">
+                <div class="q">Q: If interfaces are erased at compile time, why use them instead of just writing code and hoping for the best?<span class="diff hard">Hard</span></div>
+                <div class="a">Interfaces let the TypeScript compiler verify correctness across the entire codebase without any runtime overhead. When a function expects a <code>CreateOrderRequest</code> interface, the compiler checks every call site — if an API shape changes and a caller doesn't update, it's a compile error, not a 3am production incident. The value isn't runtime enforcement; it's the confidence that refactoring one file doesn't silently break five others.</div>
+              </div>
+            </div>
+
+            <!-- 13. Exercise -->
+            <div class="tab-pane" data-pane="t1-exercise">
+              <h4>Goal</h4>
+              <p>Define interfaces for a library book catalog system and write a function to format a book entry.</p>
+              <h4>Requirements</h4>
+              <ul>
+                <li>Create an interface <code>Author</code> with <code>id</code>, <code>name</code>, and optional <code>bio</code></li>
+                <li>Create an interface <code>Book</code> with <code>isbn</code> (readonly), <code>title</code>, <code>author</code> (using the <code>Author</code> interface), <code>publishedYear</code>, <code>genres</code> (array), and optional <code>edition</code></li>
+                <li>Write a <code>formatBookEntry(book: Book): string</code> function that returns a human-readable string</li>
+                <li>Demonstrate that TypeScript catches a missing required field</li>
+              </ul>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="cm">// TODO: Define the Author interface</span>
+
+<span class="cm">// TODO: Define the Book interface</span>
+<span class="cm">// isbn should be readonly</span>
+<span class="cm">// author should be typed as Author</span>
+
+<span class="cm">// TODO: Implement this function</span>
+<span class="kw">function</span> <span class="fn">formatBookEntry</span>(book: <span class="ty">Book</span>): <span class="ty">string</span> {
+  <span class="cm">// Should return something like:</span>
+  <span class="cm">// "The Pragmatic Programmer (1999) by David Thomas [pragmatic, software]"</span>
+}
+
+<span class="cm">// TODO: Create a valid Book object and test formatBookEntry</span>
+
+<span class="cm">// TODO: Try creating a Book without isbn and confirm the TypeScript error</span></code></pre></div>
+              <h4>Expected Result</h4>
+              <p>A <code>formatBookEntry</code> call should produce a descriptive string; attempting to create a <code>Book</code> without <code>isbn</code> or <code>title</code> should show a compile error.</p>
+              <p><strong>Hint:</strong> Use optional chaining (<code>book.author.bio ?? 'no bio'</code>) for the optional <code>bio</code> field.</p>
+            </div>
+
+            <!-- 14. Summary -->
+            <div class="tab-pane" data-pane="t1-summary">
+              <ul>
+                <li>An interface is a compile-time contract for object shapes — it's completely erased from JavaScript output.</li>
+                <li>TypeScript uses structural typing: any object with the right shape satisfies an interface, no explicit declaration needed.</li>
+                <li>Use <code>?</code> for optional properties and <code>readonly</code> for properties that shouldn't change after creation.</li>
+                <li>Interfaces are the idiomatic TypeScript choice for object shapes, API types, and class contracts.</li>
+                <li>They cannot represent union types, tuples, or mapped types — use <code>type</code> for those.</li>
+                <li>Naming convention is PascalCase (no <code>I</code> prefix).</li>
+                <li>Export shared interfaces from a central <code>types.ts</code> to avoid duplication.</li>
+              </ul>
+              <div class="callout info"><p><strong>Mental model:</strong> An interface is a TypeScript stamp of approval — before code runs, the compiler checks that every object has earned that stamp by having exactly the right shape.</p></div>
+            </div>
+
+          </div>
+        </details>
+
+        <!-- ─────────────── TOPIC 2: Interface Extension ─────────────── -->
+        <details class="topic-panel" id="topic-extension">
+          <summary>
+            <span class="topic-name">Interface Extension</span>
+            <span class="badge beginner">Beginner</span>
+            <span class="chevron">▶</span>
+          </summary>
+          <div class="panel-tabs">
+            <button class="tab active" data-tab="t2-definition">Definition</button>
+            <button class="tab" data-tab="t2-why-exists">Why It Exists</button>
+            <button class="tab" data-tab="t2-when-use">When to Use</button>
+            <button class="tab" data-tab="t2-when-not">When NOT to Use</button>
+            <button class="tab" data-tab="t2-internals">How It Works</button>
+            <button class="tab" data-tab="t2-syntax">Syntax</button>
+            <button class="tab" data-tab="t2-example">Example</button>
+            <button class="tab" data-tab="t2-real-world">Real-World</button>
+            <button class="tab" data-tab="t2-use-cases">Use Cases</button>
+            <button class="tab" data-tab="t2-mistakes">Mistakes</button>
+            <button class="tab" data-tab="t2-best-practices">Best Practices</button>
+            <button class="tab" data-tab="t2-interview">Interview Qs</button>
+            <button class="tab" data-tab="t2-exercise">Exercise</button>
+            <button class="tab" data-tab="t2-summary">Summary</button>
+          </div>
+          <div class="panel-content">
+
+            <div class="tab-pane active" data-pane="t2-definition">
+              <h4>Simple Explanation</h4>
+              <p>Interface extension is like inheritance for object shapes. You take an existing interface and say "I want everything in that one, plus these extra properties." The child interface automatically has all of the parent's properties without you having to copy them.</p>
+              <h4>Technical Explanation</h4>
+              <p>Using the <code>extends</code> keyword, a child interface inherits all members of one or more parent interfaces and can add new members or (with compatible types) override them. The resulting type is the union of all inherited properties plus the new ones. An interface can extend multiple interfaces simultaneously by separating them with commas: <code>interface C extends A, B</code>.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="t2-why-exists">
+              <h4>The Problem Without Extension</h4>
+              <p>Without extension, you'd copy fields across every interface that shares a common base, leading to duplication that drifts out of sync over time.</p>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="cm">// Without extension — id/createdAt/updatedAt duplicated everywhere</span>
+<span class="kw">interface</span> <span class="ty">User</span> {
+  id: <span class="ty">string</span>;
+  createdAt: <span class="ty">Date</span>;
+  updatedAt: <span class="ty">Date</span>;
+  name: <span class="ty">string</span>;
+  email: <span class="ty">string</span>;
+}
+<span class="kw">interface</span> <span class="ty">Product</span> {
+  id: <span class="ty">string</span>;            <span class="cm">// copy-pasted</span>
+  createdAt: <span class="ty">Date</span>;       <span class="cm">// copy-pasted</span>
+  updatedAt: <span class="ty">Date</span>;       <span class="cm">// copy-pasted</span>
+  name: <span class="ty">string</span>;
+  price: <span class="ty">number</span>;
+}
+<span class="cm">// If you add `deletedAt` to the base, you must update every interface manually</span></code></pre></div>
+              <h4>Fix With Extension</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="kw">interface</span> <span class="ty">BaseEntity</span> {
+  id: <span class="ty">string</span>;
+  createdAt: <span class="ty">Date</span>;
+  updatedAt: <span class="ty">Date</span>;
+}
+
+<span class="kw">interface</span> <span class="ty">User</span> <span class="kw">extends</span> <span class="ty">BaseEntity</span> {
+  name: <span class="ty">string</span>;
+  email: <span class="ty">string</span>;
+}
+
+<span class="kw">interface</span> <span class="ty">Product</span> <span class="kw">extends</span> <span class="ty">BaseEntity</span> {
+  name: <span class="ty">string</span>;
+  price: <span class="ty">number</span>;
+}
+<span class="cm">// Adding `deletedAt` to BaseEntity automatically updates both User and Product</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="t2-when-use">
+              <ul>
+                <li><strong>Building layered data models</strong> — <code>BaseEntity → TimestampedEntity → SoftDeletableEntity → User</code>: each layer adds a concern without duplicating earlier ones.</li>
+                <li><strong>Specializing a general interface</strong> — <code>Animal → Dog</code>, <code>Vehicle → Car → ElectricCar</code>: when a specific type is a strict superset of the general type.</li>
+                <li><strong>Extending third-party types</strong> — Add custom fields to a library's interface without modifying its source (though for third-party, declaration merging is more idiomatic — see next topic).</li>
+                <li><strong>Separating concerns</strong> — <code>interface Timestamped</code>, <code>interface SoftDeletable</code>, <code>interface Auditable</code>; then <code>interface Order extends Timestamped, SoftDeletable, Auditable</code>.</li>
+                <li><strong>When implementing classes</strong> — If both an <code>AdminUser</code> class and a <code>RegularUser</code> class should implement the base <code>User</code> interface, extending avoids duplicate method signatures.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="t2-when-not">
+              <ul>
+                <li><strong>When the relationship is compositional, not hierarchical.</strong> If <code>Order</code> has a <code>User</code> (not IS a user), use a property, not extension: <code>interface Order { customer: User; }</code></li>
+                <li><strong>When you need to override a property with an incompatible type.</strong> You can narrow a type (<code>string</code> → <code>'active' | 'inactive'</code>) but can't widen it (<code>string</code> → <code>string | number</code>). TypeScript will error. Use intersection types or a new separate interface instead.</li>
+                <li><strong>When combining unrelated shapes.</strong> If you're merging two completely unrelated interfaces, an intersection type (<code>type AB = A & B</code>) expresses the intent more clearly than forced extension.</li>
+                <li><strong>For deeply nested hierarchies.</strong> More than 2–3 levels of extension makes the type system hard to follow. Prefer composition (nested interface properties) over deep inheritance chains.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="t2-internals">
+              <h4>How TypeScript Resolves Extended Interfaces</h4>
+              <p>When you write <code>interface Child extends Parent</code>, TypeScript creates a new type that contains all of <code>Parent</code>'s members plus <code>Child</code>'s own members. This resolution happens entirely at compile time — the compiler flattens the inheritance chain when checking types.</p>
+              <p><strong>Property conflict rules:</strong> If <code>Child</code> redeclares a property from <code>Parent</code> with the same name, the <code>Child</code> type must be <em>assignable to</em> the <code>Parent</code> type (i.e., a narrower or equal type). You can restrict <code>string</code> to <code>'admin' | 'user'</code>, but you cannot change <code>string</code> to <code>number</code>.</p>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="kw">interface</span> <span class="ty">Animal</span> {
+  name: <span class="ty">string</span>;
+  sound(): <span class="ty">string</span>;
+}
+
+<span class="kw">interface</span> <span class="ty">Dog</span> <span class="kw">extends</span> <span class="ty">Animal</span> {
+  breed: <span class="ty">string</span>;
+}
+
+<span class="cm">// TypeScript sees Dog as equivalent to:</span>
+<span class="cm">// { name: string; sound(): string; breed: string; }</span>
+
+<span class="kw">const</span> rex: <span class="ty">Dog</span> = {
+  name: <span class="str">'Rex'</span>,
+  breed: <span class="str">'Labrador'</span>,
+  sound() { <span class="kw">return</span> <span class="str">'Woof'</span>; },
+};</code></pre></div>
+              <p>Multi-inheritance: <code>interface C extends A, B</code> — TypeScript merges all members from A and B into C. If A and B both declare the same property with incompatible types, it's a compile error.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="t2-syntax">
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="cm">// Single extension</span>
+<span class="kw">interface</span> <span class="ty">Child</span> <span class="kw">extends</span> <span class="ty">Parent</span> {
+<span class="cm">//         ^^^^^  new interface name</span>
+<span class="cm">//                ^^^^^^^ keyword</span>
+<span class="cm">//                        ^^^^^^  parent interface</span>
+  extraProp: <span class="ty">string</span>;  <span class="cm">// new properties added by Child</span>
+}
+
+<span class="cm">// Multiple extension — merge A and B into C</span>
+<span class="kw">interface</span> <span class="ty">C</span> <span class="kw">extends</span> <span class="ty">A</span>, <span class="ty">B</span> {
+<span class="cm">//                   ^  ^  comma-separated parent interfaces</span>
+  ownProp: <span class="ty">number</span>;
+}
+
+<span class="cm">// Narrowing a parent property (valid)</span>
+<span class="kw">interface</span> <span class="ty">AdminUser</span> <span class="kw">extends</span> <span class="ty">User</span> {
+  role: <span class="str">'admin'</span>;    <span class="cm">// narrows User's role: string to the literal 'admin'</span>
+}
+
+<span class="cm">// Attempting to widen a parent property (ERROR)</span>
+<span class="kw">interface</span> <span class="ty">BadChild</span> <span class="kw">extends</span> <span class="ty">Parent</span> {
+  name: <span class="ty">number</span>; <span class="cm">// ERROR: Property 'name' in type 'BadChild' is not assignable</span>
+                <span class="cm">// to the same property in base type 'Parent'.</span>
+}</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="t2-example">
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="cm">// A practical entity hierarchy for any CRUD application</span>
+
+<span class="kw">interface</span> <span class="ty">Identifiable</span> {
+  <span class="kw">readonly</span> id: <span class="ty">string</span>;
+}
+
+<span class="kw">interface</span> <span class="ty">Timestamped</span> {
+  <span class="kw">readonly</span> createdAt: <span class="ty">Date</span>;
+  updatedAt: <span class="ty">Date</span>;
+}
+
+<span class="kw">interface</span> <span class="ty">SoftDeletable</span> {
+  deletedAt?: <span class="ty">Date</span>;
+  isDeleted: <span class="ty">boolean</span>;
+}
+
+<span class="cm">// BaseEntity combines three concerns</span>
+<span class="kw">interface</span> <span class="ty">BaseEntity</span> <span class="kw">extends</span> <span class="ty">Identifiable</span>, <span class="ty">Timestamped</span> {}
+
+<span class="cm">// User extends BaseEntity and adds domain-specific fields</span>
+<span class="kw">interface</span> <span class="ty">User</span> <span class="kw">extends</span> <span class="ty">BaseEntity</span> {
+  email: <span class="ty">string</span>;
+  displayName: <span class="ty">string</span>;
+  avatarUrl?: <span class="ty">string</span>;
+}
+
+<span class="cm">// AdminUser is a User with additional permissions</span>
+<span class="kw">interface</span> <span class="ty">AdminUser</span> <span class="kw">extends</span> <span class="ty">User</span> {
+  role: <span class="str">'admin'</span>;
+  permissions: <span class="ty">string</span>[];
+}
+
+<span class="cm">// TypeScript knows AdminUser has: id, createdAt, updatedAt,</span>
+<span class="cm">// email, displayName, avatarUrl?, role, permissions</span>
+
+<span class="kw">function</span> <span class="fn">sendWelcomeEmail</span>(user: <span class="ty">User</span>): <span class="ty">void</span> {
+  console.log(<span class="str">`Welcome ${user.displayName}! Registered at ${user.createdAt.toISOString()}`</span>);
+}
+
+<span class="kw">const</span> admin: <span class="ty">AdminUser</span> = {
+  id: <span class="str">'usr_01'</span>,
+  createdAt: <span class="kw">new</span> Date(),
+  updatedAt: <span class="kw">new</span> Date(),
+  email: <span class="str">'admin@example.com'</span>,
+  displayName: <span class="str">'Site Admin'</span>,
+  role: <span class="str">'admin'</span>,
+  permissions: [<span class="str">'read'</span>, <span class="str">'write'</span>, <span class="str">'delete'</span>],
+};
+
+<span class="fn">sendWelcomeEmail</span>(admin); <span class="cm">// AdminUser satisfies User — OK</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="t2-real-world">
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript — Drizzle ORM schema types</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="cm">// Base database row shape — every table has these</span>
+<span class="kw">interface</span> <span class="ty">DatabaseRow</span> {
+  <span class="kw">readonly</span> id: <span class="ty">string</span>;
+  <span class="kw">readonly</span> createdAt: <span class="ty">Date</span>;
+  updatedAt: <span class="ty">Date</span>;
+}
+
+<span class="cm">// Domain entities extend the base</span>
+<span class="kw">interface</span> <span class="ty">ProductRow</span> <span class="kw">extends</span> <span class="ty">DatabaseRow</span> {
+  name: <span class="ty">string</span>;
+  description: <span class="ty">string</span> | <span class="kw">null</span>;
+  priceInCents: <span class="ty">number</span>;
+  categoryId: <span class="ty">string</span>;
+  stock: <span class="ty">number</span>;
+}
+
+<span class="cm">// API response type — same as row but price is formatted</span>
+<span class="kw">interface</span> <span class="ty">ProductResponse</span> <span class="kw">extends</span> <span class="ty">DatabaseRow</span> {
+  name: <span class="ty">string</span>;
+  description: <span class="ty">string</span> | <span class="kw">null</span>;
+  price: <span class="ty">string</span>;   <span class="cm">// "$12.99" — formatted in the service layer</span>
+  categoryId: <span class="ty">string</span>;
+  inStock: <span class="ty">boolean</span>; <span class="cm">// derived from stock > 0</span>
+}
+
+<span class="cm">// Insert type — no id/timestamps (generated by the database)</span>
+<span class="kw">interface</span> <span class="ty">NewProduct</span> {
+  name: <span class="ty">string</span>;
+  description?: <span class="ty">string</span>;
+  priceInCents: <span class="ty">number</span>;
+  categoryId: <span class="ty">string</span>;
+  stock?: <span class="ty">number</span>;
+}
+
+<span class="kw">function</span> <span class="fn">toResponse</span>(row: <span class="ty">ProductRow</span>): <span class="ty">ProductResponse</span> {
+  <span class="kw">return</span> {
+    ...row,
+    price: <span class="str">`$${(row.priceInCents / <span class="num">100</span>).toFixed(<span class="num">2</span>)}`</span>,
+    inStock: row.stock > <span class="num">0</span>,
+  };
+}</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="t2-use-cases">
+              <ul>
+                <li><strong>Database entity modeling</strong> — Every table shares <code>id</code>, <code>createdAt</code>, <code>updatedAt</code>; extend a <code>BaseRow</code> interface so adding a global field like <code>deletedAt</code> is a one-line change.</li>
+                <li><strong>API versioning</strong> — <code>ProductV2</code> extends <code>ProductV1</code> and adds new fields without breaking code that still expects the old shape.</li>
+                <li><strong>Role-based access models</strong> — <code>GuestUser → AuthenticatedUser → AdminUser</code>: each level extends the previous with more capabilities and fields.</li>
+                <li><strong>React prop hierarchies</strong> — A <code>ButtonProps</code> interface extended by <code>IconButtonProps</code> (adds <code>icon: React.ReactNode</code>) keeps the component API consistent.</li>
+                <li><strong>Error type hierarchies</strong> — <code>AppError → NetworkError → TimeoutError</code>: each extension adds context (e.g., <code>statusCode</code>, <code>timeoutMs</code>) while preserving the base error shape.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="t2-mistakes">
+              <h4>1. Trying to widen a property type</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="kw">interface</span> <span class="ty">Base</span> { id: <span class="ty">string</span>; }
+
+<span class="cm">// WRONG — can't change id from string to number</span>
+<span class="kw">interface</span> <span class="ty">Child</span> <span class="kw">extends</span> <span class="ty">Base</span> {
+  id: <span class="ty">number</span>; <span class="cm">// ERROR: number is not assignable to string</span>
+}
+
+<span class="cm">// If you genuinely need a different type, create a new interface</span>
+<span class="kw">interface</span> <span class="ty">ChildWithNumericId</span> {
+  id: <span class="ty">number</span>;
+  <span class="cm">// copy the other Base properties manually or use intersection</span>
+}</code></pre></div>
+
+              <h4>2. Confusing extension with interface merging</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="cm">// These are DIFFERENT things:</span>
+
+<span class="cm">// EXTENSION — Child is a new interface that inherits from Parent</span>
+<span class="kw">interface</span> <span class="ty">Child</span> <span class="kw">extends</span> <span class="ty">Parent</span> { extra: <span class="ty">string</span>; }
+
+<span class="cm">// MERGING — both declarations combine into one interface named Parent</span>
+<span class="kw">interface</span> <span class="ty">Parent</span> { extra: <span class="ty">string</span>; }</code></pre></div>
+              <p>Extension creates a new named type; declaration merging modifies the original interface. Mixing them up leads to accidentally augmenting a type you meant to specialize.</p>
+
+              <h4>3. Forgetting that multi-extend conflicts cause errors</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="kw">interface</span> <span class="ty">A</span> { value: <span class="ty">string</span>; }
+<span class="kw">interface</span> <span class="ty">B</span> { value: <span class="ty">number</span>; }
+
+<span class="cm">// WRONG — 'value' can't be both string and number</span>
+<span class="kw">interface</span> <span class="ty">C</span> <span class="kw">extends</span> <span class="ty">A</span>, <span class="ty">B</span> { } <span class="cm">// ERROR: Named property 'value' of types 'A' and 'B' are not identical</span>
+
+<span class="cm">// CORRECT — rename one of the conflicting properties</span>
+<span class="kw">interface</span> <span class="ty">C</span> <span class="kw">extends</span> <span class="ty">A</span> { numericValue: <span class="ty">number</span>; }</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="t2-best-practices">
+              <ol>
+                <li><strong>Create a <code>BaseEntity</code> interface for database tables.</strong> Put <code>id</code>, <code>createdAt</code>, <code>updatedAt</code> there once. Every entity interface extends it. Add <code>deletedAt</code> once and everything inherits it.</li>
+                <li><strong>Keep inheritance shallow (max 3 levels).</strong> Deep hierarchies become hard to reason about. If you need more than 3 levels, reconsider whether composition (nested properties) wouldn't be clearer.</li>
+                <li><strong>Use multiple extension for orthogonal concerns.</strong> <code>interface Order extends Timestamped, SoftDeletable</code> is cleaner than a single fat base that tries to do everything.</li>
+                <li><strong>Prefer <code>extends</code> over copy-paste.</strong> If you notice two interfaces share three or more properties, extract a base interface and have both extend it.</li>
+                <li><strong>Name base interfaces by their concern, not by who uses them.</strong> <code>Timestamped</code> and <code>SoftDeletable</code> are better than <code>BaseModel</code>, because the name tells you exactly what they contribute.</li>
+              </ol>
+            </div>
+
+            <div class="tab-pane" data-pane="t2-interview">
+              <div class="qa-block">
+                <div class="q">Q: What does the <code>extends</code> keyword do in an interface declaration?<span class="diff easy">Easy</span></div>
+                <div class="a">It makes the new interface inherit all properties and method signatures from the parent interface(s). The resulting type contains all members from every parent plus any new members defined in the child. An object assigned to the child type must satisfy every property requirement from all parents.</div>
+              </div>
+              <div class="qa-block">
+                <div class="q">Q: Can an interface extend multiple interfaces at once? Show the syntax.<span class="diff easy">Easy</span></div>
+                <div class="a">Yes. <code>interface Order extends Timestamped, SoftDeletable, Auditable { ... }</code> — list parent interfaces separated by commas after the <code>extends</code> keyword. The resulting interface inherits all members from every parent. If two parents declare the same property with incompatible types, TypeScript reports an error.</div>
+              </div>
+              <div class="qa-block">
+                <div class="q">Q: Can you override a parent interface property in the child? What are the rules?<span class="diff medium">Medium</span></div>
+                <div class="a">You can re-declare a property in the child only if the child's type is assignable to (i.e., a subtype of) the parent's type. You can narrow <code>string</code> to <code>'admin' | 'user'</code>, but you cannot change <code>string</code> to <code>number</code>. This preserves substitutability: anything that accepts the parent interface must also be able to handle the child.</div>
+              </div>
+              <div class="qa-block">
+                <div class="q">Q: What is the difference between interface extension and type intersection?<span class="diff medium">Medium</span></div>
+                <div class="a">Both combine types, but they behave differently with conflicts. Interface extension errors at declaration time if two parents have the same property with incompatible types. Type intersection (<code>type C = A &amp; B</code>) silently creates a <code>never</code>-typed property when types conflict, which can cause subtle bugs. Interface extension also creates a named, re-openable type; intersections are aliases and cannot be merged.</div>
+              </div>
+              <div class="qa-block">
+                <div class="q">Q: How does interface extension relate to the Liskov Substitution Principle?<span class="diff hard">Hard</span></div>
+                <div class="a">Interface extension enforces LSP structurally: since the child type must be assignable to the parent, any function expecting the parent interface will also accept the child. TypeScript enforces this by requiring that re-declared properties in the child are subtypes of the parent's version. This means you can safely use a child interface wherever a parent is expected, which is the core guarantee of LSP.</div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="t2-exercise">
+              <h4>Goal</h4>
+              <p>Build a vehicle type hierarchy using interface extension, then write a function that only needs the base contract.</p>
+              <h4>Requirements</h4>
+              <ul>
+                <li>Define a <code>Vehicle</code> interface with <code>make</code>, <code>model</code>, <code>year</code>, and a method <code>describe(): string</code></li>
+                <li>Define <code>Car extends Vehicle</code> with <code>doors</code> and <code>fuelType</code> (<code>'gasoline' | 'diesel' | 'electric'</code>)</li>
+                <li>Define <code>ElectricCar extends Car</code> with <code>batteryKwh</code> and <code>rangeKm</code></li>
+                <li>Write a <code>printVehicleInfo(v: Vehicle): void</code> that logs the describe() output — confirm it accepts all three types</li>
+              </ul>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="cm">// TODO: Define Vehicle interface with describe() method</span>
+
+<span class="cm">// TODO: Define Car extends Vehicle</span>
+<span class="cm">// fuelType should be a string literal union</span>
+
+<span class="cm">// TODO: Define ElectricCar extends Car</span>
+
+<span class="cm">// TODO: Implement printVehicleInfo(v: Vehicle): void</span>
+
+<span class="cm">// TODO: Create objects for each type and pass all three to printVehicleInfo</span></code></pre></div>
+              <p><strong>Hint:</strong> Implement <code>describe()</code> directly in the object literal: <code>describe() { return \`${this.year} ${this.make} ${this.model}\`; }</code></p>
+            </div>
+
+            <div class="tab-pane" data-pane="t2-summary">
+              <ul>
+                <li>Interface extension uses <code>extends</code> to inherit all members of one or more parent interfaces.</li>
+                <li>A child interface can add new properties or narrow (but not widen) inherited property types.</li>
+                <li>Multiple extension (<code>extends A, B</code>) merges all members; conflicts with incompatible types cause compile errors.</li>
+                <li>Extension prevents copy-paste duplication and ensures a single source of truth for shared fields.</li>
+                <li>Keep hierarchies shallow — max 2–3 levels; prefer composition for orthogonal concerns.</li>
+                <li>Child types are always assignable to parent types (Liskov Substitution holds by construction).</li>
+              </ul>
+              <div class="callout info"><p><strong>Mental model:</strong> Interface extension is a promise — "everything you can do with the parent, you can do with the child, plus more." It's inheritance without runtime baggage.</p></div>
+            </div>
+
+          </div>
+        </details>
+
+        <!-- ─────────────── TOPIC 3: Declaration Merging ─────────────── -->
+        <details class="topic-panel" id="topic-merging">
+          <summary>
+            <span class="topic-name">Declaration Merging</span>
+            <span class="badge intermediate">Intermediate</span>
+            <span class="chevron">▶</span>
+          </summary>
+          <div class="panel-tabs">
+            <button class="tab active" data-tab="t3-definition">Definition</button>
+            <button class="tab" data-tab="t3-why-exists">Why It Exists</button>
+            <button class="tab" data-tab="t3-when-use">When to Use</button>
+            <button class="tab" data-tab="t3-when-not">When NOT to Use</button>
+            <button class="tab" data-tab="t3-internals">How It Works</button>
+            <button class="tab" data-tab="t3-syntax">Syntax</button>
+            <button class="tab" data-tab="t3-example">Example</button>
+            <button class="tab" data-tab="t3-real-world">Real-World</button>
+            <button class="tab" data-tab="t3-use-cases">Use Cases</button>
+            <button class="tab" data-tab="t3-mistakes">Mistakes</button>
+            <button class="tab" data-tab="t3-best-practices">Best Practices</button>
+            <button class="tab" data-tab="t3-interview">Interview Qs</button>
+            <button class="tab" data-tab="t3-exercise">Exercise</button>
+            <button class="tab" data-tab="t3-summary">Summary</button>
+          </div>
+          <div class="panel-content">
+
+            <div class="tab-pane active" data-pane="t3-definition">
+              <h4>Simple Explanation</h4>
+              <p>If you write two interfaces with the same name in TypeScript, they don't conflict — TypeScript automatically combines them into a single interface that has all the properties from both. It's as if you wrote one big interface from the start.</p>
+              <h4>Technical Explanation</h4>
+              <p>Declaration merging is the TypeScript compiler's behavior of combining multiple declarations sharing the same identifier into a single definition. It applies to interfaces (and namespaces, but not <code>type</code> aliases or classes). When two interface declarations with the same name exist in the same scope, their members are merged. Later declarations of the same property must be compatible; method signatures stack into an overloaded function type, with later declarations having higher priority in resolution.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="t3-why-exists">
+              <h4>The Problem It Solves</h4>
+              <p>TypeScript was designed to work alongside existing JavaScript and third-party libraries. Those libraries expose types in their own declaration files (<code>.d.ts</code>). Without declaration merging, users would have no way to extend those types without modifying the library's source — which isn't an option for node_modules packages.</p>
+              <p>Consider Express: its <code>Request</code> type doesn't know about your JWT-authenticated user. Declaration merging lets you add a <code>user</code> property to Express's <code>Request</code> interface in your own project without touching Express's code.</p>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="cm">// express.d.ts (inside node_modules) — you can't edit this</span>
+<span class="kw">interface</span> <span class="ty">Request</span> {
+  body: <span class="kw">any</span>;
+  params: Record&lt;<span class="ty">string</span>, <span class="ty">string</span>&gt;;
+}
+
+<span class="cm">// Your project's custom.d.ts — merges with Express's declaration</span>
+<span class="kw">declare</span> <span class="kw">namespace</span> <span class="ty">Express</span> {
+  <span class="kw">interface</span> <span class="ty">Request</span> {
+    user?: <span class="ty">AuthenticatedUser</span>; <span class="cm">// added by your JWT middleware</span>
+  }
+}
+<span class="cm">// Now req.user is typed everywhere — no 'any' needed</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="t3-when-use">
+              <ul>
+                <li><strong>Augmenting Express's <code>Request</code> or <code>Response</code></strong> — Add custom properties like <code>user</code>, <code>tenant</code>, or <code>requestId</code> that your middleware attaches.</li>
+                <li><strong>Extending the global <code>Window</code> object</strong> — Add browser globals your script adds: <code>window.analytics</code>, <code>window.gtag</code>.</li>
+                <li><strong>Augmenting module types</strong> — Add missing properties to a poorly-typed third-party package via module augmentation.</li>
+                <li><strong>Incrementally building large interface definitions</strong> — Spread interface members across multiple files that logically own different concerns (rare in application code, but common in library code).</li>
+                <li><strong>Environment-specific additions</strong> — Different parts of your codebase add to <code>ProcessEnv</code> to type their specific environment variables.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="t3-when-not">
+              <ul>
+                <li><strong>For regular application code.</strong> Splitting one logical interface across multiple declarations in your own codebase is confusing. Use <code>extends</code> or just define it in one place.</li>
+                <li><strong>When you mean to extend, not merge.</strong> If you want a new type that builds on an existing one, use <code>extends</code>. Merging modifies the original interface for everyone — that's usually not what you want in application code.</li>
+                <li><strong>When using <code>type</code> aliases.</strong> <code>type</code> aliases cannot be merged. If you try to re-declare a <code>type</code>, TypeScript errors with "Duplicate identifier."</li>
+                <li><strong>When the property is already defined with a conflicting type.</strong> You cannot use merging to change an existing property's type — only to add new ones.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="t3-internals">
+              <h4>How the Compiler Merges</h4>
+              <p>When the TypeScript compiler encounters two interface declarations with the same name in the same scope, it treats them as one combined declaration. The merged interface has the union of all properties from both declarations. Rules:</p>
+              <ol>
+                <li><strong>Non-function members:</strong> Must be the same type in all declarations. If one says <code>name: string</code> and another says <code>name: number</code>, it's an error.</li>
+                <li><strong>Function members (method signatures):</strong> Stack into overloads. Later declarations appear first in the overload list (higher priority in resolution). This lets you add specialized overloads in your augmentation file.</li>
+                <li><strong>Order matters for methods:</strong> The last-declared interface's signatures resolve first — useful when you want a more specific signature to win.</li>
+              </ol>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="kw">interface</span> <span class="ty">Formatter</span> {
+  format(x: <span class="ty">number</span>): <span class="ty">string</span>;  <span class="cm">// first declaration</span>
+}
+<span class="kw">interface</span> <span class="ty">Formatter</span> {
+  format(x: <span class="ty">Date</span>): <span class="ty">string</span>;    <span class="cm">// second declaration — goes first in overloads</span>
+}
+
+<span class="cm">// Merged result (conceptually):</span>
+<span class="cm">// interface Formatter {</span>
+<span class="cm">//   format(x: Date): string;    ← second decl is first in overload list</span>
+<span class="cm">//   format(x: number): string;  ← first decl is second</span>
+<span class="cm">// }</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="t3-syntax">
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="cm">// ── Basic declaration merging ──────────────────────────────</span>
+<span class="kw">interface</span> <span class="ty">Config</span> {
+  host: <span class="ty">string</span>;
+  port: <span class="ty">number</span>;
+}
+<span class="cm">// Later in the same file, or in another file in the same scope:</span>
+<span class="kw">interface</span> <span class="ty">Config</span> {
+  timeout: <span class="ty">number</span>;    <span class="cm">// merged into Config — adds new property</span>
+  retries?: <span class="ty">number</span>;   <span class="cm">// optional property merged in</span>
+}
+
+<span class="cm">// Result: Config has host, port, timeout, retries</span>
+
+<span class="cm">// ── Module augmentation (augment a third-party module) ────</span>
+<span class="kw">declare</span> module <span class="str">'express-serve-static-core'</span> {
+<span class="cm">// ^^^^^^^ tell TS: "I'm augmenting this module's types"</span>
+  <span class="kw">interface</span> <span class="ty">Request</span> {
+    user?: <span class="ty">AuthenticatedUser</span>;
+    requestId: <span class="ty">string</span>;
+  }
+}
+
+<span class="cm">// ── Global augmentation (extend the global scope) ─────────</span>
+<span class="kw">declare</span> global {
+  <span class="kw">interface</span> <span class="ty">Window</span> {
+    analytics: <span class="ty">Analytics</span>;  <span class="cm">// window.analytics is now typed</span>
+  }
+  <span class="kw">namespace</span> NodeJS {
+    <span class="kw">interface</span> <span class="ty">ProcessEnv</span> {
+      DATABASE_URL: <span class="ty">string</span>; <span class="cm">// process.env.DATABASE_URL is now typed</span>
+      JWT_SECRET: <span class="ty">string</span>;
+    }
+  }
+}</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="t3-example">
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="cm">// Demonstrating declaration merging in one file</span>
+
+<span class="kw">interface</span> <span class="ty">ApiClient</span> {
+  baseUrl: <span class="ty">string</span>;
+  <span class="fn">get</span>(path: <span class="ty">string</span>): <span class="ty">Promise</span>&lt;<span class="kw">unknown</span>&gt;;
+}
+
+<span class="cm">// Later in the project, authentication is added</span>
+<span class="kw">interface</span> <span class="ty">ApiClient</span> {
+  authToken?: <span class="ty">string</span>;
+  <span class="fn">setAuthToken</span>(token: <span class="ty">string</span>): <span class="ty">void</span>;
+}
+
+<span class="cm">// Merged result — all 4 members are available</span>
+<span class="kw">const</span> client: <span class="ty">ApiClient</span> = {
+  baseUrl: <span class="str">'https://api.example.com'</span>,
+  <span class="kw">async</span> <span class="fn">get</span>(path) {
+    <span class="kw">const</span> res = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">`${this.baseUrl}${path}`</span>, {
+      headers: this.authToken
+        ? { Authorization: <span class="str">`Bearer ${this.authToken}`</span> }
+        : {},
+    });
+    <span class="kw">return</span> res.json();
+  },
+  <span class="fn">setAuthToken</span>(token) {
+    this.authToken = token;
+  },
+};
+
+client.<span class="fn">setAuthToken</span>(<span class="str">'my-jwt-token'</span>);
+console.log(<span class="kw">await</span> client.<span class="fn">get</span>(<span class="str">'/users'</span>));</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="t3-real-world">
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript — Express middleware type augmentation</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="cm">// src/types/express.d.ts — augments Express's Request type</span>
+
+<span class="kw">import</span> { User } <span class="kw">from</span> <span class="str">'../models/user'</span>;
+
+<span class="kw">declare</span> global {
+  <span class="kw">namespace</span> <span class="ty">Express</span> {
+    <span class="kw">interface</span> <span class="ty">Request</span> {
+      <span class="cm">// Added by authMiddleware — the authenticated user</span>
+      user?: <span class="ty">User</span>;
+      <span class="cm">// Added by requestIdMiddleware — a unique ID for tracing</span>
+      requestId: <span class="ty">string</span>;
+      <span class="cm">// Added by tenantMiddleware — multi-tenant apps</span>
+      tenantId?: <span class="ty">string</span>;
+    }
+  }
+}
+
+<span class="cm">// src/middleware/auth.ts</span>
+<span class="kw">import</span> { Request, Response, NextFunction } <span class="kw">from</span> <span class="str">'express'</span>;
+
+<span class="kw">export function</span> <span class="fn">authMiddleware</span>(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  <span class="kw">const</span> token = req.headers.authorization?.split(<span class="str">' '</span>)[<span class="num">1</span>];
+  <span class="kw">if</span> (!token) { res.<span class="fn">status</span>(<span class="num">401</span>).<span class="fn">json</span>({ error: <span class="str">'Unauthorized'</span> }); <span class="kw">return</span>; }
+
+  <span class="cm">// After verifying the token, TypeScript knows req.user exists</span>
+  req.user = <span class="fn">verifyToken</span>(token); <span class="cm">// no 'any' cast needed</span>
+  next();
+}
+
+<span class="cm">// src/routes/profile.ts</span>
+<span class="kw">router</span>.<span class="fn">get</span>(<span class="str">'/profile'</span>, authMiddleware, (req, res) =&gt; {
+  <span class="cm">// TypeScript knows req.user is User | undefined here</span>
+  <span class="kw">if</span> (!req.user) { res.<span class="fn">status</span>(<span class="num">401</span>).<span class="fn">json</span>({ error: <span class="str">'Not authenticated'</span> }); <span class="kw">return</span>; }
+  res.<span class="fn">json</span>({ name: req.user.name, email: req.user.email });
+});</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="t3-use-cases">
+              <ul>
+                <li><strong>Express request augmentation</strong> — Add <code>user</code>, <code>requestId</code>, <code>tenant</code> properties to Express's <code>Request</code> interface in a single <code>types/express.d.ts</code> file; all routes immediately get type-safe access.</li>
+                <li><strong>Environment variable typing</strong> — Augment <code>NodeJS.ProcessEnv</code> with your app's required env vars so <code>process.env.DATABASE_URL</code> is <code>string</code> instead of <code>string | undefined</code>.</li>
+                <li><strong>Browser global extension</strong> — Augment <code>Window</code> with analytics objects, feature flags, or A/B test config injected by your CDN.</li>
+                <li><strong>Third-party library stubs</strong> — A poorly-typed library returns <code>any</code> for a field; use module augmentation to add the correct type without a fork.</li>
+                <li><strong>Plugin systems</strong> — A core library defines a base <code>PluginConfig</code> interface; each plugin file merges its own config properties into it, giving a unified typed config object.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="t3-mistakes">
+              <h4>1. Trying to merge a type alias</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="kw">type</span> <span class="ty">Config</span> = { host: <span class="ty">string</span> };
+<span class="kw">type</span> <span class="ty">Config</span> = { port: <span class="ty">number</span> }; <span class="cm">// ERROR: Duplicate identifier 'Config'</span>
+
+<span class="cm">// CORRECT — use interface if you need merging</span>
+<span class="kw">interface</span> <span class="ty">Config</span> { host: <span class="ty">string</span>; }
+<span class="kw">interface</span> <span class="ty">Config</span> { port: <span class="ty">number</span>; } <span class="cm">// OK — merges</span></code></pre></div>
+
+              <h4>2. Forgetting the module augmentation syntax</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="cm">// WRONG — this creates a new LOCAL interface named Request,</span>
+<span class="cm">// it does NOT augment Express's Request</span>
+<span class="kw">interface</span> <span class="ty">Request</span> { user?: <span class="ty">User</span>; }
+
+<span class="cm">// CORRECT — use declare global with the namespace</span>
+<span class="kw">declare</span> global {
+  <span class="kw">namespace</span> <span class="ty">Express</span> {
+    <span class="kw">interface</span> <span class="ty">Request</span> { user?: <span class="ty">User</span>; }
+  }
+}</code></pre></div>
+
+              <h4>3. Trying to change an existing property's type via merging</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="kw">interface</span> <span class="ty">User</span> { role: <span class="ty">string</span>; }
+<span class="kw">interface</span> <span class="ty">User</span> { role: <span class="ty">number</span>; } <span class="cm">// ERROR: Subsequent property declarations must</span>
+                                   <span class="cm">// have the same type. Property 'role' must be</span>
+                                   <span class="cm">// of type 'string', but here has type 'number'.</span></code></pre></div>
+              <p>Declaration merging can only add new properties to an interface, not change existing ones.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="t3-best-practices">
+              <ol>
+                <li><strong>Use declaration merging only for augmenting external types.</strong> In your own application code, putting an interface in one place is always clearer than splitting it across files.</li>
+                <li><strong>Put all augmentations in a dedicated file.</strong> <code>src/types/express.d.ts</code>, <code>src/types/global.d.ts</code> — isolate augmentations so other developers know where to look.</li>
+                <li><strong>Always import the module in augmentation files.</strong> An augmentation file must contain at least one <code>import</code> to be treated as a module augmentation rather than a script-global declaration.</li>
+                <li><strong>Document why you're augmenting.</strong> Add a comment explaining which middleware adds the property — augmented types are invisible to consumers who don't know they exist.</li>
+                <li><strong>Use <code>declare global</code> for global augmentations, <code>declare module</code> for module augmentations.</strong> Mixing them up causes the augmentation to fail silently.</li>
+              </ol>
+            </div>
+
+            <div class="tab-pane" data-pane="t3-interview">
+              <div class="qa-block">
+                <div class="q">Q: What is declaration merging in TypeScript?<span class="diff easy">Easy</span></div>
+                <div class="a">When two or more interface declarations in TypeScript share the same name in the same scope, the compiler automatically combines them into a single interface containing all members from every declaration. This is called declaration merging. It works for interfaces (and namespaces) but not for <code>type</code> aliases.</div>
+              </div>
+              <div class="qa-block">
+                <div class="q">Q: Why can't you use declaration merging with type aliases?<span class="diff medium">Medium</span></div>
+                <div class="a">Type aliases are opaque references — they create a new name for an existing type and cannot be re-opened after declaration. Attempting to re-declare a type alias with the same name is a "Duplicate identifier" error. Interfaces, by design, are open-ended and meant to be augmented, which is why only they support merging.</div>
+              </div>
+              <div class="qa-block">
+                <div class="q">Q: How do you augment a third-party module's types using declaration merging?<span class="diff medium">Medium</span></div>
+                <div class="a">Use module augmentation: create a <code>.d.ts</code> file with <code>import</code> (to make it a module) and a <code>declare module 'package-name'</code> block containing the augmented interface. For global augmentation (like extending <code>Window</code> or <code>ProcessEnv</code>), use <code>declare global { ... }</code>. The file must be included in your TypeScript compilation for the augmentation to take effect.</div>
+              </div>
+              <div class="qa-block">
+                <div class="q">Q: What happens when two merged interface declarations both define the same method signature?<span class="diff hard">Hard</span></div>
+                <div class="a">Method signatures (functions) stack into overloads. The declaration that appears later in the file (or in a file loaded later) takes precedence — its signature is placed first in the overload list. This is intentional: augmentations added after the original declaration are treated as more specific and get tried first during overload resolution.</div>
+              </div>
+              <div class="qa-block">
+                <div class="q">Q: Give a concrete example where declaration merging is the only practical solution.<span class="diff hard">Hard</span></div>
+                <div class="a">Express's <code>Request</code> type doesn't know about your authentication middleware's <code>user</code> property. You can't modify Express's source or its declaration files in <code>node_modules</code>. Declaration merging via <code>declare global { namespace Express { interface Request { user?: User } } }</code> is the only way to add a typed <code>req.user</code> everywhere in your app without casting to <code>any</code>.</div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="t3-exercise">
+              <h4>Goal</h4>
+              <p>Use declaration merging to type custom environment variables and add a custom property to a <code>ServerConfig</code> interface incrementally.</p>
+              <h4>Requirements</h4>
+              <ul>
+                <li>Define a <code>ServerConfig</code> interface with <code>host</code> and <code>port</code></li>
+                <li>Using declaration merging, add <code>logLevel: 'debug' | 'info' | 'error'</code> to <code>ServerConfig</code> in a second declaration</li>
+                <li>Augment <code>NodeJS.ProcessEnv</code> to add <code>PORT</code> and <code>LOG_LEVEL</code> as typed strings</li>
+                <li>Write a function <code>buildConfig(): ServerConfig</code> that reads from <code>process.env</code></li>
+              </ul>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="cm">// First part of ServerConfig</span>
+<span class="kw">interface</span> <span class="ty">ServerConfig</span> {
+  host: <span class="ty">string</span>;
+  port: <span class="ty">number</span>;
+}
+
+<span class="cm">// TODO: Add logLevel to ServerConfig via merging</span>
+
+<span class="cm">// TODO: Augment NodeJS.ProcessEnv</span>
+<span class="kw">declare</span> global {
+  <span class="kw">namespace</span> NodeJS {
+    <span class="kw">interface</span> <span class="ty">ProcessEnv</span> {
+      <span class="cm">// TODO: add PORT and LOG_LEVEL</span>
+    }
+  }
+}
+
+<span class="cm">// TODO: Implement buildConfig()</span>
+<span class="kw">function</span> <span class="fn">buildConfig</span>(): <span class="ty">ServerConfig</span> {
+  <span class="cm">// Read from process.env — should be fully typed</span>
+}</code></pre></div>
+              <p><strong>Hint:</strong> Use <code>parseInt(process.env.PORT ?? '3000', 10)</code> for the port.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="t3-summary">
+              <ul>
+                <li>Declaration merging automatically combines multiple interface declarations with the same name into one.</li>
+                <li>It works only for <code>interface</code> (and namespaces) — <code>type</code> aliases cannot be merged.</li>
+                <li>Non-function properties must have the same type in all declarations; conflicting types cause compile errors.</li>
+                <li>Method signatures stack as overloads; later declarations get higher resolution priority.</li>
+                <li>The primary use case is augmenting third-party types without modifying their source.</li>
+                <li>In your own code, prefer <code>extends</code> or a single declaration over splitting an interface across files.</li>
+              </ul>
+              <div class="callout info"><p><strong>Mental model:</strong> Declaration merging is TypeScript's way of saying "an interface is a living contract — you can always add to it, even after it's been defined elsewhere."</p></div>
+            </div>
+
+          </div>
+        </details>
+
+        <!-- ─────────────── TOPIC 4: Interface vs Type ─────────────── -->
+        <details class="topic-panel" id="topic-vs-type">
+          <summary>
+            <span class="topic-name">Interface vs Type</span>
+            <span class="badge intermediate">Intermediate</span>
+            <span class="chevron">▶</span>
+          </summary>
+          <div class="panel-tabs">
+            <button class="tab active" data-tab="t4-definition">Definition</button>
+            <button class="tab" data-tab="t4-why-exists">Why It Exists</button>
+            <button class="tab" data-tab="t4-when-use">When to Use</button>
+            <button class="tab" data-tab="t4-when-not">When NOT to Use</button>
+            <button class="tab" data-tab="t4-internals">How It Works</button>
+            <button class="tab" data-tab="t4-syntax">Syntax</button>
+            <button class="tab" data-tab="t4-example">Example</button>
+            <button class="tab" data-tab="t4-real-world">Real-World</button>
+            <button class="tab" data-tab="t4-use-cases">Use Cases</button>
+            <button class="tab" data-tab="t4-mistakes">Mistakes</button>
+            <button class="tab" data-tab="t4-best-practices">Best Practices</button>
+            <button class="tab" data-tab="t4-interview">Interview Qs</button>
+            <button class="tab" data-tab="t4-exercise">Exercise</button>
+            <button class="tab" data-tab="t4-summary">Summary</button>
+          </div>
+          <div class="panel-content">
+
+            <div class="tab-pane active" data-pane="t4-definition">
+              <h4>Simple Explanation</h4>
+              <p>Both <code>interface</code> and <code>type</code> let you give a name to a shape or a type. Think of <code>interface</code> as a specialist for object shapes, and <code>type</code> as a generalist that can describe anything — unions, primitives, tuples, computed types — but with fewer object-shape superpowers.</p>
+              <h4>Technical Explanation</h4>
+              <p>An <code>interface</code> declaration creates a named object type that supports <code>extends</code> for structural inheritance and declaration merging for augmentation. A <code>type</code> alias assigns a name to any TypeScript type expression — including primitives, union types (<code>A | B</code>), intersection types (<code>A & B</code>), tuples, mapped types, conditional types, and template literal types. Type aliases cannot be re-opened after declaration; interfaces can. Both are fully erased from compiled JavaScript.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="t4-why-exists">
+              <h4>Why Both Exist</h4>
+              <p><code>interface</code> predates <code>type</code> aliases in TypeScript. It was the original way to describe object shapes and class contracts. As TypeScript grew more expressive, <code>type</code> aliases were added to handle the complex type manipulations (unions, mapped types, conditional types) that interfaces couldn't express. Today they overlap significantly for object shapes, which is the source of the "interface or type?" confusion.</p>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="cm">// These two are functionally equivalent for object shapes:</span>
+<span class="kw">interface</span> <span class="ty">UserI</span> { name: <span class="ty">string</span>; age: <span class="ty">number</span>; }
+<span class="kw">type</span> <span class="ty">UserT</span> = { name: <span class="ty">string</span>; age: <span class="ty">number</span>; };
+
+<span class="cm">// But only type can do these:</span>
+<span class="kw">type</span> <span class="ty">ID</span> = <span class="ty">string</span> | <span class="ty">number</span>;        <span class="cm">// union</span>
+<span class="kw">type</span> <span class="ty">Pair</span> = [<span class="ty">string</span>, <span class="ty">number</span>];      <span class="cm">// tuple</span>
+<span class="kw">type</span> <span class="ty">Callback</span> = () => <span class="ty">void</span>;       <span class="cm">// function alias</span>
+<span class="kw">type</span> <span class="ty">Keys</span> = <span class="kw">keyof</span> <span class="ty">UserT</span>;           <span class="cm">// computed type</span>
+
+<span class="cm">// And only interface can do this:</span>
+<span class="kw">interface</span> <span class="ty">UserI</span> { premium: <span class="ty">boolean</span>; }  <span class="cm">// declaration merging — adds to UserI</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="t4-when-use">
+              <h4>Use <code>interface</code> when…</h4>
+              <ul>
+                <li><strong>Defining object shapes that others will implement or extend</strong> — <code>interface IRepository</code> implemented by classes is idiomatic TypeScript.</li>
+                <li><strong>You need declaration merging</strong> — Augmenting third-party types requires interfaces.</li>
+                <li><strong>Modeling domain entities</strong> — <code>User</code>, <code>Product</code>, <code>Order</code> benefit from the structural clarity and extensibility of interfaces.</li>
+                <li><strong>React component props</strong> — Many React codebases use <code>interface ButtonProps</code> because it's easy to extend with <code>extends React.ButtonHTMLAttributes&lt;HTMLButtonElement&gt;</code>.</li>
+              </ul>
+              <h4>Use <code>type</code> when…</h4>
+              <ul>
+                <li><strong>Union types</strong> — <code>type Status = 'active' | 'inactive' | 'pending'</code></li>
+                <li><strong>Intersection types</strong> — <code>type AdminUser = User &amp; AdminPrivileges</code></li>
+                <li><strong>Tuple types</strong> — <code>type Point = [number, number]</code></li>
+                <li><strong>Conditional types</strong> — <code>type IsArray&lt;T&gt; = T extends unknown[] ? true : false</code></li>
+                <li><strong>Mapped types</strong> — <code>type Nullable&lt;T&gt; = { [K in keyof T]: T[K] | null }</code></li>
+                <li><strong>Template literal types</strong> — <code>type EventName = \`on${string}\`</code></li>
+                <li><strong>Utility type compositions</strong> — <code>type UpdateUser = Partial&lt;Omit&lt;User, 'id'&gt;&gt;</code></li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="t4-when-not">
+              <ul>
+                <li><strong>Don't use <code>interface</code> for unions.</strong> <code>interface Status</code> can't represent <code>'active' | 'inactive'</code>. That's literally a syntax error.</li>
+                <li><strong>Don't use <code>type</code> when you need merging.</strong> If you'll augment the type later (or let others augment it), it must be an interface.</li>
+                <li><strong>Don't force a choice based on dogma.</strong> Neither is universally "correct." Pick based on what you need: merging + extends → interface; union/mapped/conditional → type.</li>
+                <li><strong>Don't mix them randomly in the same codebase.</strong> Pick a convention and document it. Inconsistency confuses contributors.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="t4-internals">
+              <h4>Key Technical Differences</h4>
+              <table class="topics-table" style="margin-bottom:0.75rem">
+                <thead><tr><th>Feature</th><th>interface</th><th>type</th></tr></thead>
+                <tbody>
+                  <tr><td>Declaration merging</td><td>✅ Yes</td><td>❌ No</td></tr>
+                  <tr><td>Extends keyword</td><td>✅ Yes</td><td>❌ Use &amp; instead</td></tr>
+                  <tr><td>Implements in class</td><td>✅ Yes</td><td>✅ Yes (for object shapes)</td></tr>
+                  <tr><td>Union types</td><td>❌ No</td><td>✅ Yes</td></tr>
+                  <tr><td>Tuple types</td><td>❌ No</td><td>✅ Yes</td></tr>
+                  <tr><td>Conditional types</td><td>❌ No</td><td>✅ Yes</td></tr>
+                  <tr><td>Mapped types</td><td>❌ No</td><td>✅ Yes</td></tr>
+                  <tr><td>Recursive definitions</td><td>✅ Yes</td><td>✅ Yes (with caveats)</td></tr>
+                  <tr><td>Error messages</td><td>Shows interface name</td><td>Often expands inline</td></tr>
+                </tbody>
+              </table>
+              <h4>Error Message Quality</h4>
+              <p>One practical difference: when TypeScript reports a type error involving an interface, it typically shows the interface name (<code>Type 'X' is not assignable to type 'User'</code>). With type aliases, TypeScript sometimes expands the type inline, making error messages longer and harder to read. This matters in large codebases.</p>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="cm">// With interface — cleaner error</span>
+<span class="kw">interface</span> <span class="ty">User</span> { name: <span class="ty">string</span>; age: <span class="ty">number</span>; }
+<span class="cm">// Error: Argument of type '{}' is not assignable to parameter of type 'User'.</span>
+
+<span class="cm">// With type alias — error may expand the type</span>
+<span class="kw">type</span> <span class="ty">User</span> = { name: <span class="ty">string</span>; age: <span class="ty">number</span>; };
+<span class="cm">// Error: Argument of type '{}' is not assignable to parameter of</span>
+<span class="cm">// type '{ name: string; age: number; }'.</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="t4-syntax">
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="cm">// ── Object shapes — equivalent for basic use ──────────────────────</span>
+<span class="kw">interface</span> <span class="ty">UserInterface</span> { name: <span class="ty">string</span>; age: <span class="ty">number</span>; }
+<span class="kw">type</span>      <span class="ty">UserType</span>      = { name: <span class="ty">string</span>; age: <span class="ty">number</span>; };
+<span class="cm">//         ^^^^^^^^  type alias always uses = assignment syntax</span>
+
+<span class="cm">// ── Extension comparison ──────────────────────────────────────────</span>
+<span class="kw">interface</span> <span class="ty">AdminI</span> <span class="kw">extends</span> <span class="ty">UserInterface</span> { role: <span class="ty">string</span>; }
+<span class="kw">type</span>      <span class="ty">AdminT</span> = <span class="ty">UserType</span> <span class="op">&</span> { role: <span class="ty">string</span>; };
+<span class="cm">//                          ^ intersection — same result, different syntax</span>
+
+<span class="cm">// ── Things only type can express ─────────────────────────────────</span>
+<span class="kw">type</span> <span class="ty">Status</span>   = <span class="str">'active'</span> | <span class="str">'inactive'</span>;      <span class="cm">// union</span>
+<span class="kw">type</span> <span class="ty">Nullable</span> = <span class="ty">string</span> | <span class="kw">null</span>;              <span class="cm">// nullable</span>
+<span class="kw">type</span> <span class="ty">Coords</span>   = [<span class="ty">number</span>, <span class="ty">number</span>];           <span class="cm">// tuple</span>
+<span class="kw">type</span> <span class="ty">Handler</span>  = (event: MouseEvent) => <span class="ty">void</span>; <span class="cm">// function signature</span>
+<span class="kw">type</span> <span class="ty">Keys</span>     = <span class="kw">keyof</span> <span class="ty">UserType</span>;             <span class="cm">// computed</span>
+
+<span class="cm">// ── Things only interface can do ─────────────────────────────────</span>
+<span class="kw">interface</span> <span class="ty">UserInterface</span> { premium: <span class="ty">boolean</span>; } <span class="cm">// merges with earlier decl</span>
+
+<span class="cm">// ── Both support recursive types ─────────────────────────────────</span>
+<span class="kw">interface</span> <span class="ty">TreeNodeI</span> { value: <span class="ty">number</span>; children: <span class="ty">TreeNodeI</span>[]; }
+<span class="kw">type</span>      <span class="ty">TreeNodeT</span> = { value: <span class="ty">number</span>; children: <span class="ty">TreeNodeT</span>[]; };</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="t4-example">
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="cm">// Demonstrating when to use each in practice</span>
+
+<span class="cm">// Interface — object shapes that will be extended</span>
+<span class="kw">interface</span> <span class="ty">Product</span> {
+  id: <span class="ty">string</span>;
+  name: <span class="ty">string</span>;
+  price: <span class="ty">number</span>;
+}
+
+<span class="kw">interface</span> <span class="ty">DigitalProduct</span> <span class="kw">extends</span> <span class="ty">Product</span> {
+  downloadUrl: <span class="ty">string</span>;
+  fileSize: <span class="ty">number</span>;
+}
+
+<span class="cm">// Type — unions and computed types</span>
+<span class="kw">type</span> <span class="ty">ProductStatus</span> = <span class="str">'draft'</span> | <span class="str">'active'</span> | <span class="str">'archived'</span>;
+
+<span class="kw">type</span> <span class="ty">ProductWithStatus</span> = <span class="ty">Product</span> & { status: <span class="ty">ProductStatus</span> };
+
+<span class="kw">type</span> <span class="ty">UpdateProductInput</span> = Partial&lt;Omit&lt;<span class="ty">Product</span>, <span class="str">'id'</span>&gt;&gt;;
+<span class="cm">//   ^^^^^^^^^^^^^^^^^^^  utility type composition — impossible with interface</span>
+
+<span class="cm">// Both work the same for function parameters</span>
+<span class="kw">function</span> <span class="fn">updateProduct</span>(id: <span class="ty">string</span>, updates: <span class="ty">UpdateProductInput</span>): <span class="ty">Product</span> {
+  <span class="cm">// TypeScript knows updates can have name and/or price but not id</span>
+  console.log(<span class="str">`Updating ${id} with`</span>, updates);
+  <span class="kw">return</span> { id, name: <span class="str">'Updated'</span>, price: <span class="num">0</span>, ...updates };
+}
+
+<span class="fn">updateProduct</span>(<span class="str">'prod_1'</span>, { name: <span class="str">'New Name'</span> });       <span class="cm">// OK</span>
+<span class="fn">updateProduct</span>(<span class="str">'prod_1'</span>, { id: <span class="str">'new-id'</span> });          <span class="cm">// ERROR — id is excluded</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="t4-real-world">
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript — Mixed interface and type in a real service</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="cm">// Domain interfaces — will be extended and implemented by classes</span>
+<span class="kw">interface</span> <span class="ty">UserRepository</span> {
+  <span class="fn">findById</span>(id: <span class="ty">string</span>): <span class="ty">Promise</span>&lt;<span class="ty">User</span> | <span class="kw">null</span>&gt;;
+  <span class="fn">findByEmail</span>(email: <span class="ty">string</span>): <span class="ty">Promise</span>&lt;<span class="ty">User</span> | <span class="kw">null</span>&gt;;
+  <span class="fn">create</span>(data: <span class="ty">CreateUserInput</span>): <span class="ty">Promise</span>&lt;<span class="ty">User</span>&gt;;
+  <span class="fn">update</span>(id: <span class="ty">string</span>, data: <span class="ty">UpdateUserInput</span>): <span class="ty">Promise</span>&lt;<span class="ty">User</span>&gt;;
+  <span class="fn">delete</span>(id: <span class="ty">string</span>): <span class="ty">Promise</span>&lt;<span class="ty">void</span>&gt;;
+}
+
+<span class="kw">interface</span> <span class="ty">User</span> {
+  <span class="kw">readonly</span> id: <span class="ty">string</span>;
+  email: <span class="ty">string</span>;
+  displayName: <span class="ty">string</span>;
+  role: <span class="ty">UserRole</span>;
+  <span class="kw">readonly</span> createdAt: <span class="ty">Date</span>;
+}
+
+<span class="cm">// Types — unions, utility compositions</span>
+<span class="kw">type</span> <span class="ty">UserRole</span> = <span class="str">'admin'</span> | <span class="str">'editor'</span> | <span class="str">'viewer'</span>;
+
+<span class="kw">type</span> <span class="ty">CreateUserInput</span> = Omit&lt;<span class="ty">User</span>, <span class="str">'id'</span> | <span class="str">'createdAt'</span>&gt;;
+<span class="kw">type</span> <span class="ty">UpdateUserInput</span> = Partial&lt;Omit&lt;<span class="ty">User</span>, <span class="str">'id'</span> | <span class="str">'createdAt'</span>&gt;&gt;;
+
+<span class="kw">type</span> <span class="ty">UserSortField</span> = <span class="kw">keyof</span> Pick&lt;<span class="ty">User</span>, <span class="str">'email'</span> | <span class="str">'displayName'</span> | <span class="str">'createdAt'</span>&gt;;
+
+<span class="cm">// Class implements the interface — clearly contractual</span>
+<span class="kw">class</span> <span class="ty">DrizzleUserRepository</span> <span class="kw">implements</span> <span class="ty">UserRepository</span> {
+  <span class="kw">async</span> <span class="fn">findById</span>(id: <span class="ty">string</span>) { <span class="cm">/* ... */</span> <span class="kw">return</span> <span class="kw">null</span>; }
+  <span class="kw">async</span> <span class="fn">findByEmail</span>(email: <span class="ty">string</span>) { <span class="cm">/* ... */</span> <span class="kw">return</span> <span class="kw">null</span>; }
+  <span class="kw">async</span> <span class="fn">create</span>(data: <span class="ty">CreateUserInput</span>) { <span class="cm">/* ... */</span> <span class="kw">return</span> {} <span class="kw">as</span> <span class="ty">User</span>; }
+  <span class="kw">async</span> <span class="fn">update</span>(id: <span class="ty">string</span>, data: <span class="ty">UpdateUserInput</span>) { <span class="cm">/* ... */</span> <span class="kw">return</span> {} <span class="kw">as</span> <span class="ty">User</span>; }
+  <span class="kw">async</span> <span class="fn">delete</span>(id: <span class="ty">string</span>) { <span class="cm">/* ... */</span> }
+}</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="t4-use-cases">
+              <ul>
+                <li><strong>Interface for service contracts</strong> — <code>interface IEmailService</code> implemented by both a real SMTP service and a mock for tests; the consuming code only knows about the interface.</li>
+                <li><strong>Type for API response discriminated unions</strong> — <code>type ApiResult&lt;T&gt; = { ok: true; data: T } | { ok: false; error: string }</code> — impossible to express as an interface.</li>
+                <li><strong>Interface for React component props</strong> — <code>interface TableProps extends React.HTMLAttributes&lt;HTMLTableElement&gt;</code> — the <code>extends</code> gives consumers all native HTML table attributes for free.</li>
+                <li><strong>Type for Zod schema inference</strong> — <code>type CreateProductInput = z.infer&lt;typeof createProductSchema&gt;</code> — the type is derived, not hand-written.</li>
+                <li><strong>Interface for class-based dependency injection</strong> — <code>interface ILogger</code> injected into constructors; classes implement it; tests inject a spy implementation.</li>
+                <li><strong>Type for state machine states</strong> — <code>type OrderState = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'</code> — a pure union is perfect.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="t4-mistakes">
+              <h4>1. Using interface for everything including unions</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="cm">// WRONG — interface can't express a union type</span>
+<span class="kw">interface</span> <span class="ty">StringOrNumber</span> = <span class="ty">string</span> | <span class="ty">number</span>; <span class="cm">// SYNTAX ERROR</span>
+
+<span class="cm">// CORRECT</span>
+<span class="kw">type</span> <span class="ty">StringOrNumber</span> = <span class="ty">string</span> | <span class="ty">number</span>;</code></pre></div>
+
+              <h4>2. Using type for something that needs merging</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="cm">// WRONG — type aliases can't be merged</span>
+<span class="kw">type</span> <span class="ty">Config</span> = { host: <span class="ty">string</span> };
+<span class="kw">type</span> <span class="ty">Config</span> = { port: <span class="ty">number</span> }; <span class="cm">// ERROR: Duplicate identifier 'Config'</span>
+
+<span class="cm">// CORRECT — use interface when you need to augment</span>
+<span class="kw">interface</span> <span class="ty">Config</span> { host: <span class="ty">string</span>; }
+<span class="kw">interface</span> <span class="ty">Config</span> { port: <span class="ty">number</span>; } <span class="cm">// Merges — OK</span></code></pre></div>
+
+              <h4>3. Assuming intersection equals extension</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="kw">interface</span> <span class="ty">A</span> { x: <span class="ty">number</span>; }
+<span class="kw">interface</span> <span class="ty">B</span> { x: <span class="ty">string</span>; }
+
+<span class="cm">// Intersection of conflicting types creates `never` for the property</span>
+<span class="kw">type</span> <span class="ty">AB</span> = <span class="ty">A</span> & <span class="ty">B</span>;
+<span class="cm">// AB.x is `never` — you can never satisfy it</span>
+<span class="cm">// Interface extension would have caught this at declaration time</span>
+<span class="kw">interface</span> <span class="ty">AB2</span> <span class="kw">extends</span> <span class="ty">A</span>, <span class="ty">B</span> {} <span class="cm">// ERROR at declaration — safer</span></code></pre></div>
+              <p>Intersection silently creates unusable <code>never</code> types for conflicting properties; interface extension errors loudly at the declaration site.</p>
+
+              <h4>4. Cargo-culting one over the other</h4>
+              <p>Some teams pick "always interface" or "always type" without understanding why. The result is either interfaces used for unions (syntax errors) or types used for everything that loses error message quality and merging capability. Pick based on need, not habit.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="t4-best-practices">
+              <ol>
+                <li><strong>Default to <code>interface</code> for object shapes.</strong> The TypeScript team recommends <code>interface</code> for objects because it produces better error messages and supports merging. Reserve <code>type</code> for what interfaces can't do.</li>
+                <li><strong>Use <code>type</code> for unions, intersections, tuples, and utility type compositions.</strong> These are non-negotiable — interfaces can't express them.</li>
+                <li><strong>Pick a convention for your team and document it in the style guide.</strong> Inconsistency is more costly than either choice. Many teams use: interface for public API shapes; type for internal computed types.</li>
+                <li><strong>Prefer <code>interface extends</code> over <code>type &amp;</code> for structural inheritance.</strong> Extension errors at declaration time; intersection silently creates <code>never</code> on conflicts.</li>
+                <li><strong>Don't refactor working code just to switch between them.</strong> If existing code uses <code>type</code> for object shapes and it works, leave it. The difference rarely matters enough to justify a refactor.</li>
+                <li><strong>Use <code>type</code> for inferred types from Zod/Prisma/tRPC.</strong> <code>type CreateInput = z.infer&lt;typeof schema&gt;</code> — the type is computed, not authored.</li>
+              </ol>
+            </div>
+
+            <div class="tab-pane" data-pane="t4-interview">
+              <div class="qa-block">
+                <div class="q">Q: What is the main difference between <code>interface</code> and <code>type</code> in TypeScript?<span class="diff easy">Easy</span></div>
+                <div class="a">The key differences are: interfaces support declaration merging (you can add properties by re-declaring the interface) while type aliases cannot be re-declared; interfaces use <code>extends</code> for inheritance while types use <code>&amp;</code> for intersection; and type aliases can represent any type expression (unions, tuples, primitives, conditional types) while interfaces are restricted to object shapes. For object shapes, they are functionally equivalent in most cases.</div>
+              </div>
+              <div class="qa-block">
+                <div class="q">Q: Can a class implement a <code>type</code> alias? Can it implement a union type?<span class="diff medium">Medium</span></div>
+                <div class="a">A class can implement a <code>type</code> alias if that alias describes an object shape (not a union). <code>class Foo implements Bar</code> works whether <code>Bar</code> is an interface or an object type alias. However, a class <em>cannot</em> implement a union type — <code>class Foo implements A | B</code> is a compile error, because the class would have to satisfy all possible branches simultaneously, which is undefined behavior.</div>
+              </div>
+              <div class="qa-block">
+                <div class="q">Q: When would you choose <code>type</code> over <code>interface</code> for an object shape?<span class="diff medium">Medium</span></div>
+                <div class="a">Choose <code>type</code> for an object shape when: (1) you derived the type using utility types (<code>Partial&lt;User&gt;</code>, <code>Omit&lt;User, 'id'&gt;</code>) — these are type expressions, not independent declarations; (2) you infer the type from a Zod schema or ORM query — <code>type T = z.infer&lt;...&gt;</code>; or (3) you want to create an intersection of existing types. In all other cases, interface is the community-recommended default for object shapes.</div>
+              </div>
+              <div class="qa-block">
+                <div class="q">Q: Why do type intersections with conflicting properties produce <code>never</code> while interface extension errors at declaration?<span class="diff hard">Hard</span></div>
+                <div class="a">Interface extension validates the constraint at the <em>declaration site</em> — it's a structural rule check that runs when you write the type definition. Type intersection is evaluated at the <em>usage site</em> — the resulting type for a conflicting property is the intersection of the two types (e.g., <code>string &amp; number</code>), which is <code>never</code> since no value can be both. This means intersection type bugs can hide in your code until you try to assign a value, whereas interface extension surfaces them immediately.</div>
+              </div>
+              <div class="qa-block">
+                <div class="q">Q: The TypeScript official docs recommend <code>interface</code> over <code>type</code>. Do you agree? When might you disagree?<span class="diff hard">Hard</span></div>
+                <div class="a">The recommendation makes sense as a default because interfaces produce cleaner error messages, support augmentation, and signal "this is a public contract." However, I'd disagree in these cases: when using utility type compositions (<code>Partial</code>, <code>Pick</code>, <code>Omit</code>) you must use <code>type</code>; when working with discriminated unions or state machines, <code>type</code> is the only option; and when inferring types from schema validators or ORMs, <code>type</code> is natural. The real answer is: use the right tool for the shape of the problem, not a blanket rule.</div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="t4-exercise">
+              <h4>Goal</h4>
+              <p>Build a type system for a notification service that showcases when to use each construct.</p>
+              <h4>Requirements</h4>
+              <ul>
+                <li>Create a <code>type NotificationChannel</code> as a union: <code>'email' | 'sms' | 'push'</code></li>
+                <li>Create an <code>interface BaseNotification</code> with <code>id</code>, <code>title</code>, <code>createdAt</code>, <code>channel</code> (using the union type)</li>
+                <li>Create an <code>interface EmailNotification extends BaseNotification</code> adding <code>toEmail</code> and <code>subject</code></li>
+                <li>Create a <code>type AnyNotification</code> as a union of all notification types</li>
+                <li>Create a <code>type NotificationSummary</code> using <code>Pick</code> to select only <code>id</code>, <code>title</code>, and <code>channel</code></li>
+                <li>Write a <code>summarize(n: AnyNotification): NotificationSummary</code> function</li>
+              </ul>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="cm">// TODO: Define NotificationChannel as a type union</span>
+
+<span class="cm">// TODO: Define BaseNotification interface</span>
+
+<span class="cm">// TODO: Define EmailNotification interface extending BaseNotification</span>
+
+<span class="cm">// TODO: Define SmsNotification interface (add phoneNumber)</span>
+
+<span class="cm">// TODO: Define AnyNotification as a union type</span>
+
+<span class="cm">// TODO: Define NotificationSummary using Pick</span>
+
+<span class="cm">// TODO: Implement summarize(n: AnyNotification): NotificationSummary</span></code></pre></div>
+              <p><strong>Hint:</strong> Use <code>Pick&lt;BaseNotification, 'id' | 'title' | 'channel'&gt;</code> for <code>NotificationSummary</code>.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="t4-summary">
+              <ul>
+                <li>Both <code>interface</code> and <code>type</code> can describe object shapes — they're equivalent for basic use.</li>
+                <li><strong>interface</strong> supports declaration merging and <code>extends</code>; best for object contracts and class hierarchies.</li>
+                <li><strong>type</strong> supports unions, tuples, mapped types, conditional types, and utility type compositions; best for computed and complex types.</li>
+                <li>Interface extension catches property conflicts at declaration time; type intersection silently creates <code>never</code>.</li>
+                <li>The TypeScript team recommends <code>interface</code> as the default for object shapes — use <code>type</code> when interface genuinely can't express what you need.</li>
+                <li>Pick a team convention, document it, and stay consistent — the choice matters far less than the consistency.</li>
+              </ul>
+              <div class="callout info"><p><strong>Mental model:</strong> <code>interface</code> is a specialist surgeon — best at object shapes, surgical with inheritance and augmentation. <code>type</code> is a generalist doctor — can handle anything, but sometimes less precise when it comes to object-specific concerns.</p></div>
+            </div>
+
+          </div>
+        </details>
+
+      </div><!-- end .topic-panels -->
+
+      <!-- ══════════════════════════════════════════════ MINI PROJECT -->
+      <div class="mini-project">
+        <div class="project-label">Module 1 Mini-Project</div>
+        <h3>E-commerce Product Catalog</h3>
+        <h4>What You'll Build</h4>
+        <ul>
+          <li>A fully typed catalog system with products, categories, and reviews</li>
+          <li>A base entity interface extended by all domain models</li>
+          <li>A search function that filters products by multiple criteria</li>
+          <li>A cart system with typed add/remove operations</li>
+          <li>Module augmentation to add a custom <code>catalog</code> namespace to <code>globalThis</code></li>
+        </ul>
+        <h4>TypeScript Concepts Used</h4>
+        <ul>
+          <li><strong>Interfaces</strong> — Product, Category, Review, Cart, CartItem</li>
+          <li><strong>Interface Extension</strong> — Product and Category both extend BaseEntity</li>
+          <li><strong>Declaration Merging</strong> — Augment global <code>Window</code> with a <code>catalog</code> object</li>
+          <li><strong>Interface vs Type</strong> — Use <code>type</code> for unions (SortOrder, ProductStatus) and <code>interface</code> for entities</li>
+        </ul>
+        <h4>Architecture</h4>
+        <div class="code-block"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code">BaseEntity (interface)
+  ├── Product (interface extends BaseEntity)
+  │     ├── DigitalProduct (interface extends Product)
+  │     └── PhysicalProduct (interface extends Product)
+  └── Category (interface extends BaseEntity)
+
+Review (interface — no extension needed)
+Cart (interface)
+  └── CartItem (interface — has Product reference)
+
+ProductStatus (type — union)
+SortOrder (type — union)
+SearchFilters (type — utility composition)</code></pre></div>
+        <h4>Starter Code</h4>
+        <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div>
+<pre><code class="ts-code"><span class="cm">// catalog.ts — E-commerce Product Catalog</span>
+<span class="cm">// Practice: interfaces, extension, declaration merging, interface vs type</span>
+
+<span class="cm">// ── Base entity ───────────────────────────────────────────────────</span>
+<span class="kw">interface</span> <span class="ty">BaseEntity</span> {
+  <span class="kw">readonly</span> id: <span class="ty">string</span>;
+  <span class="kw">readonly</span> createdAt: <span class="ty">Date</span>;
+  updatedAt: <span class="ty">Date</span>;
+}
+
+<span class="cm">// ── Types (unions — can't use interface) ──────────────────────────</span>
+<span class="kw">type</span> <span class="ty">ProductStatus</span> = <span class="str">'draft'</span> | <span class="str">'active'</span> | <span class="str">'archived'</span>;
+<span class="kw">type</span> <span class="ty">SortOrder</span> = <span class="str">'price-asc'</span> | <span class="str">'price-desc'</span> | <span class="str">'newest'</span> | <span class="str">'rating'</span>;
+
+<span class="cm">// ── TODO: Define Category interface extending BaseEntity</span>
+<span class="cm">// Fields: name, slug, description?, parentId?</span>
+
+<span class="cm">// ── TODO: Define Product interface extending BaseEntity</span>
+<span class="cm">// Fields: name, slug, description, priceInCents, status, categoryId,</span>
+<span class="cm">//         images (string[]), rating?, reviewCount, tags</span>
+
+<span class="cm">// ── TODO: Define DigitalProduct extending Product</span>
+<span class="cm">// Fields: downloadUrl, fileSizeBytes, licenseType</span>
+
+<span class="cm">// ── TODO: Define PhysicalProduct extending Product</span>
+<span class="cm">// Fields: weightGrams, dimensions { width, height, depth }, stock</span>
+
+<span class="cm">// ── TODO: Define Review interface (no extension needed)</span>
+<span class="cm">// Fields: id, productId, userId, rating (1-5), comment, createdAt</span>
+
+<span class="cm">// ── TODO: Define CartItem interface</span>
+<span class="cm">// Fields: product (Product), quantity, addedAt (Date)</span>
+
+<span class="cm">// ── TODO: Define Cart interface</span>
+<span class="cm">// Fields: id, userId?, items (CartItem[]), updatedAt</span>
+
+<span class="cm">// ── TODO: Define SearchFilters type using Partial + Pick</span>
+<span class="cm">// Allow filtering by: categoryId, status, minPrice, maxPrice, tags</span>
+
+<span class="cm">// ── TODO: Augment Window with a catalog namespace</span>
+<span class="kw">declare</span> global {
+  <span class="kw">interface</span> <span class="ty">Window</span> {
+    <span class="cm">// catalog: { version: string; products: Product[] }</span>
+  }
+}
+
+<span class="cm">// ── TODO: Implement searchProducts(products: Product[], filters: SearchFilters): Product[]</span>
+
+<span class="cm">// ── TODO: Implement addToCart(cart: Cart, product: Product, qty: number): Cart</span>
+
+<span class="cm">// ── Test data ─────────────────────────────────────────────────────</span>
+<span class="kw">const</span> sampleProduct: <span class="ty">PhysicalProduct</span> = {
+  id: <span class="str">'prod_001'</span>,
+  createdAt: <span class="kw">new</span> Date(<span class="str">'2024-01-01'</span>),
+  updatedAt: <span class="kw">new</span> Date(),
+  name: <span class="str">'TypeScript Handbook (Hardcover)'</span>,
+  slug: <span class="str">'typescript-handbook-hardcover'</span>,
+  description: <span class="str">'The definitive guide to TypeScript'</span>,
+  priceInCents: <span class="num">3999</span>,
+  status: <span class="str">'active'</span>,
+  categoryId: <span class="str">'cat_books'</span>,
+  images: [<span class="str">'/images/ts-book.jpg'</span>],
+  rating: <span class="num">4.8</span>,
+  reviewCount: <span class="num">142</span>,
+  tags: [<span class="str">'typescript'</span>, <span class="str">'programming'</span>, <span class="str">'book'</span>],
+  weightGrams: <span class="num">450</span>,
+  dimensions: { width: <span class="num">15</span>, height: <span class="num">23</span>, depth: <span class="num">2.5</span> },
+  stock: <span class="num">50</span>,
+};</code></pre></div>
+        <h4>Step-by-Step Instructions</h4>
+        <ol>
+          <li>Define all interfaces starting from <code>BaseEntity</code> and work outward</li>
+          <li>Define the <code>type</code> aliases for unions (<code>ProductStatus</code>, <code>SortOrder</code>)</li>
+          <li>Use <code>Partial&lt;Pick&lt;Product, ...&gt;&gt;</code> for <code>SearchFilters</code></li>
+          <li>Implement <code>searchProducts</code> using <code>Array.filter</code> and optional chaining</li>
+          <li>Implement <code>addToCart</code> — if the product is already in the cart, increment quantity; otherwise push a new <code>CartItem</code></li>
+          <li>Add the <code>Window</code> augmentation and verify <code>window.catalog.products</code> is typed</li>
+        </ol>
+        <h4>Stretch Goals</h4>
+        <ul>
+          <li>Add a <code>sortProducts(products: Product[], order: SortOrder): Product[]</code> function</li>
+          <li>Create a <code>type ProductSummary = Pick&lt;Product, 'id' | 'name' | 'priceInCents' | 'rating'&gt;</code> and a <code>toSummary</code> mapper</li>
+          <li>Add an <code>interface Discount</code> and merge it into <code>Product</code> using declaration merging to simulate a plugin that adds discount support</li>
+        </ul>
+      </div>
+
+    </section>
+
+  </main>
+</div>
+
+<button id="back-to-top" aria-label="Back to top">↑</button>
+
+<script>
+  // ── Progress bar ──────────────────────────────────────────────────
+  const progressBar = document.getElementById('progress-bar');
+  function updateProgress() {
+    const docH = document.documentElement.scrollHeight - window.innerHeight;
+    progressBar.style.width = docH > 0 ? (window.scrollY / docH * 100) + '%' : '0%';
+  }
+  window.addEventListener('scroll', updateProgress, { passive: true });
+
+  // ── Back to top ───────────────────────────────────────────────────
+  const backBtn = document.getElementById('back-to-top');
+  window.addEventListener('scroll', () => {
+    backBtn.classList.toggle('visible', window.scrollY > 400);
+  }, { passive: true });
+  backBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+  // ── Tab switching ─────────────────────────────────────────────────
+  document.querySelectorAll('.panel-tabs').forEach(tabBar => {
+    tabBar.addEventListener('click', e => {
+      const btn = e.target.closest('.tab');
+      if (!btn) return;
+      const panel = btn.closest('.topic-panel');
+      const tabName = btn.dataset.tab;
+      panel.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+      panel.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.dataset.pane === tabName));
+    });
+  });
+
+  // ── Copy buttons ──────────────────────────────────────────────────
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.copy-btn');
+    if (!btn) return;
+    const code = btn.closest('.code-block').querySelector('code');
+    navigator.clipboard.writeText(code.innerText).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+    });
+  });
+
+  // ── Module checkboxes ─────────────────────────────────────────────
+  document.querySelectorAll('.module-check').forEach(cb => {
+    const id = cb.dataset.id;
+    if (localStorage.getItem('ts-phase2-' + id) === 'done') {
+      cb.checked = true;
+      cb.closest('.module').classList.add('completed');
+    }
+    cb.addEventListener('change', () => {
+      cb.closest('.module').classList.toggle('completed', cb.checked);
+      localStorage.setItem('ts-phase2-' + id, cb.checked ? 'done' : '');
+    });
+  });
+
+  // ── Topic search ──────────────────────────────────────────────────
+  document.getElementById('topicSearch').addEventListener('input', e => {
+    const q = e.target.value.toLowerCase();
+    document.querySelectorAll('.topic-panel').forEach(panel => {
+      const name = panel.querySelector('.topic-name').textContent.toLowerCase();
+      panel.style.display = name.includes(q) ? '' : 'none';
+    });
+  });
+
+  // ── Smooth scroll sidebar links ───────────────────────────────────
+  document.querySelectorAll('#sidebar a').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  // ── Scroll-spy ────────────────────────────────────────────────────
+  const navLinks = document.querySelectorAll('#module-nav > li > a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + entry.target.id));
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  document.querySelectorAll('.module').forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
