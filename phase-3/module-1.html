@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phase 3 — Module 1: Classes | TypeScript Learning Path</title>
+  <style>
+    :root {
+      --bg: #0f1117; --bg-card: #1a1f2e; --bg-code: #1e2433;
+      --border: #2d3748; --text: #e2e8f0; --text-muted: #94a3b8;
+      --accent: #3b82f6; --accent-hover: #2563eb;
+      --success: #10b981; --warning: #f59e0b; --error: #ef4444;
+      --sidebar-width: 260px; --header-height: 56px; --radius: 8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 15px; line-height: 1.7; }
+    #progress-bar { position: fixed; top: var(--header-height); left: 0; height: 3px; background: var(--accent); width: 0%; z-index: 1000; transition: width 0.1s; }
+    #site-header { position: fixed; top: 0; left: 0; right: 0; height: var(--header-height); background: rgba(15,17,23,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 24px; gap: 12px; z-index: 999; }
+    #site-header h1 { font-size: 18px; font-weight: 600; }
+    .phase-badge { padding: 2px 10px; background: var(--accent); border-radius: 20px; font-size: 12px; font-weight: 600; }
+    #layout { display: flex; margin-top: var(--header-height); min-height: calc(100vh - var(--header-height)); }
+    #sidebar { position: fixed; top: var(--header-height); left: 0; width: var(--sidebar-width); height: calc(100vh - var(--header-height)); overflow-y: auto; background: var(--bg-card); border-right: 1px solid var(--border); padding: 20px 16px; }
+    #topicSearch { width: 100%; padding: 8px 12px; background: var(--bg-code); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-size: 13px; margin-bottom: 16px; outline: none; }
+    #topicSearch:focus { border-color: var(--accent); }
+    .nav-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); padding: 4px 12px 8px; margin-top: 12px; }
+    #module-nav { list-style: none; }
+    #module-nav li a, #topic-nav li a { display: block; padding: 8px 12px; color: var(--text-muted); text-decoration: none; border-radius: var(--radius); font-size: 13px; transition: all .2s; }
+    #topic-nav { list-style: none; }
+    #module-nav li a:hover, #module-nav li a.active, #topic-nav li a:hover, #topic-nav li a.active { background: rgba(59,130,246,.15); color: var(--accent); }
+    #content { margin-left: var(--sidebar-width); padding: 32px 40px; max-width: 900px; flex: 1; }
+    .module { margin-bottom: 60px; }
+    .module-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid var(--border); flex-wrap: wrap; }
+    .module-header h2 { font-size: 24px; font-weight: 700; }
+    .module-check { width: 18px; height: 18px; accent-color: var(--success); cursor: pointer; }
+    .module-header.completed h2 { text-decoration: line-through; color: var(--text-muted); }
+    .completed-label { font-size: 12px; font-weight: 600; color: var(--success); display: none; }
+    .module-header.completed .completed-label { display: inline; }
+    .module-intro { color: var(--text-muted); margin-bottom: 24px; font-size: 15px; line-height: 1.8; }
+    .topics-table { width: 100%; border-collapse: collapse; margin-bottom: 32px; font-size: 14px; }
+    .topics-table th { text-align: left; padding: 10px 14px; background: var(--bg-code); color: var(--text-muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; border-bottom: 2px solid var(--border); }
+    .topics-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .topics-table tr:hover td { background: rgba(59,130,246,.05); }
+    .badge { padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+    .badge.beginner { background: rgba(16,185,129,.2); color: var(--success); }
+    .badge.intermediate { background: rgba(245,158,11,.2); color: var(--warning); }
+    .badge.advanced { background: rgba(239,68,68,.2); color: var(--error); }
+    .topic-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 12px; overflow: hidden; }
+    .topic-panel summary { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; cursor: pointer; list-style: none; user-select: none; transition: background .2s; }
+    .topic-panel summary:hover { background: rgba(59,130,246,.08); }
+    .topic-panel[open] summary { background: rgba(59,130,246,.1); border-bottom: 1px solid var(--border); }
+    .topic-panel summary::marker, .topic-panel summary::-webkit-details-marker { display: none; }
+    .summary-left { display: flex; align-items: center; gap: 10px; }
+    .topic-arrow { font-size: 12px; color: var(--text-muted); transition: transform .2s; }
+    .topic-panel[open] .topic-arrow { transform: rotate(90deg); }
+    .topic-name { font-weight: 600; font-size: 15px; }
+    .panel-tabs { display: flex; flex-wrap: wrap; gap: 4px; padding: 12px 20px; background: var(--bg); border-bottom: 1px solid var(--border); }
+    .tab { padding: 4px 12px; background: transparent; border: 1px solid var(--border); border-radius: 20px; color: var(--text-muted); font-size: 12px; cursor: pointer; transition: all .2s; white-space: nowrap; }
+    .tab:hover { border-color: var(--accent); color: var(--accent); }
+    .tab.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+    .panel-content { padding: 24px 20px; }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+    .tab-pane h4 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); margin-bottom: 10px; margin-top: 20px; }
+    .tab-pane h4:first-child { margin-top: 0; }
+    .tab-pane p { color: var(--text); margin-bottom: 12px; line-height: 1.8; }
+    .tab-pane ul, .tab-pane ol { padding-left: 20px; margin-bottom: 12px; }
+    .tab-pane li { margin-bottom: 6px; line-height: 1.7; }
+    code { background: rgba(255,255,255,.06); padding: 1px 5px; border-radius: 4px; font-family: 'Fira Code', Consolas, monospace; font-size: 13px; }
+    .code-block { background: var(--bg-code); border: 1px solid var(--border); border-radius: var(--radius); margin: 12px 0; overflow: hidden; }
+    .code-block code { background: none; padding: 0; }
+    .code-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; background: rgba(255,255,255,.03); border-bottom: 1px solid var(--border); }
+    .code-lang { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); }
+    .copy-btn { padding: 3px 10px; background: transparent; border: 1px solid var(--border); border-radius: 4px; color: var(--text-muted); font-size: 12px; cursor: pointer; transition: all .2s; }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .code-block pre { padding: 16px 14px; overflow-x: auto; font-family: 'Fira Code', Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.7; }
+    .ts-code .kw  { color: #c792ea; }
+    .ts-code .type{ color: #82aaff; }
+    .ts-code .str { color: #c3e88d; }
+    .ts-code .num { color: #f78c6c; }
+    .ts-code .cmt { color: #546e7a; font-style: italic; }
+    .ts-code .fn  { color: #82aaff; }
+    .ts-code .param{ color: #ffcb6b; }
+    .ts-code .op  { color: #89ddff; }
+    .interview-q { background: var(--bg-code); border-left: 3px solid var(--accent); padding: 12px 16px; margin-bottom: 16px; border-radius: 0 var(--radius) var(--radius) 0; }
+    .interview-q .q-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .difficulty-tag { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; }
+    .difficulty-tag.easy   { background: rgba(16,185,129,.2); color: var(--success); }
+    .difficulty-tag.medium { background: rgba(245,158,11,.2);  color: var(--warning); }
+    .difficulty-tag.hard   { background: rgba(239,68,68,.2);   color: var(--error); }
+    .interview-q strong { color: var(--text); font-weight: 600; }
+    .interview-q p { color: var(--text-muted); margin-top: 6px; font-size: 14px; margin-bottom: 0; }
+    .mistake-block { background: var(--bg-code); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; }
+    .mistake-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+    .mistake-label.wrong { color: var(--error); }
+    .mistake-label.correct { color: var(--success); }
+    .practice-item { display: flex; gap: 12px; margin-bottom: 14px; align-items: flex-start; }
+    .practice-num { flex-shrink: 0; width: 24px; height: 24px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; margin-top: 2px; }
+    .exercise-box { background: var(--bg-code); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 12px; }
+    .exercise-box h4 { color: var(--warning) !important; text-transform: uppercase; letter-spacing: .06em; margin-top: 0 !important; }
+    .takeaway-list { list-style: none; padding: 0; }
+    .takeaway-list li { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .takeaway-list li:last-child { border-bottom: none; }
+    .takeaway-list li::before { content: "→"; color: var(--accent); flex-shrink: 0; font-weight: 700; }
+    .mental-model { background: rgba(59,130,246,.1); border: 1px solid var(--accent); border-radius: var(--radius); padding: 14px 18px; margin-top: 16px; font-style: italic; }
+    .mini-project { background: var(--bg-card); border: 2px solid var(--accent); border-radius: var(--radius); padding: 28px; margin-top: 40px; }
+    .mini-project h3 { font-size: 20px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+    .mini-project h4 { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; margin-top: 20px; margin-bottom: 10px; }
+    .mini-project p { line-height: 1.8; margin-bottom: 10px; }
+    .mini-project ul, .mini-project ol { padding-left: 20px; }
+    .mini-project li { margin-bottom: 6px; line-height: 1.7; }
+    #back-to-top { position: fixed; bottom: 32px; right: 32px; width: 40px; height: 40px; background: var(--accent); color: #fff; border: none; border-radius: 50%; font-size: 18px; cursor: pointer; opacity: 0; transform: translateY(10px); transition: all .3s; z-index: 999; }
+    #back-to-top.visible { opacity: 1; transform: translateY(0); }
+    #back-to-top:hover { background: var(--accent-hover); }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<header id="site-header">
+  <h1>Phase 3 — Module 1: Classes</h1>
+  <span class="phase-badge">Object-Oriented TypeScript</span>
+</header>
+
+<div id="layout">
+
+  <nav id="sidebar">
+    <input type="text" id="topicSearch" placeholder="Search topics…" />
+    <div class="nav-section-title">Phase 3 · Module 1</div>
+    <ul id="module-nav">
+      <li><a href="#module-1">Module 1</a></li>
+    </ul>
+    <div class="nav-section-title">Topics</div>
+    <ul id="topic-nav">
+      <li><a href="#topic-basics">Class Basics</a></li>
+      <li><a href="#topic-ctor">Constructors</a></li>
+      <li><a href="#topic-methods">Methods</a></li>
+      <li><a href="#topic-props">Properties</a></li>
+    </ul>
+    <div class="nav-section-title">Project</div>
+    <ul id="topic-nav">
+      <li><a href="#mini-project">Library Management System</a></li>
+    </ul>
+  </nav>
+
+  <main id="content">
+    <section id="module-1" class="module">
+      <div class="module-header" id="module-1-header">
+        <label style="display:flex;align-items:center;gap:12px;cursor:pointer">
+          <input type="checkbox" class="module-check" data-id="module-1" />
+          <h2>Module 1: Classes</h2>
+        </label>
+        <span class="completed-label">✓ Completed</span>
+      </div>
+
+      <p class="module-intro">
+        Classes are how you bundle data and the behavior that acts on it into a single, reusable blueprint. If you've
+        used <code>class</code> in modern JavaScript, the syntax will look familiar — but TypeScript adds a typed layer
+        on top that catches an entire category of bugs before your code ever runs: missing fields, wrong argument types,
+        calling methods that don't exist. By the end of this module you'll be able to model real-world entities — a
+        <code>BankAccount</code>, a <code>User</code>, a <code>Book</code> — as fully typed classes with constructors,
+        methods, and properties, and you'll understand exactly what TypeScript checks at compile time versus what runs
+        in the browser.
+      </p>
+
+      <table class="topics-table">
+        <thead>
+          <tr><th>Topic</th><th>What You'll Learn</th><th>Difficulty</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Class Basics</strong></td><td>Define a class blueprint, instantiate it with <code>new</code>, and understand instance types</td><td><span class="badge beginner">Beginner</span></td></tr>
+          <tr><td><strong>Constructors</strong></td><td>Initialize object state on creation, use parameter properties, and type constructor arguments</td><td><span class="badge beginner">Beginner</span></td></tr>
+          <tr><td><strong>Methods</strong></td><td>Add typed behavior, understand <code>this</code>, method return types, and overloads</td><td><span class="badge intermediate">Intermediate</span></td></tr>
+          <tr><td><strong>Properties</strong></td><td>Declare typed fields, initializers, optional and definite-assignment fields, getters/setters</td><td><span class="badge intermediate">Intermediate</span></td></tr>
+        </tbody>
+      </table>
+
+      <div class="topic-panels">
+
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <!--  TOPIC 1 — CLASS BASICS                                            -->
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <details class="topic-panel" id="topic-basics">
+          <summary>
+            <div class="summary-left"><span class="topic-arrow">▶</span><span class="topic-name">Class Basics</span></div>
+            <span class="badge beginner">Beginner</span>
+          </summary>
+          <div class="panel-tabs">
+            <button class="tab active" data-tab="def">Definition</button>
+            <button class="tab" data-tab="why">Why It Exists</button>
+            <button class="tab" data-tab="when">When to Use</button>
+            <button class="tab" data-tab="notwhen">When NOT to Use</button>
+            <button class="tab" data-tab="int">How It Works</button>
+            <button class="tab" data-tab="syn">Syntax</button>
+            <button class="tab" data-tab="ex">Example</button>
+            <button class="tab" data-tab="rw">Real-World</button>
+            <button class="tab" data-tab="uc">Use Cases</button>
+            <button class="tab" data-tab="mis">Mistakes</button>
+            <button class="tab" data-tab="bp">Best Practices</button>
+            <button class="tab" data-tab="iq">Interview Qs</button>
+            <button class="tab" data-tab="exc">Exercise</button>
+            <button class="tab" data-tab="sum">Summary</button>
+          </div>
+          <div class="panel-content">
+
+            <div class="tab-pane active" data-pane="def">
+              <h4>Simple Explanation</h4>
+              <p>A class is a blueprint for making objects. Think of it like a cookie cutter: the class defines the shape (what data and what actions an object has), and each object you stamp out with <code>new</code> is a real cookie made from that shape. You design the cutter once, then produce as many cookies as you want.</p>
+              <h4>Technical Explanation</h4>
+              <p>A class declares a new type and a constructor function in one statement. The class body lists <strong>fields</strong> (typed data) and <strong>methods</strong> (typed behavior). Calling <code>new ClassName()</code> creates an <strong>instance</strong> — an object whose type is the class itself. TypeScript treats the class name as both a runtime value (the constructor) and a compile-time type (the instance shape), which is why you can write <code>const u: User = new User()</code>.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="why">
+              <h4>The Problem Without Classes</h4>
+              <p>In plain JavaScript you can build objects with factory functions or object literals, but nothing stops you from forgetting a field, misspelling a property, or calling a method that doesn't exist. The mistake surfaces at runtime — often in production — as <code>undefined is not a function</code>.</p>
+              <div class="code-block"><div class="code-header"><span class="code-lang">javascript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// Plain JS object — no guard rails</span>
+<span class="kw">function</span> <span class="fn">makeUser</span>(name) {
+  <span class="kw">return</span> { name: name };  <span class="cmt">// forgot to add greet()</span>
+}
+<span class="kw">const</span> u = makeUser(<span class="str">"Ada"</span>);
+u.greet();  <span class="cmt">// 💥 runtime crash: u.greet is not a function</span></code></pre></div>
+              <h4>The Solution With a TypeScript Class</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">class</span> <span class="type">User</span> {
+  name: <span class="type">string</span>;
+  <span class="kw">constructor</span>(<span class="param">name</span>: <span class="type">string</span>) { <span class="kw">this</span>.name = name; }
+  <span class="fn">greet</span>() { <span class="kw">return</span> <span class="str">`Hi, ${</span><span class="kw">this</span><span class="str">.name}`</span>; }
+}
+<span class="kw">const</span> u = <span class="kw">new</span> <span class="type">User</span>(<span class="str">"Ada"</span>);
+u.greet();   <span class="cmt">// ✓ TypeScript knows greet exists</span>
+u.greett();  <span class="cmt">// ✗ Error: Property 'greett' does not exist — caught before running</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="when">
+              <h4>When to Use Classes</h4>
+              <ul>
+                <li><strong>When data and behavior belong together</strong> — a <code>ShoppingCart</code> holds items <em>and</em> knows how to add/remove/total them.</li>
+                <li><strong>When you need many instances of the same shape</strong> — each <code>BankAccount</code> has its own balance but shares the same methods.</li>
+                <li><strong>When you'll use inheritance or interfaces</strong> — classes can <code>extends</code> a base class or <code>implements</code> an interface contract.</li>
+                <li><strong>When integrating with class-based libraries</strong> — ORMs (TypeORM), NestJS controllers/services, and Angular all expect classes.</li>
+                <li><strong>When you want a stable identity with internal state</strong> — a class instance encapsulates mutable state behind methods.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="notwhen">
+              <h4>When NOT to Use Classes</h4>
+              <ul>
+                <li><strong>For plain data with no behavior</strong> — a config object or API response is better as an <code>interface</code> / <code>type</code> and a plain object literal.</li>
+                <li><strong>In functional React code</strong> — modern React uses function components and hooks; class components are legacy.</li>
+                <li><strong>When a single function will do</strong> — don't wrap one pure function in a class just to call <code>new</code>; export the function instead.</li>
+                <li><strong>When you need structural shapes, not instances</strong> — if you only need to describe the shape of data flowing through your app, a type alias is lighter and has zero runtime footprint.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="int">
+              <h4>What TypeScript Does Under the Hood</h4>
+              <p>A class is one of the few TypeScript features that emits <strong>real runtime JavaScript</strong> — unlike interfaces or type aliases, which vanish during compilation. Here's the step-by-step:</p>
+              <ol>
+                <li>TypeScript reads the class and registers two things from one name: a <strong>value</strong> (the constructor function) and a <strong>type</strong> (the instance shape).</li>
+                <li>It type-checks every field assignment, method body, and <code>new</code> call against that shape.</li>
+                <li>It strips all type annotations and emits a standard JavaScript <code>class</code> (or a function + prototype if targeting older ES versions).</li>
+                <li>At runtime, <code>new User()</code> allocates an object, links it to <code>User.prototype</code>, runs the constructor, and returns the instance.</li>
+              </ol>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// TypeScript source</span>
+<span class="kw">class</span> <span class="type">User</span> {
+  name: <span class="type">string</span>;
+  <span class="kw">constructor</span>(<span class="param">name</span>: <span class="type">string</span>) { <span class="kw">this</span>.name = name; }
+}
+
+<span class="cmt">// Compiled JavaScript (ES2015 target) — types erased</span>
+<span class="kw">class</span> <span class="type">User</span> {
+  <span class="kw">constructor</span>(name) { <span class="kw">this</span>.name = name; }
+}</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="syn">
+              <h4>Fully Annotated Syntax</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">class</span> <span class="type">Point</span> {
+<span class="cmt">//    ^^^^^ class name — also becomes a TYPE you can annotate with</span>
+  x: <span class="type">number</span>;   <span class="cmt">// field declaration with a type annotation</span>
+  y: <span class="type">number</span>;   <span class="cmt">// every instance will have x and y of type number</span>
+
+  <span class="kw">constructor</span>(<span class="param">x</span>: <span class="type">number</span>, <span class="param">y</span>: <span class="type">number</span>) {
+    <span class="kw">this</span>.x = x;  <span class="cmt">// 'this' refers to the instance being created</span>
+    <span class="kw">this</span>.y = y;
+  }
+
+  <span class="fn">distanceFromOrigin</span>(): <span class="type">number</span> {
+<span class="cmt">//                       ^^^^^^^^ method return type annotation</span>
+    <span class="kw">return</span> Math.sqrt(<span class="kw">this</span>.x ** <span class="num">2</span> + <span class="kw">this</span>.y ** <span class="num">2</span>);
+  }
+}
+
+<span class="kw">const</span> p: <span class="type">Point</span> = <span class="kw">new</span> <span class="type">Point</span>(<span class="num">3</span>, <span class="num">4</span>);
+<span class="cmt">//       ^^^^^         ^^^^^^^^^ 'new' invokes the constructor</span>
+<span class="cmt">//       Point as a TYPE annotation (the instance shape)</span>
+console.log(p.distanceFromOrigin()); <span class="cmt">// 5</span></code></pre></div>
+              <p>The class name does double duty: as a <em>type</em> in annotations and as a <em>value</em> after <code>new</code>. Fields declared at the top of the body must either be initialized or assigned in the constructor, or TypeScript reports them as not definitely assigned (under <code>strictPropertyInitialization</code>).</p>
+            </div>
+
+            <div class="tab-pane" data-pane="ex">
+              <h4>Practical Code Example</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// A small Timer class — data (state) + behavior (methods) together</span>
+<span class="kw">class</span> <span class="type">Stopwatch</span> {
+  elapsed: <span class="type">number</span> = <span class="num">0</span>;     <span class="cmt">// field with an initializer</span>
+  running: <span class="type">boolean</span> = <span class="kw">false</span>;
+
+  <span class="fn">start</span>(): <span class="kw">void</span> {
+    <span class="kw">this</span>.running = <span class="kw">true</span>;
+  }
+
+  <span class="fn">tick</span>(<span class="param">seconds</span>: <span class="type">number</span>): <span class="kw">void</span> {
+    <span class="kw">if</span> (<span class="kw">this</span>.running) <span class="kw">this</span>.elapsed += seconds;
+  }
+
+  <span class="fn">stop</span>(): <span class="type">number</span> {
+    <span class="kw">this</span>.running = <span class="kw">false</span>;
+    <span class="kw">return</span> <span class="kw">this</span>.elapsed;
+  }
+}
+
+<span class="kw">const</span> sw = <span class="kw">new</span> <span class="type">Stopwatch</span>();
+sw.start();
+sw.tick(<span class="num">5</span>);
+sw.tick(<span class="num">3</span>);
+console.log(sw.stop()); <span class="cmt">// Output: 8</span>
+console.log(sw.running); <span class="cmt">// Output: false</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="rw">
+              <h4>Real-World Example</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// A typed in-memory cache used across a Node service</span>
+<span class="kw">class</span> <span class="type">TTLCache</span> {
+  <span class="kw">private</span> store = <span class="kw">new</span> <span class="type">Map</span>&lt;<span class="type">string</span>, { value: <span class="kw">unknown</span>; expiresAt: <span class="type">number</span> }&gt;();
+
+  <span class="fn">set</span>(<span class="param">key</span>: <span class="type">string</span>, <span class="param">value</span>: <span class="kw">unknown</span>, <span class="param">ttlMs</span>: <span class="type">number</span>): <span class="kw">void</span> {
+    <span class="kw">this</span>.store.set(key, { value, expiresAt: Date.now() + ttlMs });
+  }
+
+  <span class="fn">get</span>(<span class="param">key</span>: <span class="type">string</span>): <span class="kw">unknown</span> | <span class="kw">undefined</span> {
+    <span class="kw">const</span> hit = <span class="kw">this</span>.store.get(key);
+    <span class="kw">if</span> (!hit) <span class="kw">return</span> <span class="kw">undefined</span>;
+    <span class="kw">if</span> (Date.now() &gt; hit.expiresAt) {     <span class="cmt">// expired</span>
+      <span class="kw">this</span>.store.delete(key);
+      <span class="kw">return</span> <span class="kw">undefined</span>;
+    }
+    <span class="kw">return</span> hit.value;
+  }
+
+  <span class="fn">size</span>(): <span class="type">number</span> { <span class="kw">return</span> <span class="kw">this</span>.store.size; }
+}
+
+<span class="kw">const</span> cache = <span class="kw">new</span> <span class="type">TTLCache</span>();
+cache.set(<span class="str">"user:1"</span>, { id: <span class="num">1</span>, name: <span class="str">"Ada"</span> }, <span class="num">60_000</span>);
+console.log(cache.get(<span class="str">"user:1"</span>)); <span class="cmt">// { id: 1, name: "Ada" }</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="uc">
+              <h4>Real-World Use Cases</h4>
+              <ul>
+                <li><strong>NestJS services and controllers</strong> — the entire framework is class-based; you inject dependencies through typed constructors.</li>
+                <li><strong>TypeORM / Sequelize entities</strong> — each database table is modeled as a class with decorated, typed columns.</li>
+                <li><strong>Domain models in DDD</strong> — an <code>Order</code> or <code>Invoice</code> class encapsulates business rules so invalid states are impossible.</li>
+                <li><strong>Custom error types</strong> — <code>class NotFoundError extends Error</code> gives you typed, catchable errors with extra fields.</li>
+                <li><strong>State containers</strong> — a class-based store wraps mutable state behind controlled methods (older MobX, RxJS subjects).</li>
+                <li><strong>Game / simulation entities</strong> — a <code>Player</code> or <code>Enemy</code> bundles position, health, and the methods that update them.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="mis">
+              <h4>Common Mistakes</h4>
+              <div class="mistake-block">
+                <div class="mistake-label wrong">Mistake 1 — Forgetting <code>new</code></div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// WRONG — calling a class like a function</span>
+<span class="kw">const</span> u = <span class="type">User</span>(<span class="str">"Ada"</span>);      <span class="cmt">// Error: Value of type 'typeof User' is not callable</span>
+
+<span class="cmt">// CORRECT</span>
+<span class="kw">const</span> u = <span class="kw">new</span> <span class="type">User</span>(<span class="str">"Ada"</span>);</code></pre></div>
+                <p>A class constructor must be invoked with <code>new</code>; calling it directly throws at runtime and TypeScript flags it at compile time.</p>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label wrong">Mistake 2 — Confusing the type with the instance</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// WRONG — typeof User is the constructor, not an instance</span>
+<span class="kw">function</span> <span class="fn">printName</span>(<span class="param">u</span>: <span class="kw">typeof</span> <span class="type">User</span>) {}  <span class="cmt">// expects the class itself</span>
+
+<span class="cmt">// CORRECT — use the class name as the instance type</span>
+<span class="kw">function</span> <span class="fn">printName</span>(<span class="param">u</span>: <span class="type">User</span>) { console.log(u.name); }</code></pre></div>
+                <p><code>User</code> is the instance type; <code>typeof User</code> is the constructor type. Mixing them up is a classic beginner error.</p>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label wrong">Mistake 3 — Uninitialized fields under strict mode</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// WRONG — strictPropertyInitialization complains</span>
+<span class="kw">class</span> <span class="type">User</span> { name: <span class="type">string</span>; } <span class="cmt">// Error: no initializer and not assigned in ctor</span>
+
+<span class="cmt">// CORRECT — initialize, assign in constructor, or mark optional</span>
+<span class="kw">class</span> <span class="type">User</span> { name: <span class="type">string</span> = <span class="str">""</span>; }</code></pre></div>
+                <p>With <code>strict</code> enabled, every field needs a clear initialization path or TypeScript can't guarantee it's a <code>string</code> rather than <code>undefined</code>.</p>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="bp">
+              <h4>Best Practices</h4>
+              <div class="practice-item"><div class="practice-num">1</div><div><strong>Use PascalCase for class names</strong><p>Classes are types <em>and</em> constructors, so the convention (<code>BankAccount</code>, not <code>bankAccount</code>) signals "instantiate me with <code>new</code>".</p></div></div>
+              <div class="practice-item"><div class="practice-num">2</div><div><strong>Keep classes focused — one responsibility</strong><p>A class that handles HTTP, parsing, and caching should be split. Smaller classes are easier to test and reuse.</p></div></div>
+              <div class="practice-item"><div class="practice-num">3</div><div><strong>Reach for a type/interface when there's no behavior</strong><p>If your "class" has only fields and no methods, a plain <code>type</code> or <code>interface</code> is lighter and emits no runtime code.</p></div></div>
+              <div class="practice-item"><div class="practice-num">4</div><div><strong>Enable <code>strict</code> in tsconfig</strong><p>It turns on <code>strictPropertyInitialization</code> and <code>strictNullChecks</code>, catching uninitialized fields and null-safety bugs in class code.</p></div></div>
+              <div class="practice-item"><div class="practice-num">5</div><div><strong>Prefer composition over deep inheritance</strong><p>Favor holding instances of other classes as fields over building tall <code>extends</code> chains, which become brittle.</p></div></div>
+              <div class="practice-item"><div class="practice-num">6</div><div><strong>Annotate public method return types</strong><p>Explicit return types make the class's contract obvious and prevent accidental widening when you refactor the body.</p></div></div>
+            </div>
+
+            <div class="tab-pane" data-pane="iq">
+              <h4>Interview Questions</h4>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag easy">Easy</span><strong>Q: What is the difference between a class and an object in TypeScript?</strong></div>
+                <p>A class is a blueprint — it defines the shape and behavior. An object (instance) is a concrete value created from that blueprint with <code>new</code>. One class can produce many independent instances, each with its own field values but sharing the same methods on the prototype.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag easy">Easy</span><strong>Q: Does a TypeScript class exist at runtime?</strong></div>
+                <p>Yes. Unlike interfaces and type aliases, which are erased during compilation, a class emits real JavaScript — a constructor function with a prototype. That's why you can use it with <code>new</code>, <code>instanceof</code>, and reflection at runtime.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag medium">Medium</span><strong>Q: What's the difference between <code>User</code> and <code>typeof User</code> as types?</strong></div>
+                <p><code>User</code> is the <em>instance</em> type — what you get back from <code>new User()</code>. <code>typeof User</code> is the <em>constructor</em> type — the class object itself, including static members and the <code>new (...) =&gt; User</code> signature. You use <code>typeof User</code> when you want to pass the class around as a value, e.g. a factory that takes a class and returns an instance.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag medium">Medium</span><strong>Q: Can a class be used as an interface?</strong></div>
+                <p>Yes — a class declaration also creates a type, so another class can <code>implements MyClass</code> and an object can be annotated with it. TypeScript checks structural compatibility, ignoring private/protected members' implementations but requiring matching public shape. It's usually clearer to define a separate <code>interface</code>, but the capability exists.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag hard">Hard</span><strong>Q: Why does TypeScript use structural typing for classes instead of nominal typing?</strong></div>
+                <p>TypeScript checks compatibility by shape, not by name — if two classes have the same public members, instances are interchangeable even with no inheritance relationship. This matches JavaScript's duck-typed nature. The exception: <code>private</code> and <code>protected</code> members are tracked by their declaring class, so two structurally identical classes with private fields are <em>not</em> assignable to each other — a deliberate escape hatch toward nominal behavior.</p>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="exc">
+              <h4>Practice Challenge</h4>
+              <div class="exercise-box">
+                <h4>Goal</h4>
+                <p>Build a <code>Counter</code> class that tracks a number and can be incremented, decremented, and reset.</p>
+                <h4>Requirements</h4>
+                <ul>
+                  <li>A <code>count</code> field of type <code>number</code>, initialized to 0</li>
+                  <li>An <code>increment(by?: number)</code> method that adds (default 1)</li>
+                  <li>A <code>decrement(by?: number)</code> method that subtracts (default 1)</li>
+                  <li>A <code>reset()</code> method that sets count back to 0</li>
+                  <li>All methods must have explicit return types</li>
+                </ul>
+              </div>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">class</span> <span class="type">Counter</span> {
+  count: <span class="type">number</span> = <span class="num">0</span>;
+
+  <span class="fn">increment</span>(<span class="param">by</span>: <span class="type">number</span> = <span class="num">1</span>): <span class="kw">void</span> {
+    <span class="cmt">// TODO</span>
+  }
+
+  <span class="fn">decrement</span>(<span class="param">by</span>: <span class="type">number</span> = <span class="num">1</span>): <span class="kw">void</span> {
+    <span class="cmt">// TODO</span>
+  }
+
+  <span class="fn">reset</span>(): <span class="kw">void</span> {
+    <span class="cmt">// TODO</span>
+  }
+}
+
+<span class="kw">const</span> c = <span class="kw">new</span> <span class="type">Counter</span>();
+c.increment();      <span class="cmt">// count -> 1</span>
+c.increment(<span class="num">5</span>);     <span class="cmt">// count -> 6</span>
+c.decrement(<span class="num">2</span>);     <span class="cmt">// count -> 4</span>
+c.reset();          <span class="cmt">// count -> 0</span></code></pre></div>
+              <p><strong>Expected result:</strong> After the calls above, <code>c.count</code> should be <code>0</code>, and TypeScript should error if you try <code>c.increment("x")</code>.</p>
+              <p><strong>Hint:</strong> Inside each method use <code>this.count += by</code> / <code>this.count -= by</code> and remember <code>this</code> refers to the instance.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="sum">
+              <h4>Key Takeaways</h4>
+              <ul class="takeaway-list">
+                <li>A class is a blueprint that creates a new type <em>and</em> a constructor from one declaration.</li>
+                <li>Create instances with <code>new ClassName(...)</code>; each instance has its own field values.</li>
+                <li>Classes emit real runtime JavaScript — unlike interfaces, which are erased.</li>
+                <li>The class name is the instance type; <code>typeof ClassName</code> is the constructor type.</li>
+                <li>TypeScript checks classes structurally, but private/protected members add nominal-like guarding.</li>
+                <li>Use classes when data and behavior belong together or you need many instances; prefer types for pure data.</li>
+              </ul>
+              <div class="mental-model">Mental model: A class is a <em>cookie cutter</em> — design the shape once, then stamp out as many typed cookies (instances) as you need.</div>
+            </div>
+          </div>
+        </details>
+
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <!--  TOPIC 2 — CONSTRUCTORS                                            -->
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <details class="topic-panel" id="topic-ctor">
+          <summary>
+            <div class="summary-left"><span class="topic-arrow">▶</span><span class="topic-name">Constructors</span></div>
+            <span class="badge beginner">Beginner</span>
+          </summary>
+          <div class="panel-tabs">
+            <button class="tab active" data-tab="def">Definition</button>
+            <button class="tab" data-tab="why">Why It Exists</button>
+            <button class="tab" data-tab="when">When to Use</button>
+            <button class="tab" data-tab="notwhen">When NOT to Use</button>
+            <button class="tab" data-tab="int">How It Works</button>
+            <button class="tab" data-tab="syn">Syntax</button>
+            <button class="tab" data-tab="ex">Example</button>
+            <button class="tab" data-tab="rw">Real-World</button>
+            <button class="tab" data-tab="uc">Use Cases</button>
+            <button class="tab" data-tab="mis">Mistakes</button>
+            <button class="tab" data-tab="bp">Best Practices</button>
+            <button class="tab" data-tab="iq">Interview Qs</button>
+            <button class="tab" data-tab="exc">Exercise</button>
+            <button class="tab" data-tab="sum">Summary</button>
+          </div>
+          <div class="panel-content">
+
+            <div class="tab-pane active" data-pane="def">
+              <h4>Simple Explanation</h4>
+              <p>A constructor is the setup routine that runs automatically the moment you create an object. It's like the assembly line that fills a new product with its starting parts — you hand it the raw materials (arguments) and it returns a fully prepared instance.</p>
+              <h4>Technical Explanation</h4>
+              <p>The <code>constructor</code> is a special method invoked once by <code>new</code>. It receives typed arguments and is responsible for initializing the instance's fields via <code>this</code>. TypeScript adds <strong>parameter properties</strong> — a shorthand where prefixing a constructor parameter with an access modifier (<code>public</code>, <code>private</code>, <code>readonly</code>) automatically declares <em>and</em> assigns the field, eliminating boilerplate.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="why">
+              <h4>The Problem Without a Typed Constructor</h4>
+              <p>In JavaScript a constructor accepts anything. Pass the wrong type or forget an argument, and the object is silently half-built — the bug only appears later when something reads the missing field.</p>
+              <div class="code-block"><div class="code-header"><span class="code-lang">javascript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// Plain JS — nothing validates the arguments</span>
+<span class="kw">class</span> <span class="type">Account</span> {
+  <span class="kw">constructor</span>(balance) { <span class="kw">this</span>.balance = balance; }
+}
+<span class="kw">const</span> a = <span class="kw">new</span> <span class="type">Account</span>(<span class="str">"100"</span>);  <span class="cmt">// oops, a string</span>
+a.balance - <span class="num">10</span>;                  <span class="cmt">// "100" - 10 = 90 by luck, or NaN elsewhere</span></code></pre></div>
+              <h4>The Solution With TypeScript</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">class</span> <span class="type">Account</span> {
+  <span class="kw">constructor</span>(<span class="kw">public</span> <span class="param">balance</span>: <span class="type">number</span>) {}  <span class="cmt">// parameter property</span>
+}
+<span class="kw">const</span> a = <span class="kw">new</span> <span class="type">Account</span>(<span class="str">"100"</span>);  <span class="cmt">// ✗ Error: string not assignable to number</span>
+<span class="kw">const</span> b = <span class="kw">new</span> <span class="type">Account</span>(<span class="num">100</span>);    <span class="cmt">// ✓</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="when">
+              <h4>When to Use Constructors</h4>
+              <ul>
+                <li><strong>When an instance needs starting data</strong> — pass required values in so the object is valid the instant it exists.</li>
+                <li><strong>When you want to enforce invariants on creation</strong> — validate inputs and throw before an invalid object escapes.</li>
+                <li><strong>Use parameter properties</strong> when the argument maps directly to a stored field — it removes repetitive <code>this.x = x</code> lines.</li>
+                <li><strong>For dependency injection</strong> — frameworks like NestJS and Angular read constructor parameter types to supply dependencies.</li>
+                <li><strong>When defaulting values</strong> — give parameters defaults so callers can omit them.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="notwhen">
+              <h4>When NOT to Use a Constructor (or Heavy Logic in One)</h4>
+              <ul>
+                <li><strong>For async setup</strong> — constructors can't be <code>async</code>; use a static <code>create()</code> factory that returns a <code>Promise</code> instead.</li>
+                <li><strong>For complex multi-step building</strong> — prefer a Builder or a static factory method when construction has many optional steps.</li>
+                <li><strong>When there's no state to initialize</strong> — if every field has an initializer, you may not need an explicit constructor at all.</li>
+                <li><strong>Avoid side effects</strong> — don't fire network calls or start timers in a constructor; it makes the class hard to test and surprising to instantiate.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="int">
+              <h4>How Constructors Work Internally</h4>
+              <p>When you write <code>new Account(100)</code>, the runtime: (1) creates a fresh empty object, (2) links it to <code>Account.prototype</code>, (3) runs the constructor body with <code>this</code> bound to that object, and (4) returns the object. Parameter properties are pure TypeScript syntax — the compiler expands them into a field declaration plus an assignment.</p>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// TypeScript source — parameter property shorthand</span>
+<span class="kw">class</span> <span class="type">Account</span> {
+  <span class="kw">constructor</span>(<span class="kw">public</span> <span class="param">balance</span>: <span class="type">number</span>) {}
+}
+
+<span class="cmt">// Compiled JavaScript — expanded to field + assignment</span>
+<span class="kw">class</span> <span class="type">Account</span> {
+  <span class="kw">constructor</span>(balance) {
+    <span class="kw">this</span>.balance = balance;  <span class="cmt">// the compiler generated this line</span>
+  }
+}</code></pre></div>
+              <p>If you don't declare a constructor, TypeScript provides an implicit empty one. In a subclass you must call <code>super(...)</code> before touching <code>this</code>.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="syn">
+              <h4>Fully Annotated Syntax</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">class</span> <span class="type">User</span> {
+  <span class="kw">readonly</span> id: <span class="type">string</span>;          <span class="cmt">// declared here, assigned in ctor</span>
+
+  <span class="kw">constructor</span>(
+    <span class="param">id</span>: <span class="type">string</span>,                  <span class="cmt">// plain parameter — must assign manually</span>
+    <span class="kw">public</span> <span class="param">name</span>: <span class="type">string</span>,           <span class="cmt">// parameter property: declares + assigns this.name</span>
+    <span class="kw">private</span> <span class="param">email</span>: <span class="type">string</span>,         <span class="cmt">// parameter property, private field</span>
+    <span class="param">role</span>: <span class="type">string</span> = <span class="str">"user"</span>          <span class="cmt">// default value — caller may omit</span>
+  ) {
+    <span class="kw">this</span>.id = id;                    <span class="cmt">// manual assignment for the plain parameter</span>
+    <span class="cmt">// this.name and this.email already assigned by the shorthand</span>
+  }
+}
+
+<span class="kw">const</span> u = <span class="kw">new</span> <span class="type">User</span>(<span class="str">"u1"</span>, <span class="str">"Ada"</span>, <span class="str">"a@b.com"</span>);
+console.log(u.name); <span class="cmt">// "Ada"  (public)</span>
+<span class="cmt">// u.email -> Error: 'email' is private</span></code></pre></div>
+              <p>Mixing plain parameters and parameter properties in the same constructor is allowed. Order doesn't matter to TypeScript, but keep required params before optional/defaulted ones.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="ex">
+              <h4>Practical Code Example</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// Constructor that validates an invariant before the object exists</span>
+<span class="kw">class</span> <span class="type">Temperature</span> {
+  <span class="kw">constructor</span>(<span class="kw">public</span> <span class="kw">readonly</span> <span class="param">celsius</span>: <span class="type">number</span>) {
+    <span class="kw">if</span> (celsius &lt; <span class="op">-</span><span class="num">273.15</span>) {
+      <span class="kw">throw new</span> <span class="type">Error</span>(<span class="str">"Below absolute zero is impossible"</span>);
+    }
+  }
+
+  <span class="kw">get</span> <span class="fn">fahrenheit</span>(): <span class="type">number</span> {
+    <span class="kw">return</span> <span class="kw">this</span>.celsius * <span class="num">9</span> / <span class="num">5</span> + <span class="num">32</span>;
+  }
+}
+
+<span class="kw">const</span> t = <span class="kw">new</span> <span class="type">Temperature</span>(<span class="num">25</span>);
+console.log(t.fahrenheit); <span class="cmt">// Output: 77</span>
+
+<span class="cmt">// const bad = new Temperature(-300); // throws at construction time</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="rw">
+              <h4>Real-World Example</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// NestJS-style service using constructor dependency injection</span>
+<span class="kw">interface</span> <span class="type">Logger</span> { log(msg: <span class="type">string</span>): <span class="kw">void</span>; }
+<span class="kw">interface</span> <span class="type">UserRepo</span> { findById(id: <span class="type">string</span>): <span class="type">Promise</span>&lt;{ id: <span class="type">string</span>; name: <span class="type">string</span> } | <span class="kw">null</span>&gt;; }
+
+<span class="kw">class</span> <span class="type">UserService</span> {
+  <span class="cmt">// Dependencies declared and stored via parameter properties</span>
+  <span class="kw">constructor</span>(
+    <span class="kw">private</span> <span class="kw">readonly</span> <span class="param">repo</span>: <span class="type">UserRepo</span>,
+    <span class="kw">private</span> <span class="kw">readonly</span> <span class="param">logger</span>: <span class="type">Logger</span>
+  ) {}
+
+  <span class="kw">async</span> <span class="fn">getName</span>(<span class="param">id</span>: <span class="type">string</span>): <span class="type">Promise</span>&lt;<span class="type">string</span>&gt; {
+    <span class="kw">this</span>.logger.log(<span class="str">`Looking up ${id}`</span>);
+    <span class="kw">const</span> user = <span class="kw">await</span> <span class="kw">this</span>.repo.findById(id);
+    <span class="kw">if</span> (!user) <span class="kw">throw new</span> <span class="type">Error</span>(<span class="str">"User not found"</span>);
+    <span class="kw">return</span> user.name;
+  }
+}
+
+<span class="cmt">// The framework constructs it, injecting the dependencies:</span>
+<span class="cmt">// new UserService(realRepo, realLogger)</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="uc">
+              <h4>Real-World Use Cases</h4>
+              <ul>
+                <li><strong>Dependency injection</strong> — NestJS/Angular read constructor parameter types to wire services automatically.</li>
+                <li><strong>Value objects</strong> — a <code>Money</code> or <code>Email</code> class validates input in the constructor so invalid values never exist.</li>
+                <li><strong>Entity hydration</strong> — ORMs call constructors (or skip them) to turn DB rows into typed model instances.</li>
+                <li><strong>Configuration objects</strong> — a <code>HttpClient</code> takes base URL, headers, and timeout via the constructor.</li>
+                <li><strong>Custom errors</strong> — <code>super(message)</code> in a subclass constructor sets the error message while adding typed fields.</li>
+                <li><strong>Immutable records</strong> — combine <code>readonly</code> parameter properties to build instances that can't change after creation.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="mis">
+              <h4>Common Mistakes</h4>
+              <div class="mistake-block">
+                <div class="mistake-label wrong">Mistake 1 — Using <code>this</code> before <code>super()</code> in a subclass</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// WRONG</span>
+<span class="kw">class</span> <span class="type">Admin</span> <span class="kw">extends</span> <span class="type">User</span> {
+  <span class="kw">constructor</span>(<span class="param">name</span>: <span class="type">string</span>) {
+    <span class="kw">this</span>.level = <span class="num">10</span>;   <span class="cmt">// Error: 'super' must be called before 'this'</span>
+    <span class="kw">super</span>(name);
+  }
+}
+
+<span class="cmt">// CORRECT</span>
+<span class="kw">class</span> <span class="type">Admin</span> <span class="kw">extends</span> <span class="type">User</span> {
+  level = <span class="num">10</span>;
+  <span class="kw">constructor</span>(<span class="param">name</span>: <span class="type">string</span>) { <span class="kw">super</span>(name); }
+}</code></pre></div>
+                <p>The base constructor must finish initializing before the subclass touches <code>this</code>.</p>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label wrong">Mistake 2 — Making the constructor <code>async</code></div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// WRONG — constructors cannot be async / return a Promise</span>
+<span class="kw">class</span> <span class="type">Db</span> { <span class="kw">async constructor</span>() {} } <span class="cmt">// syntax error</span>
+
+<span class="cmt">// CORRECT — use a static async factory</span>
+<span class="kw">class</span> <span class="type">Db</span> {
+  <span class="kw">private</span> <span class="kw">constructor</span>(<span class="kw">public</span> <span class="param">conn</span>: <span class="type">string</span>) {}
+  <span class="kw">static</span> <span class="kw">async</span> <span class="fn">connect</span>(): <span class="type">Promise</span>&lt;<span class="type">Db</span>&gt; {
+    <span class="kw">const</span> conn = <span class="kw">await</span> openConnection();
+    <span class="kw">return new</span> <span class="type">Db</span>(conn);
+  }
+}</code></pre></div>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label wrong">Mistake 3 — Double declaring a parameter property</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// WRONG — declares the field twice</span>
+<span class="kw">class</span> <span class="type">User</span> {
+  name: <span class="type">string</span>;
+  <span class="kw">constructor</span>(<span class="kw">public</span> <span class="param">name</span>: <span class="type">string</span>) {} <span class="cmt">// Error: duplicate</span>
+}
+
+<span class="cmt">// CORRECT — pick ONE: either the field OR the parameter property</span>
+<span class="kw">class</span> <span class="type">User</span> {
+  <span class="kw">constructor</span>(<span class="kw">public</span> <span class="param">name</span>: <span class="type">string</span>) {}
+}</code></pre></div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="bp">
+              <h4>Best Practices</h4>
+              <div class="practice-item"><div class="practice-num">1</div><div><strong>Use parameter properties for simple field assignment</strong><p><code>constructor(private name: string)</code> is cleaner than declaring the field and assigning it separately.</p></div></div>
+              <div class="practice-item"><div class="practice-num">2</div><div><strong>Validate invariants in the constructor and throw early</strong><p>Reject impossible state at creation so the rest of your code can trust the instance is valid.</p></div></div>
+              <div class="practice-item"><div class="practice-num">3</div><div><strong>Keep constructors free of side effects</strong><p>No network calls, no timers. A constructor should set up state, not start doing work — that keeps instantiation predictable and testable.</p></div></div>
+              <div class="practice-item"><div class="practice-num">4</div><div><strong>Use a static factory for async or complex creation</strong><p>Since constructors can't be async, expose <code>static async create()</code> when setup requires awaiting something.</p></div></div>
+              <div class="practice-item"><div class="practice-num">5</div><div><strong>Order parameters: required first, defaulted last</strong><p>Defaulted and optional parameters must follow required ones so callers can omit them naturally.</p></div></div>
+              <div class="practice-item"><div class="practice-num">6</div><div><strong>Combine <code>readonly</code> with parameter properties for immutable inputs</strong><p><code>constructor(public readonly id: string)</code> guarantees the field can't be reassigned after construction.</p></div></div>
+            </div>
+
+            <div class="tab-pane" data-pane="iq">
+              <h4>Interview Questions</h4>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag easy">Easy</span><strong>Q: What is a parameter property in TypeScript?</strong></div>
+                <p>It's a shorthand where adding an access modifier (<code>public</code>, <code>private</code>, <code>protected</code>, or <code>readonly</code>) to a constructor parameter automatically declares a class field and assigns the argument to it. So <code>constructor(private name: string)</code> replaces a separate field declaration plus <code>this.name = name</code>.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag easy">Easy</span><strong>Q: Can a class have more than one constructor?</strong></div>
+                <p>No — TypeScript classes have a single implementation constructor. You can declare multiple constructor <em>overload signatures</em> for typing purposes, but there must be exactly one implementation body that handles all cases. For multiple creation paths, use static factory methods instead.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag medium">Medium</span><strong>Q: Why can't a constructor be <code>async</code>?</strong></div>
+                <p>Because <code>new</code> must synchronously return the constructed instance, not a Promise. An async constructor would return a Promise, breaking the contract. The standard workaround is a private constructor plus a <code>static async create()</code> method that awaits setup and returns the finished instance.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag medium">Medium</span><strong>Q: When must you call <code>super()</code> and what happens if you don't?</strong></div>
+                <p>In a subclass that declares its own constructor, you must call <code>super(...)</code> before accessing <code>this</code> or returning. It runs the parent constructor so inherited fields are initialized. Omitting it (when extending a class) is a compile-time error; accessing <code>this</code> before it is also an error.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag hard">Hard</span><strong>Q: What's the order of field initialization relative to the constructor body?</strong></div>
+                <p>For a base class: field initializers run first (in declaration order) as if at the top of the constructor, then the constructor body executes. For a subclass: <code>super()</code> runs first (initializing parent fields), <em>then</em> the subclass's own field initializers run, then the rest of the subclass constructor body. This is why a subclass field initializer can't observe values the parent constructor expected to set via a virtual method call — a subtle source of bugs.</p>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="exc">
+              <h4>Practice Challenge</h4>
+              <div class="exercise-box">
+                <h4>Goal</h4>
+                <p>Build a <code>Rectangle</code> class whose constructor validates its dimensions and exposes computed values.</p>
+                <h4>Requirements</h4>
+                <ul>
+                  <li>Use parameter properties for <code>width</code> and <code>height</code> (both <code>readonly</code> numbers)</li>
+                  <li>Throw an <code>Error</code> if either dimension is zero or negative</li>
+                  <li>Add an <code>area()</code> method returning <code>number</code></li>
+                  <li>Add a <code>perimeter()</code> method returning <code>number</code></li>
+                </ul>
+              </div>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">class</span> <span class="type">Rectangle</span> {
+  <span class="kw">constructor</span>(
+    <span class="cmt">// TODO: readonly parameter properties width & height</span>
+  ) {
+    <span class="cmt">// TODO: validate dimensions, throw if invalid</span>
+  }
+
+  <span class="fn">area</span>(): <span class="type">number</span> { <span class="cmt">/* TODO */</span> }
+  <span class="fn">perimeter</span>(): <span class="type">number</span> { <span class="cmt">/* TODO */</span> }
+}
+
+<span class="kw">const</span> r = <span class="kw">new</span> <span class="type">Rectangle</span>(<span class="num">4</span>, <span class="num">5</span>);
+console.log(r.area());      <span class="cmt">// 20</span>
+console.log(r.perimeter()); <span class="cmt">// 18</span></code></pre></div>
+              <p><strong>Expected result:</strong> <code>new Rectangle(0, 5)</code> throws; valid rectangles compute area and perimeter correctly.</p>
+              <p><strong>Hint:</strong> Parameter properties look like <code>constructor(public readonly width: number, ...)</code> — the field exists automatically.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="sum">
+              <h4>Key Takeaways</h4>
+              <ul class="takeaway-list">
+                <li>The constructor runs once when you call <code>new</code> and is responsible for initializing instance state.</li>
+                <li>Parameter properties (<code>public</code>/<code>private</code>/<code>readonly</code> on a parameter) declare and assign a field in one stroke.</li>
+                <li>Validate invariants in the constructor and throw early so invalid instances never exist.</li>
+                <li>Constructors cannot be <code>async</code> — use a static factory method for asynchronous setup.</li>
+                <li>In subclasses, call <code>super(...)</code> before touching <code>this</code>.</li>
+                <li>Keep constructors side-effect free; they should configure state, not perform work.</li>
+              </ul>
+              <div class="mental-model">Mental model: A constructor is the <em>assembly line</em> — hand it raw materials and it returns a fully built, validated product every time.</div>
+            </div>
+          </div>
+        </details>
+
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <!--  TOPIC 3 — METHODS                                                 -->
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <details class="topic-panel" id="topic-methods">
+          <summary>
+            <div class="summary-left"><span class="topic-arrow">▶</span><span class="topic-name">Methods</span></div>
+            <span class="badge intermediate">Intermediate</span>
+          </summary>
+          <div class="panel-tabs">
+            <button class="tab active" data-tab="def">Definition</button>
+            <button class="tab" data-tab="why">Why It Exists</button>
+            <button class="tab" data-tab="when">When to Use</button>
+            <button class="tab" data-tab="notwhen">When NOT to Use</button>
+            <button class="tab" data-tab="int">How It Works</button>
+            <button class="tab" data-tab="syn">Syntax</button>
+            <button class="tab" data-tab="ex">Example</button>
+            <button class="tab" data-tab="rw">Real-World</button>
+            <button class="tab" data-tab="uc">Use Cases</button>
+            <button class="tab" data-tab="mis">Mistakes</button>
+            <button class="tab" data-tab="bp">Best Practices</button>
+            <button class="tab" data-tab="iq">Interview Qs</button>
+            <button class="tab" data-tab="exc">Exercise</button>
+            <button class="tab" data-tab="sum">Summary</button>
+          </div>
+          <div class="panel-content">
+
+            <div class="tab-pane active" data-pane="def">
+              <h4>Simple Explanation</h4>
+              <p>A method is a function that lives inside a class and can act on that object's own data. If the class is a microwave, the methods are its buttons — "start", "stop", "addThirtySeconds" — each one does something using the microwave's current state.</p>
+              <h4>Technical Explanation</h4>
+              <p>A method is a function defined as a member of a class. It has typed parameters and a typed return value, and inside its body <code>this</code> refers to the instance it was called on, giving access to that instance's fields and other methods. Methods are stored once on the class <strong>prototype</strong> and shared by all instances, unlike arrow-function fields which are created per instance.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="why">
+              <h4>The Problem Without Typed Methods</h4>
+              <p>Free-floating functions that take an object as their first argument force callers to remember which function pairs with which data, and nothing checks that you passed the right shape. Methods bind behavior to the data and let TypeScript verify both the arguments and the return value.</p>
+              <div class="code-block"><div class="code-header"><span class="code-lang">javascript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// Loose functions — no link between data and behavior</span>
+<span class="kw">function</span> <span class="fn">deposit</span>(account, amount) { account.balance += amount; }
+deposit({ blance: <span class="num">0</span> }, <span class="str">"50"</span>); <span class="cmt">// typo + wrong type, silently wrong</span></code></pre></div>
+              <h4>The Solution With a Method</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">class</span> <span class="type">Account</span> {
+  balance = <span class="num">0</span>;
+  <span class="fn">deposit</span>(<span class="param">amount</span>: <span class="type">number</span>): <span class="kw">void</span> {
+    <span class="kw">this</span>.balance += amount;   <span class="cmt">// 'this' is the account, fully typed</span>
+  }
+}
+<span class="kw">new</span> <span class="type">Account</span>().deposit(<span class="str">"50"</span>); <span class="cmt">// ✗ Error: string not assignable to number</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="when">
+              <h4>When to Use Methods</h4>
+              <ul>
+                <li><strong>When behavior depends on instance state</strong> — a method reads/updates <code>this</code>, which a standalone function can't do cleanly.</li>
+                <li><strong>When the operation conceptually belongs to the object</strong> — <code>order.cancel()</code> reads better than <code>cancelOrder(order)</code>.</li>
+                <li><strong>When you want polymorphism</strong> — subclasses can override a method to change behavior while keeping the same call site.</li>
+                <li><strong>When exposing a controlled API</strong> — methods are the public surface that guards private fields.</li>
+                <li><strong>Use method overloads</strong> when one method legitimately accepts several distinct argument shapes with different return types.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="notwhen">
+              <h4>When NOT to Use Methods</h4>
+              <ul>
+                <li><strong>For pure, stateless logic</strong> — if a function doesn't touch <code>this</code>, a standalone utility function is more reusable and tree-shakeable.</li>
+                <li><strong>When you'll detach the method from its instance</strong> — passing <code>obj.method</code> as a callback loses <code>this</code>; either bind it, use an arrow field, or pass <code>() =&gt; obj.method()</code>.</li>
+                <li><strong>Avoid arrow-function fields for everything</strong> — they create a new function per instance (memory cost) and can't be overridden via the prototype.</li>
+                <li><strong>Don't overload when a union parameter is clearer</strong> — overloads add complexity; reach for them only when return types differ by input.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="int">
+              <h4>How Methods Work Internally</h4>
+              <p>A normal method is defined once on <code>ClassName.prototype</code>. Every instance shares that single function; when you call <code>instance.method()</code>, JavaScript sets <code>this</code> to <code>instance</code> for that call. This is why detaching a method (<code>const f = obj.method</code>) loses the binding — <code>this</code> is decided at <em>call</em> time, not definition time.</p>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// Prototype method — shared by all instances</span>
+<span class="kw">class</span> <span class="type">Greeter</span> {
+  greeting = <span class="str">"Hi"</span>;
+  <span class="fn">greet</span>() { <span class="kw">return</span> <span class="kw">this</span>.greeting; } <span class="cmt">// on Greeter.prototype</span>
+}
+
+<span class="cmt">// Arrow-function field — one copy per instance, 'this' bound at creation</span>
+<span class="kw">class</span> <span class="type">Greeter2</span> {
+  greeting = <span class="str">"Hi"</span>;
+  greet = () <span class="op">=&gt;</span> <span class="kw">this</span>.greeting; <span class="cmt">// own property of each instance</span>
+}</code></pre></div>
+              <p>TypeScript also supports a special <code>this</code> parameter — a fake first parameter named <code>this</code> — to constrain what context a method may be called in. It's erased at compile time.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="syn">
+              <h4>Fully Annotated Syntax</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">class</span> <span class="type">Calculator</span> {
+  <span class="fn">add</span>(<span class="param">a</span>: <span class="type">number</span>, <span class="param">b</span>: <span class="type">number</span>): <span class="type">number</span> {
+<span class="cmt">//   ^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^ return type</span>
+<span class="cmt">//   |    typed parameters</span>
+<span class="cmt">//   method name</span>
+    <span class="kw">return</span> a + b;
+  }
+
+  <span class="cmt">// Method OVERLOADS — multiple signatures, one implementation</span>
+  <span class="fn">format</span>(<span class="param">value</span>: <span class="type">number</span>): <span class="type">string</span>;
+  <span class="fn">format</span>(<span class="param">value</span>: <span class="type">Date</span>): <span class="type">string</span>;
+  <span class="fn">format</span>(<span class="param">value</span>: <span class="type">number</span> | <span class="type">Date</span>): <span class="type">string</span> {  <span class="cmt">// implementation signature</span>
+    <span class="kw">return</span> <span class="kw">typeof</span> value === <span class="str">"number"</span>
+      ? value.toFixed(<span class="num">2</span>)
+      : value.toISOString();
+  }
+
+  <span class="cmt">// 'this' parameter — restricts valid call context, erased at runtime</span>
+  <span class="fn">describe</span>(<span class="kw">this</span>: <span class="type">Calculator</span>): <span class="type">string</span> {
+    <span class="kw">return</span> <span class="str">"a calculator"</span>;
+  }
+}</code></pre></div>
+              <p>Overload signatures have no body and are not callable themselves; only the final implementation signature runs. The implementation signature must be compatible with every overload but is hidden from callers.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="ex">
+              <h4>Practical Code Example</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// Fluent (chainable) methods by returning 'this'</span>
+<span class="kw">class</span> <span class="type">QueryBuilder</span> {
+  <span class="kw">private</span> parts: <span class="type">string</span>[] = [];
+
+  <span class="fn">select</span>(<span class="param">cols</span>: <span class="type">string</span>): <span class="kw">this</span> {
+    <span class="kw">this</span>.parts.push(<span class="str">`SELECT ${cols}`</span>);
+    <span class="kw">return</span> <span class="kw">this</span>;          <span class="cmt">// enables chaining</span>
+  }
+  <span class="fn">from</span>(<span class="param">table</span>: <span class="type">string</span>): <span class="kw">this</span> {
+    <span class="kw">this</span>.parts.push(<span class="str">`FROM ${table}`</span>);
+    <span class="kw">return</span> <span class="kw">this</span>;
+  }
+  <span class="fn">where</span>(<span class="param">cond</span>: <span class="type">string</span>): <span class="kw">this</span> {
+    <span class="kw">this</span>.parts.push(<span class="str">`WHERE ${cond}`</span>);
+    <span class="kw">return</span> <span class="kw">this</span>;
+  }
+  <span class="fn">build</span>(): <span class="type">string</span> {
+    <span class="kw">return</span> <span class="kw">this</span>.parts.join(<span class="str">" "</span>) + <span class="str">";"</span>;
+  }
+}
+
+<span class="kw">const</span> sql = <span class="kw">new</span> <span class="type">QueryBuilder</span>()
+  .select(<span class="str">"id, name"</span>)
+  .from(<span class="str">"users"</span>)
+  .where(<span class="str">"age &gt; 18"</span>)
+  .build();
+console.log(sql); <span class="cmt">// Output: SELECT id, name FROM users WHERE age > 18;</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="rw">
+              <h4>Real-World Example</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// A domain model where methods enforce business rules</span>
+<span class="kw">type</span> <span class="type">OrderStatus</span> = <span class="str">"pending"</span> | <span class="str">"paid"</span> | <span class="str">"shipped"</span> | <span class="str">"cancelled"</span>;
+
+<span class="kw">class</span> <span class="type">Order</span> {
+  <span class="kw">private</span> status: <span class="type">OrderStatus</span> = <span class="str">"pending"</span>;
+  <span class="kw">constructor</span>(<span class="kw">public</span> <span class="kw">readonly</span> <span class="param">id</span>: <span class="type">string</span>, <span class="kw">private</span> <span class="param">total</span>: <span class="type">number</span>) {}
+
+  <span class="fn">pay</span>(): <span class="kw">void</span> {
+    <span class="kw">if</span> (<span class="kw">this</span>.status !== <span class="str">"pending"</span>)
+      <span class="kw">throw new</span> <span class="type">Error</span>(<span class="str">`Cannot pay an order that is ${</span><span class="kw">this</span><span class="str">.status}`</span>);
+    <span class="kw">this</span>.status = <span class="str">"paid"</span>;
+  }
+
+  <span class="fn">ship</span>(): <span class="kw">void</span> {
+    <span class="kw">if</span> (<span class="kw">this</span>.status !== <span class="str">"paid"</span>)
+      <span class="kw">throw new</span> <span class="type">Error</span>(<span class="str">"Only paid orders can ship"</span>);
+    <span class="kw">this</span>.status = <span class="str">"shipped"</span>;
+  }
+
+  <span class="fn">cancel</span>(): <span class="kw">void</span> {
+    <span class="kw">if</span> (<span class="kw">this</span>.status === <span class="str">"shipped"</span>)
+      <span class="kw">throw new</span> <span class="type">Error</span>(<span class="str">"Shipped orders cannot be cancelled"</span>);
+    <span class="kw">this</span>.status = <span class="str">"cancelled"</span>;
+  }
+
+  <span class="fn">getStatus</span>(): <span class="type">OrderStatus</span> { <span class="kw">return</span> <span class="kw">this</span>.status; }
+}
+
+<span class="kw">const</span> o = <span class="kw">new</span> <span class="type">Order</span>(<span class="str">"ord_1"</span>, <span class="num">99</span>);
+o.pay();
+o.ship();
+console.log(o.getStatus()); <span class="cmt">// "shipped"</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="uc">
+              <h4>Real-World Use Cases</h4>
+              <ul>
+                <li><strong>Fluent builders</strong> — query builders (Knex), validation chains, and config builders return <code>this</code> for chaining.</li>
+                <li><strong>State machines</strong> — methods like <code>order.pay()</code> guard valid transitions and throw on illegal ones.</li>
+                <li><strong>Service layers</strong> — NestJS service methods encapsulate business logic and are unit-tested in isolation.</li>
+                <li><strong>Custom collections</strong> — a typed <code>Stack&lt;T&gt;</code> exposes <code>push</code>/<code>pop</code>/<code>peek</code> methods over private storage.</li>
+                <li><strong>React class components (legacy)</strong> — lifecycle methods (<code>componentDidMount</code>) and event handlers were methods.</li>
+                <li><strong>Method overloads in SDKs</strong> — a <code>query()</code> that returns different types based on whether you pass a string or an options object.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="mis">
+              <h4>Common Mistakes</h4>
+              <div class="mistake-block">
+                <div class="mistake-label wrong">Mistake 1 — Losing <code>this</code> when passing a method as a callback</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// WRONG — 'this' is undefined when called by setTimeout</span>
+setTimeout(counter.increment, <span class="num">1000</span>); <span class="cmt">// this.count -> crash</span>
+
+<span class="cmt">// CORRECT — preserve the binding</span>
+setTimeout(() <span class="op">=&gt;</span> counter.increment(), <span class="num">1000</span>);
+<span class="cmt">// or define increment as an arrow field, or use .bind(counter)</span></code></pre></div>
+                <p><code>this</code> is bound at call time. Detaching a method drops the link to its instance.</p>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label wrong">Mistake 2 — Calling an overload's implementation signature directly</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// The implementation signature is NOT visible to callers</span>
+<span class="fn">format</span>(<span class="param">v</span>: <span class="type">number</span>): <span class="type">string</span>;
+<span class="fn">format</span>(<span class="param">v</span>: <span class="type">number</span> | <span class="type">Date</span>): <span class="type">string</span> { <span class="cmt">/*...*/</span> }
+
+obj.format(<span class="kw">true</span>); <span class="cmt">// ✗ Error: no overload matches boolean — even though impl is wider</span></code></pre></div>
+                <p>Only the listed overload signatures are callable; the implementation signature is internal.</p>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label wrong">Mistake 3 — Forgetting the return type, getting unexpected widening</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// WRONG — inferred return is string, refactor could break callers silently</span>
+<span class="fn">getRole</span>() { <span class="kw">return</span> <span class="str">"admin"</span>; }
+
+<span class="cmt">// CORRECT — explicit contract</span>
+<span class="fn">getRole</span>(): <span class="str">"admin"</span> | <span class="str">"user"</span> { <span class="kw">return</span> <span class="str">"admin"</span>; }</code></pre></div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="bp">
+              <h4>Best Practices</h4>
+              <div class="practice-item"><div class="practice-num">1</div><div><strong>Annotate return types on public methods</strong><p>It documents the contract and prevents silent type changes when you edit the body later.</p></div></div>
+              <div class="practice-item"><div class="practice-num">2</div><div><strong>Use prototype methods by default; arrow fields only when you need bound <code>this</code></strong><p>Prototype methods are memory-efficient and overridable; reserve arrow fields for callbacks that get detached.</p></div></div>
+              <div class="practice-item"><div class="practice-num">3</div><div><strong>Return <code>this</code> for fluent APIs</strong><p>Using the return type <code>this</code> (not the class name) keeps chaining correct across subclasses.</p></div></div>
+              <div class="practice-item"><div class="practice-num">4</div><div><strong>Keep methods small and single-purpose</strong><p>A method that does one thing is easier to test, name, and override.</p></div></div>
+              <div class="practice-item"><div class="practice-num">5</div><div><strong>Use overloads only when return type depends on input type</strong><p>If a union parameter and a single return type express it cleanly, prefer that over overloads.</p></div></div>
+              <div class="practice-item"><div class="practice-num">6</div><div><strong>Use a <code>this</code> parameter to guard call context</strong><p>When a method must only be called on a specific type, declare <code>method(this: MyClass)</code> to catch misuse at compile time.</p></div></div>
+            </div>
+
+            <div class="tab-pane" data-pane="iq">
+              <h4>Interview Questions</h4>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag easy">Easy</span><strong>Q: What does <code>this</code> refer to inside a class method?</strong></div>
+                <p>It refers to the instance the method was called on. <code>account.deposit(10)</code> sets <code>this</code> to <code>account</code> for that call, giving the method access to that instance's fields and other methods.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag medium">Medium</span><strong>Q: What's the difference between a prototype method and an arrow-function class field?</strong></div>
+                <p>A prototype method is defined once on the class prototype and shared by all instances; its <code>this</code> is determined at call time. An arrow-function field is created per instance and captures <code>this</code> lexically at construction, so it stays bound even when detached. Arrow fields cost more memory and can't be overridden through the prototype, but they're convenient as event handlers.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag medium">Medium</span><strong>Q: How do method overloads work in TypeScript?</strong></div>
+                <p>You declare multiple bodiless signatures followed by one implementation signature with a body. Callers see only the overload signatures; the implementation must be compatible with all of them but isn't directly callable. Inside the body you narrow the union (e.g. with <code>typeof</code>) to handle each case.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag medium">Medium</span><strong>Q: What is a <code>this</code> parameter and when is it useful?</strong></div>
+                <p>It's a special fake first parameter named <code>this</code> that types the expected context without being a real argument. It's useful for callback-style functions or to ensure a method is only called on instances of a certain type — TypeScript errors if <code>this</code> would be the wrong type. It's erased at compile time.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag hard">Hard</span><strong>Q: Why does returning <code>this</code> (the type) differ from returning the class name in a fluent API?</strong></div>
+                <p>Returning the literal type <code>this</code> is polymorphic — in a subclass, the method's return type becomes the subclass, preserving the chain's specific type. Returning the concrete class name would downcast to the base class, so chained calls on a subclass would lose access to subclass methods. <code>this</code> types keep fluent builders correct under inheritance.</p>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="exc">
+              <h4>Practice Challenge</h4>
+              <div class="exercise-box">
+                <h4>Goal</h4>
+                <p>Build a chainable <code>StringBuilder</code> class with fluent methods.</p>
+                <h4>Requirements</h4>
+                <ul>
+                  <li>A private <code>value: string</code> starting empty</li>
+                  <li><code>append(text: string): this</code> — adds text and returns <code>this</code></li>
+                  <li><code>appendLine(text: string): this</code> — adds text plus a newline, returns <code>this</code></li>
+                  <li><code>toString(): string</code> — returns the built value</li>
+                  <li>All append methods must be chainable</li>
+                </ul>
+              </div>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">class</span> <span class="type">StringBuilder</span> {
+  <span class="kw">private</span> value: <span class="type">string</span> = <span class="str">""</span>;
+
+  <span class="fn">append</span>(<span class="param">text</span>: <span class="type">string</span>): <span class="kw">this</span> {
+    <span class="cmt">// TODO</span>
+  }
+
+  <span class="fn">appendLine</span>(<span class="param">text</span>: <span class="type">string</span>): <span class="kw">this</span> {
+    <span class="cmt">// TODO</span>
+  }
+
+  <span class="fn">toString</span>(): <span class="type">string</span> {
+    <span class="cmt">// TODO</span>
+  }
+}
+
+<span class="kw">const</span> out = <span class="kw">new</span> <span class="type">StringBuilder</span>()
+  .appendLine(<span class="str">"Hello"</span>)
+  .append(<span class="str">"World"</span>)
+  .toString();
+console.log(out); <span class="cmt">// "Hello\nWorld"</span></code></pre></div>
+              <p><strong>Expected result:</strong> The chained calls produce <code>"Hello\nWorld"</code> and each append method returns the builder so chaining type-checks.</p>
+              <p><strong>Hint:</strong> Each mutating method ends with <code>return this;</code>.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="sum">
+              <h4>Key Takeaways</h4>
+              <ul class="takeaway-list">
+                <li>Methods are typed functions bound to a class; inside them <code>this</code> is the instance.</li>
+                <li>Prototype methods are shared across instances; arrow-function fields are per-instance and stay bound.</li>
+                <li><code>this</code> is resolved at call time, so detaching a method loses its binding.</li>
+                <li>Method overloads declare multiple signatures over a single implementation body.</li>
+                <li>Returning the type <code>this</code> enables fluent chaining that survives inheritance.</li>
+                <li>Annotate public method return types to lock in the contract.</li>
+              </ul>
+              <div class="mental-model">Mental model: Methods are the <em>buttons on the device</em> — each one operates on the device's own internal state when you press it.</div>
+            </div>
+          </div>
+        </details>
+
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <!--  TOPIC 4 — PROPERTIES                                              -->
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <details class="topic-panel" id="topic-props">
+          <summary>
+            <div class="summary-left"><span class="topic-arrow">▶</span><span class="topic-name">Properties</span></div>
+            <span class="badge intermediate">Intermediate</span>
+          </summary>
+          <div class="panel-tabs">
+            <button class="tab active" data-tab="def">Definition</button>
+            <button class="tab" data-tab="why">Why It Exists</button>
+            <button class="tab" data-tab="when">When to Use</button>
+            <button class="tab" data-tab="notwhen">When NOT to Use</button>
+            <button class="tab" data-tab="int">How It Works</button>
+            <button class="tab" data-tab="syn">Syntax</button>
+            <button class="tab" data-tab="ex">Example</button>
+            <button class="tab" data-tab="rw">Real-World</button>
+            <button class="tab" data-tab="uc">Use Cases</button>
+            <button class="tab" data-tab="mis">Mistakes</button>
+            <button class="tab" data-tab="bp">Best Practices</button>
+            <button class="tab" data-tab="iq">Interview Qs</button>
+            <button class="tab" data-tab="exc">Exercise</button>
+            <button class="tab" data-tab="sum">Summary</button>
+          </div>
+          <div class="panel-content">
+
+            <div class="tab-pane active" data-pane="def">
+              <h4>Simple Explanation</h4>
+              <p>Properties are the labeled compartments inside an object that hold its data. If a class is a form, the properties are the fields on it — name, age, email — each one typed so you can't accidentally write a number where text belongs.</p>
+              <h4>Technical Explanation</h4>
+              <p>A property (or field) is a typed data member declared in the class body. It can have an initializer, be marked optional (<code>?</code>), <code>readonly</code>, or use definite-assignment (<code>!</code>) when initialized outside the constructor. TypeScript also supports <strong>accessors</strong> — <code>get</code>/<code>set</code> pairs that look like properties from the outside but run code, letting you compute or validate on read/write.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="why">
+              <h4>The Problem Without Typed Properties</h4>
+              <p>In plain JavaScript objects accrete properties dynamically — a typo creates a brand-new field instead of an error, and reading a never-set property returns <code>undefined</code> with no warning.</p>
+              <div class="code-block"><div class="code-header"><span class="code-lang">javascript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">class</span> <span class="type">Profile</span> {}
+<span class="kw">const</span> p = <span class="kw">new</span> <span class="type">Profile</span>();
+p.usernmae = <span class="str">"ada"</span>;   <span class="cmt">// typo silently creates a junk property</span>
+console.log(p.username); <span class="cmt">// undefined — bug ships to production</span></code></pre></div>
+              <h4>The Solution With Declared Properties</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">class</span> <span class="type">Profile</span> {
+  username: <span class="type">string</span> = <span class="str">""</span>;
+}
+<span class="kw">const</span> p = <span class="kw">new</span> <span class="type">Profile</span>();
+p.usernmae = <span class="str">"ada"</span>;   <span class="cmt">// ✗ Error: 'usernmae' does not exist on Profile</span>
+p.username = <span class="str">"ada"</span>;   <span class="cmt">// ✓</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="when">
+              <h4>When to Use Properties (and Their Variants)</h4>
+              <ul>
+                <li><strong>Plain fields</strong> — for any mutable instance data the object owns.</li>
+                <li><strong><code>readonly</code></strong> — for values set once at construction that must never change (IDs, config).</li>
+                <li><strong>Optional (<code>?</code>)</strong> — for data that legitimately may be absent (a <code>middleName</code>).</li>
+                <li><strong>Definite assignment (<code>!</code>)</strong> — when a framework or lifecycle hook assigns the field after construction (Angular <code>@Input</code>, dependency injection).</li>
+                <li><strong>Getters/setters</strong> — when reading or writing should compute a value or validate input rather than just store it.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="notwhen">
+              <h4>When NOT to Use Certain Property Features</h4>
+              <ul>
+                <li><strong>Don't overuse <code>!</code> definite assignment</strong> — it silences the compiler's safety check; only use it when you truly guarantee initialization elsewhere.</li>
+                <li><strong>Don't add a getter/setter that does nothing</strong> — a pass-through accessor over a public field is pure boilerplate; just expose the field.</li>
+                <li><strong>Avoid heavy logic in getters</strong> — getters look like cheap property reads; doing expensive work in them surprises callers. Use a method named <code>compute...()</code> instead.</li>
+                <li><strong>Don't mark a field <code>readonly</code> if it legitimately changes</strong> — that just forces ugly workarounds.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="int">
+              <h4>How Properties Work Internally</h4>
+              <p>Plain fields and <code>readonly</code> become normal own properties on the instance at runtime — <code>readonly</code> is a compile-time-only guard with no runtime enforcement. Optional (<code>?</code>) and definite-assignment (<code>!</code>) are also purely type-level; the emitted JavaScript is identical. Accessors compile to real <code>Object.defineProperty</code> getter/setter descriptors on the prototype.</p>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// TypeScript source</span>
+<span class="kw">class</span> <span class="type">Box</span> {
+  <span class="kw">readonly</span> id = <span class="str">"x1"</span>;
+  <span class="kw">get</span> <span class="fn">label</span>() { <span class="kw">return</span> <span class="str">`Box ${</span><span class="kw">this</span><span class="str">.id}`</span>; }
+}
+
+<span class="cmt">// Compiled JS — readonly erased; getter becomes a real accessor</span>
+<span class="kw">class</span> <span class="type">Box</span> {
+  id = <span class="str">"x1"</span>;             <span class="cmt">// nothing stops reassignment at runtime</span>
+  <span class="kw">get</span> label() { <span class="kw">return</span> <span class="str">`Box ${</span><span class="kw">this</span><span class="str">.id}`</span>; }
+}</code></pre></div>
+              <p>Because <code>readonly</code> is erased, it protects you in your typed code but not against untyped JavaScript at runtime — use <code>#private</code> fields or <code>Object.freeze</code> if you need true runtime immutability.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="syn">
+              <h4>Fully Annotated Syntax</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">class</span> <span class="type">Account</span> {
+  balance: <span class="type">number</span> = <span class="num">0</span>;         <span class="cmt">// field with initializer</span>
+  <span class="kw">readonly</span> id: <span class="type">string</span>;            <span class="cmt">// readonly: assign once (in ctor)</span>
+  nickname?: <span class="type">string</span>;              <span class="cmt">// optional: may be undefined</span>
+  loadedUser!: <span class="type">string</span>;            <span class="cmt">// '!' definite assignment: "trust me, set later"</span>
+
+  <span class="kw">constructor</span>(<span class="param">id</span>: <span class="type">string</span>) {
+    <span class="kw">this</span>.id = id;                  <span class="cmt">// only place readonly can be set</span>
+  }
+
+  <span class="cmt">// Getter: looks like a property read, runs code</span>
+  <span class="kw">get</span> <span class="fn">isOverdrawn</span>(): <span class="type">boolean</span> {
+    <span class="kw">return</span> <span class="kw">this</span>.balance &lt; <span class="num">0</span>;
+  }
+
+  <span class="cmt">// Setter: validates on assignment</span>
+  <span class="kw">set</span> <span class="fn">deposit</span>(<span class="param">amount</span>: <span class="type">number</span>) {
+    <span class="kw">if</span> (amount &lt; <span class="num">0</span>) <span class="kw">throw new</span> <span class="type">Error</span>(<span class="str">"No negative deposits"</span>);
+    <span class="kw">this</span>.balance += amount;
+  }
+}
+
+<span class="kw">const</span> a = <span class="kw">new</span> <span class="type">Account</span>(<span class="str">"acc_1"</span>);
+a.deposit = <span class="num">100</span>;        <span class="cmt">// calls the setter</span>
+console.log(a.isOverdrawn); <span class="cmt">// false — calls the getter (no parens)</span>
+<span class="cmt">// a.id = "other";        // ✗ Error: id is readonly</span></code></pre></div>
+              <p>Getters and setters are accessed without parentheses, exactly like fields. A property with only a getter is effectively read-only from outside.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="ex">
+              <h4>Practical Code Example</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// Getter/setter pair that keeps a derived value consistent</span>
+<span class="kw">class</span> <span class="type">Circle</span> {
+  <span class="kw">private</span> _radius: <span class="type">number</span>;
+
+  <span class="kw">constructor</span>(<span class="param">radius</span>: <span class="type">number</span>) {
+    <span class="kw">this</span>._radius = radius;
+  }
+
+  <span class="kw">get</span> <span class="fn">radius</span>(): <span class="type">number</span> {
+    <span class="kw">return</span> <span class="kw">this</span>._radius;
+  }
+
+  <span class="kw">set</span> <span class="fn">radius</span>(<span class="param">value</span>: <span class="type">number</span>) {
+    <span class="kw">if</span> (value &lt;= <span class="num">0</span>) <span class="kw">throw new</span> <span class="type">Error</span>(<span class="str">"Radius must be positive"</span>);
+    <span class="kw">this</span>._radius = value;
+  }
+
+  <span class="kw">get</span> <span class="fn">area</span>(): <span class="type">number</span> {        <span class="cmt">// computed, always in sync</span>
+    <span class="kw">return</span> Math.PI * <span class="kw">this</span>._radius ** <span class="num">2</span>;
+  }
+}
+
+<span class="kw">const</span> c = <span class="kw">new</span> <span class="type">Circle</span>(<span class="num">5</span>);
+console.log(c.area.toFixed(<span class="num">2</span>)); <span class="cmt">// "78.54"</span>
+c.radius = <span class="num">10</span>;                    <span class="cmt">// setter validates</span>
+console.log(c.area.toFixed(<span class="num">2</span>)); <span class="cmt">// "314.16"</span>
+<span class="cmt">// c.radius = -1;                  // throws</span></code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="rw">
+              <h4>Real-World Example</h4>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// A settings model mixing readonly, optional, and accessor properties</span>
+<span class="kw">class</span> <span class="type">UserSettings</span> {
+  <span class="kw">readonly</span> userId: <span class="type">string</span>;          <span class="cmt">// never changes after creation</span>
+  theme: <span class="str">"light"</span> | <span class="str">"dark"</span> = <span class="str">"light"</span>;  <span class="cmt">// mutable with default</span>
+  displayName?: <span class="type">string</span>;             <span class="cmt">// optional</span>
+  <span class="kw">private</span> _emailNotifications = <span class="kw">true</span>;
+
+  <span class="kw">constructor</span>(<span class="param">userId</span>: <span class="type">string</span>) {
+    <span class="kw">this</span>.userId = userId;
+  }
+
+  <span class="kw">get</span> <span class="fn">emailNotifications</span>(): <span class="type">boolean</span> {
+    <span class="kw">return</span> <span class="kw">this</span>._emailNotifications;
+  }
+
+  <span class="kw">set</span> <span class="fn">emailNotifications</span>(<span class="param">on</span>: <span class="type">boolean</span>) {
+    <span class="cmt">// central place to add logging / persistence later</span>
+    <span class="kw">this</span>._emailNotifications = on;
+  }
+
+  <span class="fn">toJSON</span>() {
+    <span class="kw">return</span> {
+      userId: <span class="kw">this</span>.userId,
+      theme: <span class="kw">this</span>.theme,
+      displayName: <span class="kw">this</span>.displayName ?? <span class="kw">null</span>,
+      emailNotifications: <span class="kw">this</span>._emailNotifications,
+    };
+  }
+}
+
+<span class="kw">const</span> s = <span class="kw">new</span> <span class="type">UserSettings</span>(<span class="str">"u_42"</span>);
+s.theme = <span class="str">"dark"</span>;
+s.emailNotifications = <span class="kw">false</span>;
+console.log(s.toJSON());</code></pre></div>
+            </div>
+
+            <div class="tab-pane" data-pane="uc">
+              <h4>Real-World Use Cases</h4>
+              <ul>
+                <li><strong>Entity IDs</strong> — <code>readonly id</code> guarantees a database key can't be reassigned after the entity is created.</li>
+                <li><strong>Computed view data</strong> — a getter like <code>fullName</code> derives from <code>firstName</code> + <code>lastName</code> without storing a stale copy.</li>
+                <li><strong>Validation on write</strong> — setters reject bad input (negative prices, out-of-range values) at the point of assignment.</li>
+                <li><strong>Angular component inputs</strong> — <code>@Input() data!: Data</code> uses definite assignment because the framework sets it after construction.</li>
+                <li><strong>Config objects</strong> — optional properties model settings that may or may not be provided by the user.</li>
+                <li><strong>Encapsulated state</strong> — a private backing field plus a public getter exposes data read-only while keeping writes internal.</li>
+              </ul>
+            </div>
+
+            <div class="tab-pane" data-pane="mis">
+              <h4>Common Mistakes</h4>
+              <div class="mistake-block">
+                <div class="mistake-label wrong">Mistake 1 — Calling a getter like a method</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// WRONG — area is a getter, not a method</span>
+console.log(c.area()); <span class="cmt">// ✗ Error: number is not callable</span>
+
+<span class="cmt">// CORRECT — access it like a property</span>
+console.log(c.area);</code></pre></div>
+                <p>Getters are accessed without parentheses; adding them tries to call the returned value.</p>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label wrong">Mistake 2 — Overusing definite assignment <code>!</code></div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// WRONG — '!' silences the check but the field is really undefined</span>
+<span class="kw">class</span> <span class="type">Svc</span> { client!: <span class="type">Client</span>; }
+<span class="kw">new</span> <span class="type">Svc</span>().client.send(); <span class="cmt">// 💥 runtime crash — never assigned</span>
+
+<span class="cmt">// CORRECT — initialize it or make it optional and check</span>
+<span class="kw">class</span> <span class="type">Svc</span> { client: <span class="type">Client</span> | <span class="kw">undefined</span>; }</code></pre></div>
+                <p><code>!</code> tells TypeScript to trust you; if you're wrong, the safety net is gone.</p>
+              </div>
+              <div class="mistake-block">
+                <div class="mistake-label wrong">Mistake 3 — Expecting <code>readonly</code> to protect at runtime</div>
+                <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// readonly is compile-time only</span>
+<span class="kw">class</span> <span class="type">Config</span> { <span class="kw">readonly</span> port = <span class="num">8080</span>; }
+<span class="kw">const</span> cfg = <span class="kw">new</span> <span class="type">Config</span>() <span class="kw">as</span> <span class="type">any</span>;
+cfg.port = <span class="num">3000</span>; <span class="cmt">// no error at runtime — readonly was erased</span>
+
+<span class="cmt">// For true immutability use #private fields or Object.freeze</span></code></pre></div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="bp">
+              <h4>Best Practices</h4>
+              <div class="practice-item"><div class="practice-num">1</div><div><strong>Mark fields <code>readonly</code> when they shouldn't change after construction</strong><p>It documents intent and catches accidental reassignment in typed code (IDs, injected dependencies).</p></div></div>
+              <div class="practice-item"><div class="practice-num">2</div><div><strong>Initialize fields with sensible defaults</strong><p>An initializer satisfies <code>strictPropertyInitialization</code> and means callers don't have to set everything.</p></div></div>
+              <div class="practice-item"><div class="practice-num">3</div><div><strong>Use getters for derived values, not stored duplicates</strong><p>Computing <code>fullName</code> on read avoids stale data that a stored copy would suffer from.</p></div></div>
+              <div class="practice-item"><div class="practice-num">4</div><div><strong>Validate in setters, keep getters cheap</strong><p>Setters are the right place for write-time checks; getters should be fast since callers treat them like field reads.</p></div></div>
+              <div class="practice-item"><div class="practice-num">5</div><div><strong>Reserve <code>!</code> for framework-assigned fields only</strong><p>Definite assignment is a promise to the compiler — use it where a lifecycle hook or DI truly assigns the value.</p></div></div>
+              <div class="practice-item"><div class="practice-num">6</div><div><strong>Use a private backing field with a public getter for read-only exposure</strong><p>It lets external code read state while keeping all writes funneled through controlled methods.</p></div></div>
+            </div>
+
+            <div class="tab-pane" data-pane="iq">
+              <h4>Interview Questions</h4>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag easy">Easy</span><strong>Q: What's the difference between a property with a getter and a regular method?</strong></div>
+                <p>A getter is accessed like a field — <code>obj.area</code>, no parentheses — and is meant to feel like reading data. A method is called with parentheses — <code>obj.computeArea()</code>. Use a getter for cheap, side-effect-free derived values; use a method when work is involved or it takes arguments.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag easy">Easy</span><strong>Q: What does the <code>!</code> definite assignment assertion do?</strong></div>
+                <p>It tells TypeScript "this field will be assigned before it's used, even though I'm not initializing it here or in the constructor," suppressing the strict-property-initialization error. It's a promise you make to the compiler — if the field is actually never set, you'll get a runtime <code>undefined</code> with no warning.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag medium">Medium</span><strong>Q: Is <code>readonly</code> enforced at runtime?</strong></div>
+                <p>No. <code>readonly</code> is a compile-time-only modifier; it's erased in the emitted JavaScript. It prevents reassignment in type-checked code but offers no protection against untyped JS or a cast to <code>any</code>. For real runtime immutability use <code>#private</code> fields, <code>Object.freeze</code>, or closures.</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag medium">Medium</span><strong>Q: What's the difference between an optional property (<code>?</code>) and one typed <code>| undefined</code>?</strong></div>
+                <p>An optional property <code>name?: string</code> can be entirely omitted from an object literal and its type is <code>string | undefined</code>. A required property typed <code>name: string | undefined</code> must be present — you have to explicitly set it to <code>undefined</code>. With <code>exactOptionalPropertyTypes</code> the distinction tightens further: optional means "may be absent," not "may be present-but-undefined."</p>
+              </div>
+              <div class="interview-q">
+                <div class="q-header"><span class="difficulty-tag hard">Hard</span><strong>Q: How do TypeScript <code>readonly</code> fields and JavaScript <code>#private</code> fields differ?</strong></div>
+                <p><code>readonly</code> is a TypeScript-only, compile-time restriction on <em>reassignment</em> — the field is still publicly readable and is erased at runtime. <code>#private</code> is a real ECMAScript feature: the field is genuinely inaccessible outside the class at runtime (accessing it throws), enforced by the JS engine. They solve different problems: <code>readonly</code> prevents writes; <code>#private</code> prevents external access entirely. You can even combine concepts — a <code>#private</code> backing field exposed through a public getter.</p>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="exc">
+              <h4>Practice Challenge</h4>
+              <div class="exercise-box">
+                <h4>Goal</h4>
+                <p>Build a <code>BankAccount</code> class that exposes balance read-only and validates deposits/withdrawals.</p>
+                <h4>Requirements</h4>
+                <ul>
+                  <li>A <code>readonly accountId: string</code> set in the constructor</li>
+                  <li>A private backing field <code>_balance: number</code> starting at 0</li>
+                  <li>A getter <code>balance</code> that exposes <code>_balance</code> (no setter)</li>
+                  <li>A <code>deposit(amount)</code> method that rejects non-positive amounts</li>
+                  <li>A <code>withdraw(amount)</code> method that rejects amounts exceeding the balance</li>
+                </ul>
+              </div>
+              <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="kw">class</span> <span class="type">BankAccount</span> {
+  <span class="kw">readonly</span> accountId: <span class="type">string</span>;
+  <span class="kw">private</span> _balance: <span class="type">number</span> = <span class="num">0</span>;
+
+  <span class="kw">constructor</span>(<span class="param">accountId</span>: <span class="type">string</span>) {
+    <span class="cmt">// TODO assign accountId</span>
+  }
+
+  <span class="kw">get</span> <span class="fn">balance</span>(): <span class="type">number</span> {
+    <span class="cmt">// TODO</span>
+  }
+
+  <span class="fn">deposit</span>(<span class="param">amount</span>: <span class="type">number</span>): <span class="kw">void</span> {
+    <span class="cmt">// TODO reject amount &lt;= 0</span>
+  }
+
+  <span class="fn">withdraw</span>(<span class="param">amount</span>: <span class="type">number</span>): <span class="kw">void</span> {
+    <span class="cmt">// TODO reject amount &gt; this._balance</span>
+  }
+}
+
+<span class="kw">const</span> acc = <span class="kw">new</span> <span class="type">BankAccount</span>(<span class="str">"a1"</span>);
+acc.deposit(<span class="num">100</span>);
+acc.withdraw(<span class="num">30</span>);
+console.log(acc.balance); <span class="cmt">// 70</span>
+<span class="cmt">// acc.balance = 999;     // should be a compile error (no setter)</span></code></pre></div>
+              <p><strong>Expected result:</strong> Balance is 70 after the calls; assigning to <code>balance</code> or depositing a negative amount is rejected.</p>
+              <p><strong>Hint:</strong> A getter with no matching setter makes the property read-only from outside the class.</p>
+            </div>
+
+            <div class="tab-pane" data-pane="sum">
+              <h4>Key Takeaways</h4>
+              <ul class="takeaway-list">
+                <li>Properties are typed data members; declaring them catches typos and wrong-type writes.</li>
+                <li><code>readonly</code> blocks reassignment in typed code but is erased at runtime.</li>
+                <li>Optional (<code>?</code>) marks legitimately-absent data; definite assignment (<code>!</code>) is a promise to initialize later.</li>
+                <li>Getters/setters look like properties but run code — ideal for derived values and write validation.</li>
+                <li>Access getters/setters without parentheses, exactly like fields.</li>
+                <li>For true runtime privacy/immutability use <code>#private</code> fields or <code>Object.freeze</code>, not just <code>readonly</code>.</li>
+              </ul>
+              <div class="mental-model">Mental model: Properties are <em>labeled compartments</em>; getters/setters are compartments with a <em>gatekeeper</em> who can compute or vet what passes through.</div>
+            </div>
+          </div>
+        </details>
+
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <!--  MINI-PROJECT                                                       -->
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <div class="mini-project" id="mini-project">
+        <h3>Mini-Project: Library Management System</h3>
+        <p>Tie every concept from this module together by modeling a small library: books, members, and the loans between them. You'll design classes with typed constructors, methods that enforce rules, and properties that protect internal state.</p>
+
+        <h4>What You'll Build</h4>
+        <ul>
+          <li>A <code>Book</code> class with a <code>readonly</code> ISBN, title, author, and an availability flag.</li>
+          <li>A <code>Member</code> class that tracks which books they currently have on loan.</li>
+          <li>A <code>Library</code> class that owns the collection and exposes <code>addBook</code>, <code>borrow</code>, and <code>return</code> methods.</li>
+          <li>Validation that prevents borrowing an unavailable book or exceeding a member's loan limit.</li>
+          <li>A getter that reports how many books are currently available.</li>
+        </ul>
+
+        <h4>TypeScript Concepts Used</h4>
+        <ul>
+          <li><strong>Class Basics</strong> — three cooperating classes, each instantiated with <code>new</code>.</li>
+          <li><strong>Constructors</strong> — parameter properties and constructor validation for the <code>Book</code> and <code>Member</code>.</li>
+          <li><strong>Methods</strong> — <code>borrow</code>/<code>return</code> enforce business rules and throw on invalid operations.</li>
+          <li><strong>Properties</strong> — <code>readonly</code> ISBN, private collections, and a computed <code>availableCount</code> getter.</li>
+        </ul>
+
+        <h4>Architecture Overview</h4>
+        <div class="code-block"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code">Library
+ ├─ books: Map&lt;string, Book&gt;        (private, keyed by ISBN)
+ ├─ members: Map&lt;string, Member&gt;    (private, keyed by id)
+ ├─ get availableCount(): number    (computed)
+ ├─ addBook(book): void
+ ├─ borrow(memberId, isbn): void    (validates + mutates both sides)
+ └─ return(memberId, isbn): void
+
+Book   → readonly isbn, title, author; available: boolean
+Member → readonly id, name; private loans: Set&lt;string&gt;; loanLimit</code></pre></div>
+
+        <h4>Starter Code</h4>
+        <div class="code-block"><div class="code-header"><span class="code-lang">typescript</span><button class="copy-btn">Copy</button></div><pre><code class="ts-code"><span class="cmt">// library.ts</span>
+
+<span class="kw">class</span> <span class="type">Book</span> {
+  available: <span class="type">boolean</span> = <span class="kw">true</span>;
+  <span class="cmt">// TODO: parameter properties — readonly isbn, title, author (all string)</span>
+  <span class="kw">constructor</span>(<span class="cmt">/* ... */</span>) {}
+}
+
+<span class="kw">class</span> <span class="type">Member</span> {
+  <span class="kw">private</span> loans = <span class="kw">new</span> <span class="type">Set</span>&lt;<span class="type">string</span>&gt;(); <span class="cmt">// ISBNs currently borrowed</span>
+
+  <span class="kw">constructor</span>(
+    <span class="kw">public</span> <span class="kw">readonly</span> <span class="param">id</span>: <span class="type">string</span>,
+    <span class="kw">public</span> <span class="kw">readonly</span> <span class="param">name</span>: <span class="type">string</span>,
+    <span class="kw">private</span> <span class="param">loanLimit</span>: <span class="type">number</span> = <span class="num">3</span>
+  ) {}
+
+  <span class="kw">get</span> <span class="fn">loanCount</span>(): <span class="type">number</span> { <span class="kw">return</span> <span class="kw">this</span>.loans.size; }
+
+  <span class="fn">canBorrow</span>(): <span class="type">boolean</span> {
+    <span class="cmt">// TODO: true if loanCount &lt; loanLimit</span>
+  }
+
+  <span class="fn">addLoan</span>(<span class="param">isbn</span>: <span class="type">string</span>): <span class="kw">void</span> { <span class="kw">this</span>.loans.add(isbn); }
+  <span class="fn">removeLoan</span>(<span class="param">isbn</span>: <span class="type">string</span>): <span class="kw">void</span> { <span class="kw">this</span>.loans.delete(isbn); }
+  <span class="fn">hasLoan</span>(<span class="param">isbn</span>: <span class="type">string</span>): <span class="type">boolean</span> { <span class="kw">return</span> <span class="kw">this</span>.loans.has(isbn); }
+}
+
+<span class="kw">class</span> <span class="type">Library</span> {
+  <span class="kw">private</span> books = <span class="kw">new</span> <span class="type">Map</span>&lt;<span class="type">string</span>, <span class="type">Book</span>&gt;();
+  <span class="kw">private</span> members = <span class="kw">new</span> <span class="type">Map</span>&lt;<span class="type">string</span>, <span class="type">Member</span>&gt;();
+
+  <span class="kw">get</span> <span class="fn">availableCount</span>(): <span class="type">number</span> {
+    <span class="cmt">// TODO: count books where available === true</span>
+  }
+
+  <span class="fn">addBook</span>(<span class="param">book</span>: <span class="type">Book</span>): <span class="kw">void</span> { <span class="kw">this</span>.books.set(book.isbn, book); }
+  <span class="fn">addMember</span>(<span class="param">member</span>: <span class="type">Member</span>): <span class="kw">void</span> { <span class="kw">this</span>.members.set(member.id, member); }
+
+  <span class="fn">borrow</span>(<span class="param">memberId</span>: <span class="type">string</span>, <span class="param">isbn</span>: <span class="type">string</span>): <span class="kw">void</span> {
+    <span class="cmt">// TODO: look up member & book; throw if missing</span>
+    <span class="cmt">// TODO: throw if book not available or member cannot borrow</span>
+    <span class="cmt">// TODO: mark book unavailable, add loan to member</span>
+  }
+
+  <span class="fn">return</span>(<span class="param">memberId</span>: <span class="type">string</span>, <span class="param">isbn</span>: <span class="type">string</span>): <span class="kw">void</span> {
+    <span class="cmt">// TODO: validate the member actually has this loan</span>
+    <span class="cmt">// TODO: mark book available, remove loan</span>
+  }
+}
+
+<span class="cmt">// Usage</span>
+<span class="kw">const</span> lib = <span class="kw">new</span> <span class="type">Library</span>();
+lib.addBook(<span class="kw">new</span> <span class="type">Book</span>(<span class="str">"978-1"</span>, <span class="str">"Clean Code"</span>, <span class="str">"Martin"</span>));
+lib.addMember(<span class="kw">new</span> <span class="type">Member</span>(<span class="str">"m1"</span>, <span class="str">"Ada"</span>));
+lib.borrow(<span class="str">"m1"</span>, <span class="str">"978-1"</span>);
+console.log(lib.availableCount); <span class="cmt">// 0</span>
+lib.return(<span class="str">"m1"</span>, <span class="str">"978-1"</span>);
+console.log(lib.availableCount); <span class="cmt">// 1</span></code></pre></div>
+
+        <h4>Step-by-Step Instructions</h4>
+        <ol>
+          <li>Implement <code>Book</code>'s constructor using <code>readonly</code> parameter properties for <code>isbn</code>, <code>title</code>, and <code>author</code>.</li>
+          <li>Fill in <code>Member.canBorrow()</code> to compare <code>loanCount</code> against the loan limit.</li>
+          <li>Implement <code>Library.availableCount</code> by iterating the books map and counting available ones.</li>
+          <li>Implement <code>borrow</code>: look up the member and book (throw if either is missing), reject if the book is unavailable or the member is at their limit, then update both sides.</li>
+          <li>Implement <code>return</code>: verify the member holds the loan, then mark the book available and remove the loan.</li>
+          <li>Run the usage block and confirm <code>availableCount</code> flips between 0 and 1.</li>
+        </ol>
+
+        <h4>Stretch Goals</h4>
+        <ul>
+          <li>Add a <code>waitlist: string[]</code> to <code>Book</code> and auto-assign the next member when a book is returned.</li>
+          <li>Track loan dates and add an <code>overdueLoans()</code> method that returns loans older than 14 days.</li>
+          <li>Make <code>Book</code> and <code>Member</code> implement a shared <code>Identifiable</code> interface with an <code>id</code>/<code>isbn</code> contract (preview of Module 4).</li>
+        </ul>
+      </div>
+
+    </section>
+  </main>
+</div>
+
+<button id="back-to-top" title="Back to top">↑</button>
+
+<script>
+// Progress bar
+const bar = document.getElementById('progress-bar');
+window.addEventListener('scroll', () => {
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  bar.style.width = `${(window.scrollY / h) * 100}%`;
+});
+
+// Back to top
+const btt = document.getElementById('back-to-top');
+window.addEventListener('scroll', () => btt.classList.toggle('visible', window.scrollY > 400));
+btt.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+// Tab switching — per-panel, independent state
+document.querySelectorAll('.panel-tabs').forEach(tabs => {
+  tabs.addEventListener('click', e => {
+    const btn = e.target.closest('.tab');
+    if (!btn) return;
+    const panel = tabs.closest('.topic-panel');
+    const name = btn.dataset.tab;
+    panel.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    panel.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    panel.querySelector(`[data-pane="${name}"]`)?.classList.add('active');
+  });
+});
+
+// Copy buttons
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const code = btn.closest('.code-block').querySelector('code');
+    navigator.clipboard.writeText(code.innerText).then(() => {
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy', 1500);
+    });
+  });
+});
+
+// Module checkboxes with localStorage
+document.querySelectorAll('.module-check').forEach(cb => {
+  const id = cb.dataset.id;
+  const header = document.getElementById(`${id}-header`);
+  if (localStorage.getItem(`p3-module-${id}`) === 'true') {
+    cb.checked = true;
+    header?.classList.add('completed');
+  }
+  cb.addEventListener('change', () => {
+    localStorage.setItem(`p3-module-${id}`, cb.checked);
+    header?.classList.toggle('completed', cb.checked);
+  });
+});
+
+// Topic search
+document.getElementById('topicSearch').addEventListener('input', e => {
+  const q = e.target.value.toLowerCase();
+  document.querySelectorAll('.topic-panel').forEach(panel => {
+    const name = panel.querySelector('.topic-name')?.textContent.toLowerCase() ?? '';
+    panel.style.display = name.includes(q) ? '' : 'none';
+  });
+});
+
+// Scroll-spy sidebar
+const allNavLinks = document.querySelectorAll('#module-nav a, #topic-nav a');
+const spyObs = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      allNavLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === `#${id}`));
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.module, .topic-panel, .mini-project').forEach(el => spyObs.observe(el));
+
+// Smooth scroll for sidebar links
+allNavLinks.forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+
+</body>
+</html>

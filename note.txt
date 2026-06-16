@@ -8,6 +8,6 @@
 large.
 $env:CLAUDE_CODE_MAX_OUTPUT_TOKENS=64000
 
-/create-typescript-doc Phase 2
+/create-typescript-doc Phase 3
 Lets look phase 2 -> module 4 and create html docs only for that, and put inside @phase-1 folder.
 - Because docs is large we will create other module latter, in same folder.
